@@ -1,10 +1,23 @@
 
 # RU
 
-Это будет простой реальный chatgpt telegram bot. А дальше, попробуем его усложнить и разнообразить. Подобных решений в интернете масса, но я сделал под свои хотелки и свое удобство. Основная цель создания подобного бота - удобное использование детям современных возможностей без vpn постоянно отваливающихся. Молодежь привыкла к телеграмм, так будет проще и практичнее. Причем всегда лучше сделать то, что можно контролировать и регулировать самому.
+ChatGPT + Telegram bot. В интернете таких много, мой возможно не лучше. Сделал потому что понадобился мне. К сожалению в РФ использовать стандартные методы - это искуство запуска VPN. Потому было решено быстренько сделать телеграм бот с ChatGPT. Который позволит в простейшем формате и быстро получить ответ.
+
+Особенности:
+1. Логирование на logging,
+2. Бот на библиотеке telebot,
+3. При превышении ожидания перепоключается автоматически - логирует,
+4. ..
+
 
 
 
 # EN
 
-It will be a simple real chatgpt telegram bot. And then, let's try to complicate and diversify it. There are a lot of similar solutions on the Internet, but I made them according to my wishes and my convenience. The main purpose of creating such a bot is to make convenient use of modern features for children without vpn constantly falling off. Young people are used to telegrams, it will be easier and more practical this way. Moreover, it is always better to do something that you can control and regulate yourself.
+ChatGPT + Telegram bot. There are a lot of them on the Internet, mine is probably no better. I did it because I needed it. Unfortunately, in Russia, using standard methods is the art of launching a VPN. Therefore, it was decided to quickly make a telegram bot with ChatGPT. Which will allow you to get an answer in the simplest format and quickly.
+
+Features:
+1. Logging on logging,
+2. Bot on the telebot library,
+3. If the waiting is exceeded, it is automatically re-logged,
+4. ..
