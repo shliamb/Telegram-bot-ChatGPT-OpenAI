@@ -37,18 +37,24 @@ logger = logging.getLogger(__name__)
 
 flag_menu = False # Флаг, по которому будет ясно, запущена ли клавиатура, пока что так, ничего лучше не придумал
 
-# Вызов меню /setup
-@bot.message_handler(commands=['setup'])
+# Вызов меню /start
+@bot.message_handler(commands=['start'])
+def start(context):
+    bot.send_message(context.chat.id, text=f"Привет, {context.from_user.username}! Добро пожаловать в бота.")
 
+
+# Вызов меню /setup
 # Главное меню
+@bot.message_handler(commands=['setup'])
 def main_menu(message):
     global flag_menu
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     version_chat = types.InlineKeyboardButton(text="Версия ChatGPT 🦾", callback_data="version_chat")
     version_dialog = types.InlineKeyboardButton(text="Режим ответа 🗣", callback_data="mode_dialog")
     version_creativity = types.InlineKeyboardButton(text="Уровень творчества 👻", callback_data="level_creativity")
+    response_volume = types.InlineKeyboardButton(text="Объем ответа", callback_data="response_volume")
     close_menu_button = types.InlineKeyboardButton(text="Закрыть меню ✖️", callback_data="close_menu")
-    keyboard.add(version_chat, version_dialog, version_creativity, close_menu_button)
+    keyboard.add(version_chat, version_dialog, response_volume, version_creativity, close_menu_button)
     if flag_menu == False:
         bot.send_message(message.chat.id, "Выберите опцию для настройки ChatGPT:", reply_markup=keyboard)
         flag_menu = True
@@ -96,7 +102,7 @@ def callback_inline(call):
             flag_menu = False
         elif inline_message_id:
             print("Обработка для inline-режима") # Обработка для inline-режима
-            
+
     logger.info(f" - call_dat:'{call.data}' - user_name:{call.from_user.username} - user_id:{call.from_user.id}")
 
 
