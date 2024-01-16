@@ -20,7 +20,7 @@ headers = {
 
 # Options ChatGPT
 patch = "Ответ не больше трех предложений." # Пока проверяю, экономлю)
-temp = 0.7
+temp = 0.7 # Уровень творчества от 0 до 1
 # temperature = 0, консервативные, наиболее вероятное следующее слово, ответы более детерминированные и менее разнообразные.
 # temperature = 1, увеличивает случайность в выборе слов, более разнообразные и творческие ответы, неожиданные результаты, вероятность нерелевантного или некорректного контента.
 model = "gpt-3.5-turbo"
@@ -33,7 +33,7 @@ model = "gpt-3.5-turbo"
 logging.basicConfig(filename='log/bot.log', filemode='a', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
+# МЕНЮ
 
 flag_menu = False # Флаг, по которому будет ясно, запущена ли клавиатура, пока что так, ничего лучше не придумал
 
@@ -62,9 +62,8 @@ def main_menu(message):
         #breakpoint
         bot.edit_message_text(chat_id=message.chat.id, message_id=message.message_id, text="Выберите версию ChatGPT:", reply_markup=keyboard)
 
-
 # Под меню version_chat
-def version_submenu(call):
+def version_chat(call):
     global flag_menu
     keyboard = types.InlineKeyboardMarkup(row_width=3)
     gpt_4_1106_preview = types.InlineKeyboardButton(text="GPT-4 1106", callback_data="gpt_4_1106_preview")
@@ -74,6 +73,44 @@ def version_submenu(call):
     back_button = types.InlineKeyboardButton(text="Назад в главное меню", callback_data="back_menu") # Сначало определяем кнопку back_button
     keyboard.row(back_button) # Затем добавляем в конец, без условий row_width, в отдельную строку
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="Выберите версию ChatGPT:", reply_markup=keyboard)
+    flag_menu = True
+
+# Под меню mode_dialog
+def mode_dialog(call):
+    global flag_menu
+    keyboard = types.InlineKeyboardMarkup(row_width=2)
+    amnesia = types.InlineKeyboardButton(text="Амнезия", callback_data="amnesia")
+    dialog = types.InlineKeyboardButton(text="Диалог", callback_data="dialog")
+    keyboard.add(amnesia, dialog)
+    back_button = types.InlineKeyboardButton(text="Назад в главное меню", callback_data="back_menu")
+    keyboard.row(back_button)
+    bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="Выберите режим ответа ChatGPT:", reply_markup=keyboard)
+    flag_menu = True
+
+# Под меню level_creativity
+def level_creativity(call):
+    global flag_menu
+    keyboard = types.InlineKeyboardMarkup(row_width=3)
+    exactly = types.InlineKeyboardButton(text="Точно", callback_data="exactly")
+    average = types.InlineKeyboardButton(text="Среднее", callback_data="average")
+    creative = types.InlineKeyboardButton(text="Креативно", callback_data="creative")
+    keyboard.add(exactly, average, creative)
+    back_button = types.InlineKeyboardButton(text="Назад в главное меню", callback_data="back_menu")
+    keyboard.row(back_button)
+    bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="Выберите режим творчества ChatGPT:", reply_markup=keyboard)
+    flag_menu = True
+
+# Под меню response_volume
+def response_volume(call):
+    global flag_menu
+    keyboard = types.InlineKeyboardMarkup(row_width=3)
+    one_sentence = types.InlineKeyboardButton(text="1 предложение", callback_data="one_sentence")
+    two_sentence = types.InlineKeyboardButton(text="3 предложения", callback_data="two_sentence")
+    many_sentence = types.InlineKeyboardButton(text="Сколько нужно", callback_data="many_sentence")
+    keyboard.add(one_sentence, two_sentence, many_sentence)
+    back_button = types.InlineKeyboardButton(text="Назад в главное меню", callback_data="back_menu")
+    keyboard.row(back_button)
+    bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="Выберите объем ответа ChatGPT:", reply_markup=keyboard)
     flag_menu = True
 
 # Закрыть клавиатуру
@@ -89,20 +126,28 @@ def handle_close_menu(call):
 def callback_inline(call):
     global flag_menu
     chat_id = call.message.chat.id if call.message is not None else None
-    message_id = call.message.message_id if call.message is not None else None
+    # message_id = call.message.message_id if call.message is not None else None
     inline_message_id = call.inline_message_id if call.inline_message_id is not None else None
 
     if call.data == "version_chat":
-        version_submenu(call)
+        version_chat(call)
     elif call.data == "mode_dialog":
-        bot.answer_callback_query(call.id, "Вы нажали кнопку mode_dialog!")
+        #bot.answer_callback_query(call.id, "Вы нажали кнопку mode_dialog!")
+        mode_dialog(call)
+    elif call.data == "level_creativity":
+        level_creativity(call)
+    elif call.data == "exactly":
+        print("exactly")
+        #temp = 0
+        #return temp
+    elif call.data == "response_volume":
+        response_volume(call)
     elif call.data == "back_menu":
         if chat_id:
             main_menu(call.message)
             flag_menu = False
         elif inline_message_id:
             print("Обработка для inline-режима") # Обработка для inline-режима
-
     logger.info(f" - call_dat:'{call.data}' - user_name:{call.from_user.username} - user_id:{call.from_user.id}")
 
 
@@ -129,7 +174,7 @@ def handle_message(message):
     response_data = response.json()  # Разбираем JSON-ответ
 
     first_choice_message = response_data['choices'][0]['message']['content']
-    # print("\n", first_choice_message, "\n")
+    # print("\n", first_choice_message, "\n", temp)
     bot.reply_to(message, first_choice_message)
 
 
