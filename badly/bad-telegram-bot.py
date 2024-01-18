@@ -11,6 +11,8 @@ import logging
 token = os.environ.get('TELEGRAM_BOT_CHATGPT_API_KEY')
 bot = telebot.TeleBot(token)
 api_key = os.environ.get('CHATGPT_API_KEY')
+
+
 url = 'https://api.openai.com/v1/chat/completions'
 headers = {
     'Authorization': f'Bearer {api_key}',
