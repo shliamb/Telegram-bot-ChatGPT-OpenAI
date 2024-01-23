@@ -1,0 +1,25 @@
+version: '3.9'
+
+services:
+  telegram-bot:
+    build: .
+    volumes:
+      - .:/usr/src/app
+    environment: # переменная окружения
+      - TELEGRAM_BOT_CHATGPT_API_KEY=ваш_токен_телеграм_бота
+    restart: always # гарантирует, что контейнер будет перезапущен, если он упадет.
+    networks:
+      - network
+#     ports:
+#       - "0000:0000"
+#     volumes:
+#       - bot_data:/var/lib/bot/data
+
+
+volumes:
+  bot_data:
+
+
+networks:
+  network:
+    driver: bridge

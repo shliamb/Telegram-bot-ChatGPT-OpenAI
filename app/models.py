@@ -31,7 +31,7 @@ class UsersTelegram(Base):
     chatgpt = relationship("ChatGpt", back_populates="userstelegram", uselist=False)
     saved_questions = relationship("SavedQuestion")
 
-# user's gpt settings
+# users gpt settings
 class ChatGpt(Base):
     __tablename__ = 'chatgpt_setings'
     id = Column(Integer, ForeignKey('users_telegram.id'), primary_key=True)
@@ -83,6 +83,6 @@ class SavedAnswer(Base):
 
 
 
-# Создаем 'engine' и базу данных
+# creating 'engine'
 engine = create_engine('sqlite:///./db/sqlite3.db')
 Base.metadata.create_all(engine)

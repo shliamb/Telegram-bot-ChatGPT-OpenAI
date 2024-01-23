@@ -7,6 +7,7 @@ from models import UsersTelegram, engine
 
 Session = sessionmaker(bind=engine)
 session = Session()
+
 users = session.query(UsersTelegram).all()
 for user in users:
     print(f'User: {user.user_id}, Email: {user.user_username}, id: {user.id}')

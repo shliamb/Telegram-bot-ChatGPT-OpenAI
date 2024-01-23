@@ -1,0 +1,7 @@
+Django==3.2.23
+#psycopg2-binary==2.9.9
+#psycopg2>=2.8
+#Flask==2.1.1
+#Werkzeug==2.0.1
+#pymongo==4.5
+#psycopg2==2.9.9

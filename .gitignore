@@ -1,3 +1,6 @@
-/myvenv/
-/log/bot.log
-/db/sqlite3.db
+myvenv/
+db/sqlite3.db
+log/
+app/__pycache__/*
+
+
