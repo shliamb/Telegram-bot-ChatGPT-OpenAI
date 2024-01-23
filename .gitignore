@@ -1,10 +1,10 @@
 migration1/
 migration/
 alembic.ini
-.env.example
 db/
 badly/
 app/
+#.env
 
 #db/sqlite3.db
 #log/
