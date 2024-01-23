@@ -1,6 +1,5 @@
 migration1/
 migration/
-myvenv/
 alembic.ini
 .env.example
 db/
