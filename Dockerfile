@@ -1,5 +1,5 @@
 # Используйте официальный образ Python
-FROM python:3.8
+FROM python:3.12-slim
 
 # Установите рабочий каталог в контейнере
 WORKDIR /usr/src/app
@@ -13,3 +13,5 @@ COPY . .
 
 # Запускайте бота при старте контейнера
 CMD [ "python", "./telegram-bot.py" ]
+
+

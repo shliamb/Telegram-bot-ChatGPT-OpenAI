@@ -6,7 +6,8 @@ services:
     volumes:
       - .:/usr/src/app
     environment: # переменная окружения
-      - TELEGRAM_BOT_CHATGPT_API_KEY=ваш_токен_телеграм_бота
+      - TELEGRAM_BOT_CHATGPT_API_KEY=6815435725:AAHpG8mHxnWSesazLuKoxLjs73-jCnUZVR4
+      - CHATGPT_API_KEY=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
     restart: always # гарантирует, что контейнер будет перезапущен, если он упадет.
     networks:
       - network
