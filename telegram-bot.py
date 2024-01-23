@@ -10,7 +10,7 @@ import logging
 # Токены и key в переменных окружения
 token = os.environ.get('TELEGRAM_BOT_CHATGPT_API_KEY')
 bot = telebot.TeleBot(token)
-api_key = os.environ.get('CHATGPT_API_KEY')
+api_key = os.environ.get('CHATGPT_API_KEY') # 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
 
 
 url = 'https://api.openai.com/v1/chat/completions'

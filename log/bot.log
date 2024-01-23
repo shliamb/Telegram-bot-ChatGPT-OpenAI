@@ -1,1 +1,47 @@
 
+2024-01-23 19:12:32,472 - __main__ - INFO -  - message_text:'hi' - user_name:Shliambur - user_id:1666495
+2024-01-23 19:12:33,379 - __main__ - ERROR - Произошла непредвиденная ошибка:
+Traceback (most recent call last):
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/telegram-bot.py", line 186, in <module>
+    bot.polling(none_stop=True, timeout=10)  # Меньшее значение таймаута
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 1045, in polling
+    self.__threaded_polling(non_stop=non_stop, interval=interval, timeout=timeout, long_polling_timeout=long_polling_timeout,
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 1120, in __threaded_polling
+    raise e
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 1082, in __threaded_polling
+    self.worker_pool.raise_exceptions()
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/util.py", line 147, in raise_exceptions
+    raise self.exception_info
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/util.py", line 90, in run
+    task(*args, **kwargs)
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 6793, in _run_middlewares_and_handler
+    result = handler['function'](message)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/telegram-bot.py", line 178, in handle_message
+    first_choice_message = response_data['choices'][0]['message']['content']
+                           ~~~~~~~~~~~~~^^^^^^^^^^^
+KeyError: 'choices'
+2024-01-23 19:15:35,970 - __main__ - INFO -  - message_text:'hi' - user_name:Shliambur - user_id:1666495
+2024-01-23 19:15:36,757 - __main__ - ERROR - Произошла непредвиденная ошибка:
+Traceback (most recent call last):
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/telegram-bot.py", line 187, in <module>
+    bot.polling(none_stop=True, timeout=10)  # Меньшее значение таймаута
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 1045, in polling
+    self.__threaded_polling(non_stop=non_stop, interval=interval, timeout=timeout, long_polling_timeout=long_polling_timeout,
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 1120, in __threaded_polling
+    raise e
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 1082, in __threaded_polling
+    self.worker_pool.raise_exceptions()
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/util.py", line 147, in raise_exceptions
+    raise self.exception_info
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/util.py", line 90, in run
+    task(*args, **kwargs)
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 6793, in _run_middlewares_and_handler
+    result = handler['function'](message)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/telegram-bot.py", line 179, in handle_message
+    first_choice_message = response_data['choices'][0]['message']['content']
+                           ~~~~~~~~~~~~~^^^^^^^^^^^
+KeyError: 'choices'
