@@ -1,7 +1,8 @@
+migration1/
+migration/
 myvenv/
 alembic.ini
 .env.example
-migration/
 db/
 badly/
 app/
