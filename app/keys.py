@@ -1,9 +1,6 @@
 import os
-import telebot
+from dotenv import load_dotenv
+load_dotenv()
 
-# Telegram key
-token = os.environ.get('TELEGRAM_BOT_CHATGPT_API_KEY')
-bot = telebot.TeleBot(token)
-
-# OpenAI key-token
-api_key = os.environ.get('CHATGPT_API_KEY')
+token = os.environ.get('TELEGRAM_BOT_CHATGPT_API_KEY') # Telegram key
+api_key = os.environ.get('CHATGPT_API_KEY') # OpenAI key-token

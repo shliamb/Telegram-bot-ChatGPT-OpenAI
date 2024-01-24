@@ -1,21 +1,18 @@
-import os
-#import time
 import telebot
 from telebot import types
-#import requests
-#import json
-#import logging
-
-#from sqlalchemy.ext.declarative import declarative_base
-#from sqlalchemy import Column, Integer, String, Float, ForeignKey, Boolean, DateTime, create_engine
+from .keys import token, api_key
 from sqlalchemy.orm import relationship, sessionmaker
 from models import UsersTelegram, engine
+# from sqlalchemy.ext.declarative import declarative_base
+# from sqlalchemy import Column, Integer, String, Float, ForeignKey, Boolean, DateTime, create_engine
+# import requests
+# import json
+# import logging
+# import time
+# import os
 
 
-############################## API Key Telegram Bot  ##########
-token = os.environ.get('TELEGRAM_BOT_CHATGPT_API_KEY')
 bot = telebot.TeleBot(token)
-
 
 ############################# Work to db ####################
 # Функция для подключения к базе данных

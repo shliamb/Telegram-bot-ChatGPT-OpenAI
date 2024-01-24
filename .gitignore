@@ -1,3 +1,4 @@
 badly/
 app/.env
 app/__pycache__/
+app/telegram-bot.py
