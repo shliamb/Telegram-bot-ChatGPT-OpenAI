@@ -7,7 +7,6 @@ import json
 import logging
 from dotenv import load_dotenv
 load_dotenv()
-#load_dotenv('/path/to/.env')
 
 
 # Токены и key в переменных окружения

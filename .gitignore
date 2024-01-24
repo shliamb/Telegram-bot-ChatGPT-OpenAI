@@ -1,11 +1,4 @@
-migration1/
-migration/
-alembic.ini
-db/
 badly/
-app/
-.env
-
-#db/sqlite3.db
-#log/
-#app/__pycache__/*
+app/.env
+db/sqlite3.db
+app/__pycache__/

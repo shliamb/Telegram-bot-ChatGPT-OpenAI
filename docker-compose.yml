@@ -5,7 +5,6 @@ services:
     build: .
     volumes:
       - .:/usr/src/app
-    environment: # переменная окружения
     restart: always # гарантирует, что контейнер будет перезапущен, если он упадет.
     networks:
       - network
