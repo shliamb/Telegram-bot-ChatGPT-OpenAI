@@ -5,7 +5,7 @@ services:
     build: .
     volumes:
       - .:/usr/src/app
-    restart: always # docker restart if he crash
+    restart: always # docker restart if it crash
     networks:
       - network
 #     ports:
@@ -14,7 +14,6 @@ services:
 #       - bot_data:/var/lib/bot/data
 volumes:
   bot_data:
-
 
 networks:
   network:
