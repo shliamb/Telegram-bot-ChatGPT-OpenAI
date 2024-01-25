@@ -1,0 +1,147 @@
+2024-01-25 16:45:53,407 - logging_bot - ERROR - Произошла непредвиденная ошибка:
+Traceback (most recent call last):
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/app/run_bot.py", line 9, in <module>
+    from tele_bot import start_bot
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/app/tele_bot.py", line 47, in <module>
+    start_bot = bot.polling()
+                ^^^^^^^^^^^^^
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 1045, in polling
+    self.__threaded_polling(non_stop=non_stop, interval=interval, timeout=timeout, long_polling_timeout=long_polling_timeout,
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 1120, in __threaded_polling
+    raise e
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 1082, in __threaded_polling
+    self.worker_pool.raise_exceptions()
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/util.py", line 147, in raise_exceptions
+    raise self.exception_info
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/util.py", line 90, in run
+    task(*args, **kwargs)
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 6793, in _run_middlewares_and_handler
+    result = handler['function'](message)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/app/tele_bot.py", line 17, in start
+    elif context.message.from_user.first_name:
+         ^^^^^^^^^^^^^^^
+AttributeError: 'Message' object has no attribute 'message'
+2024-01-25 16:46:36,021 - logging_bot - ERROR - Произошла непредвиденная ошибка:
+Traceback (most recent call last):
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/app/run_bot.py", line 9, in <module>
+    from tele_bot import start_bot
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/app/tele_bot.py", line 47, in <module>
+    start_bot = bot.polling()
+                ^^^^^^^^^^^^^
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 1045, in polling
+    self.__threaded_polling(non_stop=non_stop, interval=interval, timeout=timeout, long_polling_timeout=long_polling_timeout,
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 1120, in __threaded_polling
+    raise e
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 1082, in __threaded_polling
+    self.worker_pool.raise_exceptions()
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/util.py", line 147, in raise_exceptions
+    raise self.exception_info
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/util.py", line 90, in run
+    task(*args, **kwargs)
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 6793, in _run_middlewares_and_handler
+    result = handler['function'](message)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/app/tele_bot.py", line 17, in start
+    elif context.message.from_user.first_name:
+         ^^^^^^^^^^^^^^^
+AttributeError: 'Message' object has no attribute 'message'
+2024-01-25 16:49:12,993 - logging_bot - ERROR - Произошла непредвиденная ошибка:
+Traceback (most recent call last):
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/app/run_bot.py", line 9, in <module>
+    from tele_bot import start_bot
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/app/tele_bot.py", line 47, in <module>
+    start_bot = bot.polling()
+                ^^^^^^^^^^^^^
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 1045, in polling
+    self.__threaded_polling(non_stop=non_stop, interval=interval, timeout=timeout, long_polling_timeout=long_polling_timeout,
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 1120, in __threaded_polling
+    raise e
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 1082, in __threaded_polling
+    self.worker_pool.raise_exceptions()
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/util.py", line 147, in raise_exceptions
+    raise self.exception_info
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/util.py", line 90, in run
+    task(*args, **kwargs)
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 6793, in _run_middlewares_and_handler
+    result = handler['function'](message)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/app/tele_bot.py", line 17, in start
+    elif context.from_user.first_name:
+         ^^^^^^^^^^^^^^^
+AttributeError: 'Message' object has no attribute 'message'
+2024-01-25 17:52:00,304 - logging_bot - ERROR - Произошла непредвиденная ошибка:
+Traceback (most recent call last):
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/app/run_bot.py", line 9, in <module>
+    from tele_bot import start_bot
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/app/tele_bot.py", line 45, in <module>
+    start_bot = bot.polling()
+                ^^^^^^^^^^^^^
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 1045, in polling
+    self.__threaded_polling(non_stop=non_stop, interval=interval, timeout=timeout, long_polling_timeout=long_polling_timeout,
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 1120, in __threaded_polling
+    raise e
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 1082, in __threaded_polling
+    self.worker_pool.raise_exceptions()
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/util.py", line 147, in raise_exceptions
+    raise self.exception_info
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/util.py", line 90, in run
+    task(*args, **kwargs)
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 6793, in _run_middlewares_and_handler
+    result = handler['function'](message)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/app/tele_bot.py", line 31, in start
+    add_tele_user(context.from_user.id, context.from_user.username, context.from_user.first_name, context.from_user.last_name)
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/app/worker_db.py", line 23, in add_tele_user
+    session.commit()
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 1969, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 1256, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 1231, in _prepare_impl
+    self.session.flush()
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 4312, in flush
+    self._flush(objects)
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 4447, in _flush
+    with util.safe_reraise():
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 4414, in _flush
+    flush_context.finalize_flush_changes()
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/sqlalchemy/orm/unitofwork.py", line 487, in finalize_flush_changes
+    self.session._register_persistent(other)
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 3313, in _register_persistent
+    raise exc.FlushError(
+sqlalchemy.orm.exc.FlushError: Instance <ChatGpt at 0x7f80bdbb7290> has a NULL identity key.  If this is an auto-generated value, check that the database table allows generation of new primary key values, and that the mapped Column object is configured to expect these generated values.  Ensure also that this flush() is not occurring at an inappropriate time, such as within a load() event.
+2024-01-25 18:31:57,810 - logging_bot - ERROR - Произошла непредвиденная ошибка:
+Traceback (most recent call last):
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/app/run_bot.py", line 9, in <module>
+    from tele_bot import start_bot
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/app/tele_bot.py", line 63, in <module>
+    start_bot = bot.polling()
+                ^^^^^^^^^^^^^
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 1045, in polling
+    self.__threaded_polling(non_stop=non_stop, interval=interval, timeout=timeout, long_polling_timeout=long_polling_timeout,
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 1120, in __threaded_polling
+    raise e
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 1082, in __threaded_polling
+    self.worker_pool.raise_exceptions()
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/util.py", line 147, in raise_exceptions
+    raise self.exception_info
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/util.py", line 90, in run
+    task(*args, **kwargs)
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 6793, in _run_middlewares_and_handler
+    result = handler['function'](message)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/app/tele_bot.py", line 34, in start
+    print(added_user_id.user.id)
+          ^^^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'user'

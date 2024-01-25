@@ -1,0 +1,40 @@
+2024-01-25 17:51:23,884 - __main__ - ERROR - Произошла непредвиденная ошибка:
+Traceback (most recent call last):
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/badly/telegram-bot.py", line 190, in <module>
+    bot.polling(none_stop=True, timeout=10)  # Меньшее значение таймаута
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 1042, in polling
+    logger.info('Starting your bot with username: [@%s]', self.user.username)
+                                                          ^^^^^^^^^
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 275, in user
+    self._user = self.get_me()
+                 ^^^^^^^^^^^^^
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 1228, in get_me
+    result = apihelper.get_me(self.token)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/apihelper.py", line 198, in get_me
+    return _make_request(token, method_url)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/apihelper.py", line 80, in _make_request
+    raise Exception('Bot token is not defined')
+Exception: Bot token is not defined
+2024-01-25 17:51:29,657 - __main__ - ERROR - Произошла непредвиденная ошибка:
+Traceback (most recent call last):
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/badly/telegram-bot.py", line 190, in <module>
+    bot.polling(none_stop=True, timeout=10)  # Меньшее значение таймаута
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 1042, in polling
+    logger.info('Starting your bot with username: [@%s]', self.user.username)
+                                                          ^^^^^^^^^
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 275, in user
+    self._user = self.get_me()
+                 ^^^^^^^^^^^^^
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/__init__.py", line 1228, in get_me
+    result = apihelper.get_me(self.token)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/apihelper.py", line 198, in get_me
+    return _make_request(token, method_url)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shliamb/Desktop/WORK_FOLDER/chatgpt/myvenv/lib/python3.11/site-packages/telebot/apihelper.py", line 80, in _make_request
+    raise Exception('Bot token is not defined')
+Exception: Bot token is not defined
