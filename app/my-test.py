@@ -1,16 +1,72 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# from keys import api_key
+
+# from openai import AsyncOpenAI
+# import asyncio
+
+
+
+# client = AsyncOpenAI(
+#     api_key=api_key,
+# )
+
+
+# async def main():
+#     stream = await client.chat.completions.create(
+#         model="gpt-4",
+#         messages=[{"role": "user", "content": "Say this is a test"}],
+#         stream=True,
+#     )
+#     async for chunk in stream:
+#         print(chunk.choices[0].delta.content or "", end="")
+
+
+# asyncio.run(main())
+
+
+
+
+
 #from sqlalchemy.ext.declarative import declarative_base
 #from sqlalchemy import Column, Integer, String, Float, ForeignKey, Boolean, DateTime
-from sqlalchemy.orm import relationship, sessionmaker
-from models import UsersTelegram, engine
+# from sqlalchemy.orm import relationship, sessionmaker
+# from models import UsersTelegram, engine
 
 
 
-Session = sessionmaker(bind=engine)
-session = Session()
+# Session = sessionmaker(bind=engine)
+# session = Session()
 
-users = session.query(UsersTelegram).all()
-for user in users:
-    print(f'User: {user.user_id}, Email: {user.user_username}, id: {user.id}')
+# users = session.query(UsersTelegram).all()
+# for user in users:
+#     print(f'User: {user.user_id}, Email: {user.user_username}, id: {user.id}')
 
 
 

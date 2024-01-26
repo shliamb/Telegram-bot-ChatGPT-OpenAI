@@ -1,12 +1,10 @@
 import telebot
 from keys import token
 from worker_db import read_tele_user, add_tele_user, add_chatgpt_setings
-
+import asyncio
+from open_ai import main
 
 bot = telebot.TeleBot(token) # Conection for API Telegram
-
-
-
 
 # /start
 @bot.message_handler(commands=['start'])
@@ -34,6 +32,41 @@ def start(context):
         # Вносим id в таблицу настроек gpt, нужное проставиться по default
         add_chatgpt_setings(added_user_id)
 
+# # /admin - статистика будет, загруженность базы, токены..
+# @bot.message_handler(commands=['admin'])
+# def start(context): 
+
+
+# Message from OpenAI
+@bot.message_handler(func=lambda message: message.text is not None and not message.text.startswith('/')) # Декоратор Telebot принимает все, кроме того, что начинается на /
+def handle_message(message):
+    bot.send_chat_action(message.chat.id, 'typing') # typing bot
+    async def run_main():
+        bot.send_chat_action(message.chat.id, 'typing') # typing bot
+        result = await main(message.text)
+        send = f"{result[0]}\n- - - - - - - - - - - - - - - - - - - - - - - - - - - - -\nВерсия модели: {result[1]}\nЗавершенные токены: {result[2]}\nПодсказки токены: {result[3]}\nВсего токенов: {result[4]}"
+        # send = f"{переменная}\n<b>Жирным - b</b> <i>Курсив - i</i> <code>Код - code</code> <pre>Отдельный блок для копирования - pre</pre>"
+        bot.reply_to(message, send) # bot.reply_to(message, send, parse_mode='HTML')
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(run_main())
+
+
+
+
+#####
+start_bot = bot.polling() # Запуск инициализируется в run_bot.py
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -45,4 +78,3 @@ def start(context):
 
 
 
-start_bot = bot.polling()
