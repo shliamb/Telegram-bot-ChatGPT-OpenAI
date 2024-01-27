@@ -43,25 +43,24 @@ def add_new_session_data(id):
 
 
 
-# Read Setings ChatGpt to the Base
-def read_chatgpt_setings(id):
-    pass
+# Read Answer-Question to the Base
+def read_data_ans_ques(id):
+    read_data = session.query(SavedQuestion).filter(SavedQuestion.users_telegram_id == id).all()
+    for data in read_data:
+        return data.question_text, data.timestamp or None
+
 
 # Writing Answer-Question to the Base
 def add_session_data(user_id, session_data):
-    # Пытаемся найти существующую запись для указанного user_id
-    existing_data = session.query(SavedQuestion).filter_by(users_telegram_id=user_id).first()
+    existing_data = session.query(SavedQuestion).filter_by(users_telegram_id=user_id).first() # Ищем запись по id
 
     if existing_data:
-        # Если запись существует, обновляем значение столбца question_text
-        existing_data.question_text = session_data
+        existing_data.question_text = session_data # Если запись существует, обновляем значение столбца question_text
     else:
-        # Если запись не существует, создаем новую запись
-        new_data = SavedQuestion(users_telegram_id=user_id, question_text=session_data)
+        new_data = SavedQuestion(users_telegram_id=user_id, question_text=session_data) # Если запись не существует, создаем новую запись
         session.add(new_data)
 
-    # Сохраняем изменения в базе данных
-    session.commit()
+    session.commit()# Сохраняем изменения в базе данных
 
 
 
@@ -72,7 +71,7 @@ def add_session_data(user_id, session_data):
     # session.commit()
 
 # Read Answer-Question to the Base
-def read_session_data(user_id, ):
-    pass
-    timestamp = 1
-    return timestamp
+# def read_session_data(user_id, ):
+#     pass
+#     timestamp = 1
+#     return timestamp

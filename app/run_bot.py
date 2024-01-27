@@ -13,11 +13,10 @@ while True:
         logger.error("Request timeout exceeded. Restart...")
         print("Request timeout exceeded. Restart...")
         time.sleep(5)
-    except Exception as e:
-        logger.exception("Произошла непредвиденная ошибка:")
-        print(f"Error : {e}")
-        break
-
+    # except Exception as e:
+    #     logger.exception("Произошла непредвиденная ошибка:")
+    #     print(f"Error : {e}")
+    #     break
 
 
 

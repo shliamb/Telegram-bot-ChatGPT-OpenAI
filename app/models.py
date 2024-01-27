@@ -68,22 +68,10 @@ class PatchChat(Base):
 class SavedQuestion(Base):
     __tablename__ = 'saved_questions'
     id = Column(Integer, primary_key=True)
-    question_text = Column(String(2000))
-    timestamp = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
+    question_text = Column(String(7000))
+    timestamp = Column(DateTime, onupdate=datetime.datetime.utcnow, default=datetime.datetime.utcnow, nullable=False) # Каждый раз обновляется, при изменениях в таблице
     ###
     users_telegram_id = Column(Integer, ForeignKey("users_telegram.id"), index=True)
-    answer = relationship("SavedAnswer", back_populates="question", uselist=False)
-
-# SavedAnswer
-class SavedAnswer(Base):
-    __tablename__ = 'saved_answer'
-    id = Column(Integer, primary_key=True)
-    answer_text = Column(String(2000))
-    timestamp = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
-    ###
-    question_id = Column(Integer, ForeignKey("saved_questions.id"))
-    question = relationship("SavedQuestion", back_populates="answer")
-
 
 
 Base.metadata.create_all(engine) # Создаем таблицы в базе данных

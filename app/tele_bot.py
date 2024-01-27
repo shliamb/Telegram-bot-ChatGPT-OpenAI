@@ -50,7 +50,7 @@ def handle_message(message):
         start(message) # Если почему то не нажал /start, нажимаем
         print("This User ID is None in DB. Automatically add.") # raise ValueError("ID is None. Program stopped. So Soory bro.") - жестко выйдет из программы
     id_all = read_tele_user(user_id)# Вся строка по id в таблице Users Telegram
-    id = id_all[4] # 4 по счету в турпале
+    id = id_all[4] # id 4 по счету в кортеже
 
     async def run_main():
         bot.send_chat_action(message.chat.id, 'typing') # Typing bot
