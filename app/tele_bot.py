@@ -1,6 +1,6 @@
 import telebot
 from keys import token
-from worker_db import read_tele_user, add_tele_user, add_chatgpt_setings
+from worker_db import read_tele_user, add_tele_user, add_chatgpt_setings, add_new_session_data
 import asyncio
 from open_ai import main
 
@@ -27,10 +27,12 @@ def start(context):
     # Если в базе нет такого id то добавляем
     if read_id == None:
         add_tele_user(context.from_user.id, context.from_user.username, context.from_user.first_name, context.from_user.last_name)
+        ##### Позже объеденить я могу получить user_id прямо там и там же подставить ##### 
         # Вычитываю из таблицы UserTelegram только что добавленного пользователя, а конкретно id следуюет 4ым в кортеже
         added_user_id = read_tele_user(user_id)[4] # Получили id только что внесенного пользователя
-        # Вносим id в таблицу настроек gpt, нужное проставиться по default
-        add_chatgpt_setings(added_user_id)
+        add_chatgpt_setings(added_user_id) # Вносим id в таблицу настроек gpt, нужное проставиться по default
+        add_new_session_data(added_user_id) # Вносим id в таблицу SavedQuestion, нужное проставиться по default
+        ##### Позже объеденить я могу получить user_id прямо там и там же подставить ##### 
 
 # # /admin - статистика будет, загруженность базы, токены..
 # @bot.message_handler(commands=['admin'])
@@ -40,10 +42,19 @@ def start(context):
 # Message from OpenAI
 @bot.message_handler(func=lambda message: message.text is not None and not message.text.startswith('/')) # Декоратор Telebot принимает все, кроме того, что начинается на /
 def handle_message(message):
-    bot.send_chat_action(message.chat.id, 'typing') # typing bot
+    bot.send_chat_action(message.chat.id, 'typing') # Typing bot
+
+    user_id = message.from_user.id # Телеграм id начавшего диалог
+    id_all = read_tele_user(user_id)# Вся строка по id в таблице Users Telegram
+    if id_all == None:
+        start(message) # Если почему то не нажал /start, нажимаем
+        print("This User ID is None in DB. Automatically add.") # raise ValueError("ID is None. Program stopped. So Soory bro.") - жестко выйдет из программы
+    id_all = read_tele_user(user_id)# Вся строка по id в таблице Users Telegram
+    id = id_all[4] # 4 по счету в турпале
+
     async def run_main():
-        bot.send_chat_action(message.chat.id, 'typing') # typing bot
-        result = await main(message.text)
+        bot.send_chat_action(message.chat.id, 'typing') # Typing bot
+        result = await main(message.text, id)
         send = f"{result[0]}\n- - - - - - - - - - - - - - - - - - - - - - - - - - - - -\nВерсия модели: {result[1]}\nЗавершенные токены: {result[2]}\nПодсказки токены: {result[3]}\nВсего токенов: {result[4]}"
         # send = f"{переменная}\n<b>Жирным - b</b> <i>Курсив - i</i> <code>Код - code</code> <pre>Отдельный блок для копирования - pre</pre>"
         bot.reply_to(message, send) # bot.reply_to(message, send, parse_mode='HTML')

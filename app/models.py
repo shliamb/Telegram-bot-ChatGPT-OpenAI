@@ -4,7 +4,10 @@ from sqlalchemy.orm import relationship, sessionmaker
 import datetime
 
 
-Base = declarative_base()
+engine = create_engine('sqlite:///./db/sqlite3.db') # Создаем соединение с базой данных
+Base = declarative_base() # Создаем базовый класс для объявления моделей
+
+
 
 # if has access to base
 class UsersBase(Base):
@@ -19,7 +22,7 @@ class UsersTelegram(Base):
     __tablename__ = 'users_telegram'
     id = Column(Integer, primary_key=True) # Primari_key - уникален по умолчанию
     name = Column(String(50), nullable=True)
-    user_id = Column(Integer, unique=True, nullable=False) # user_id unique
+    user_id = Column(Integer, unique=True, nullable=False, index=True) # user_id unique
     user_first_name = Column(String(50), nullable=True)
     user_last_name = Column(String(50), nullable=True)
     user_username = Column(String(50), nullable=True)
@@ -68,7 +71,7 @@ class SavedQuestion(Base):
     question_text = Column(String(2000))
     timestamp = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
     ###
-    users_telegram_id = Column(Integer, ForeignKey("users_telegram.id"))
+    users_telegram_id = Column(Integer, ForeignKey("users_telegram.id"), index=True)
     answer = relationship("SavedAnswer", back_populates="question", uselist=False)
 
 # SavedAnswer
@@ -83,6 +86,4 @@ class SavedAnswer(Base):
 
 
 
-# creating 'engine'
-engine = create_engine('sqlite:///./db/sqlite3.db')
-Base.metadata.create_all(engine)
+Base.metadata.create_all(engine) # Создаем таблицы в базе данных

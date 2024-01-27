@@ -2,25 +2,29 @@ from keys import api_key
 from openai import AsyncOpenAI
 import asyncio
 from typing import Union
+from worker_db import add_session_data
 
 
 client = AsyncOpenAI(api_key=api_key)
 
-all_in = []
+async def main(question: str, id) -> Union[str, None]:
+    session_data = [] # Clear переменную ОЗУ каждый раз на всякий случай
+    # Условие вычитывания истории вопросов-ответа, наверно проверяется время обновления времени последней записи, если больше часа, то или очищает, то ли другую ячейку..
+    # Read session_data in db to  ОЗУ
+    # Из db в ОЗУ - session_data
 
-async def main(question: str) -> Union[str, None]:
 
-    # Добавляю вопросы в кучу для поддержания контекста
-    all_in.append(f"{question}\n") # Добавляю вопрос
-    res = ' '.join(all_in) # Пробелы между словами и убираю запятую
-    print(res)
+    session_data.append(f"{question}\n") # Добавляю новый вопрос в переменную ОЗУ
+    format_session_data = ' '.join(session_data) # Пробелы между словами и убираю запятую
+    #print(f"id пользователя: {user_id}")
+    #print(format_session_data)
 
 
     chat_completion = await client.chat.completions.create(
         messages=[
             {
                 "role": "user",
-                "content": res, #question,
+                "content": format_session_data, #question,
             }
         ],
         model="gpt-3.5-turbo", #"gpt-4", "text-davinci-002", "text-curie-003", or "gpt-3.5-turbo"
@@ -34,10 +38,12 @@ async def main(question: str) -> Union[str, None]:
     total_answer = answer, model_version, completion_tokens, prompt_tokens, total_tokens # В кортеж
     #print(f"Ответ {answer}\nВерсия модели {model_version}\nЗавершенные токены {completion_tokens}\nПодсказки_токены {prompt_tokens}\nВсего токенов {total_tokens} ")
     # print(total_answer[0])
-    all_in.append(f"{answer}\n") # Добавляю вопрос
-
-
-    return total_answer or None
+    session_data.append(f"{answer}\n") # Добавляю ответ
+    clear_data = ' '.join(session_data) # Пробелы между словами и убираю запятую
+    # Передаю переменую ОЗУ в DB переписывая ячейку если нужно предварительно затерая ячейку в db
+    add_session_data(id, clear_data)
+    session_data = [] # Clear переменную ОЗУ, тем самым опустошаем память
+    return total_answer or None # Возвращаю ответ
 
 if __name__ == "__main__": # Если код запускается как основной файл (а не импортирован), тогда вызываем asyncio.run(main())
     asyncio.run(main())
