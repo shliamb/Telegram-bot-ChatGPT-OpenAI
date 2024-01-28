@@ -4,11 +4,12 @@ from __future__ import annotations
 
 import httpx
 
+from .. import _legacy_response
 from ..types import Model, ModelDeleted
 from .._types import NOT_GIVEN, Body, Query, Headers, NotGiven
 from .._compat import cached_property
 from .._resource import SyncAPIResource, AsyncAPIResource
-from .._response import to_raw_response_wrapper, async_to_raw_response_wrapper
+from .._response import to_streamed_response_wrapper, async_to_streamed_response_wrapper
 from ..pagination import SyncPage, AsyncPage
 from .._base_client import (
     AsyncPaginator,
@@ -22,6 +23,10 @@ class Models(SyncAPIResource):
     @cached_property
     def with_raw_response(self) -> ModelsWithRawResponse:
         return ModelsWithRawResponse(self)
+
+    @cached_property
+    def with_streaming_response(self) -> ModelsWithStreamingResponse:
+        return ModelsWithStreamingResponse(self)
 
     def retrieve(
         self,
@@ -47,6 +52,8 @@ class Models(SyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
+        if not model:
+            raise ValueError(f"Expected a non-empty value for `model` but received {model!r}")
         return self._get(
             f"/models/{model}",
             options=make_request_options(
@@ -103,6 +110,8 @@ class Models(SyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
+        if not model:
+            raise ValueError(f"Expected a non-empty value for `model` but received {model!r}")
         return self._delete(
             f"/models/{model}",
             options=make_request_options(
@@ -116,6 +125,10 @@ class AsyncModels(AsyncAPIResource):
     @cached_property
     def with_raw_response(self) -> AsyncModelsWithRawResponse:
         return AsyncModelsWithRawResponse(self)
+
+    @cached_property
+    def with_streaming_response(self) -> AsyncModelsWithStreamingResponse:
+        return AsyncModelsWithStreamingResponse(self)
 
     async def retrieve(
         self,
@@ -141,6 +154,8 @@ class AsyncModels(AsyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
+        if not model:
+            raise ValueError(f"Expected a non-empty value for `model` but received {model!r}")
         return await self._get(
             f"/models/{model}",
             options=make_request_options(
@@ -197,6 +212,8 @@ class AsyncModels(AsyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
+        if not model:
+            raise ValueError(f"Expected a non-empty value for `model` but received {model!r}")
         return await self._delete(
             f"/models/{model}",
             options=make_request_options(
@@ -208,25 +225,59 @@ class AsyncModels(AsyncAPIResource):
 
 class ModelsWithRawResponse:
     def __init__(self, models: Models) -> None:
-        self.retrieve = to_raw_response_wrapper(
+        self._models = models
+
+        self.retrieve = _legacy_response.to_raw_response_wrapper(
             models.retrieve,
         )
-        self.list = to_raw_response_wrapper(
+        self.list = _legacy_response.to_raw_response_wrapper(
             models.list,
         )
-        self.delete = to_raw_response_wrapper(
+        self.delete = _legacy_response.to_raw_response_wrapper(
             models.delete,
         )
 
 
 class AsyncModelsWithRawResponse:
     def __init__(self, models: AsyncModels) -> None:
-        self.retrieve = async_to_raw_response_wrapper(
+        self._models = models
+
+        self.retrieve = _legacy_response.async_to_raw_response_wrapper(
             models.retrieve,
         )
-        self.list = async_to_raw_response_wrapper(
+        self.list = _legacy_response.async_to_raw_response_wrapper(
             models.list,
         )
-        self.delete = async_to_raw_response_wrapper(
+        self.delete = _legacy_response.async_to_raw_response_wrapper(
+            models.delete,
+        )
+
+
+class ModelsWithStreamingResponse:
+    def __init__(self, models: Models) -> None:
+        self._models = models
+
+        self.retrieve = to_streamed_response_wrapper(
+            models.retrieve,
+        )
+        self.list = to_streamed_response_wrapper(
+            models.list,
+        )
+        self.delete = to_streamed_response_wrapper(
+            models.delete,
+        )
+
+
+class AsyncModelsWithStreamingResponse:
+    def __init__(self, models: AsyncModels) -> None:
+        self._models = models
+
+        self.retrieve = async_to_streamed_response_wrapper(
+            models.retrieve,
+        )
+        self.list = async_to_streamed_response_wrapper(
+            models.list,
+        )
+        self.delete = async_to_streamed_response_wrapper(
             models.delete,
         )

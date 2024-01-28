@@ -5,27 +5,25 @@ import asyncio
 from worker_db import add_session_data, read_data_ans_ques
 import datetime
 
-# Получаем текущую дату и время
-current_datetime = datetime.datetime.now()
-# Преобразуем дату и время в строку
-formatted_datetime = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
-# Выводим результат
-print("Текущая дата и время:", formatted_datetime)
-
 
 client = AsyncOpenAI(api_key=api_key)
 
-async def main(question: str, id): # -> Union[str, None]:
+the_gap = 0.10 # Часы.минуты время использования истории общения
+models_chat = "gpt-3.5-turbo" #"gpt-4", "text-davinci-002", "text-curie-003", or "gpt-3.5-turbo"
+
+async def main(question: str, id: int): # -> Union[str, None]:
     session_data = [] # Clear переменную ОЗУ каждый раз на всякий случай
     # Условие вычитывания истории вопросов-ответа, наверно проверяется время обновления времени последней записи, если больше часа, то или очищает, то ли другую ячейку..
     read_data = read_data_ans_ques(id)
     if read_data:
-        session_data.append(read_data[0])
-        session_date = read_data[1]
-        time_time = session_date.strftime('%Y-%m-%d') # ('%Y-%m-%d %H:%M') 
-        time_date = session_date.strftime('%H.%M')
-        # print(session_data)
-        print(f"{time_time}\n{time_date}")
+        session_date = read_data[1] # Дата и время переписки из DB
+        time_data = session_date.strftime("%Y-%m-%d"), session_date.strftime("%H.%M") # Вывод в кортеже
+        date_time = datetime.datetime.utcnow() # Получаем текущую дату и время
+        formatted_datetime = date_time.strftime("%Y-%m-%d"), date_time.strftime("%H.%M")
+        difference = float(formatted_datetime[1]) - float(time_data[1])
+        if time_data[0] == formatted_datetime[0] and difference < the_gap and read_data[0] is not None: # Условие использование данных из базы
+            session_data.append(read_data[0]) # Добавляем к переменной историю из DB
+
     #raise
 
 
@@ -33,7 +31,7 @@ async def main(question: str, id): # -> Union[str, None]:
     session_data.append(f"{question}\n") # Добавляю новый вопрос в переменную ОЗУ
     format_session_data = ' '.join(session_data) # Пробелы между словами и убираю запятую
 
-    raise
+    #raise
     chat_completion = await client.chat.completions.create(
         messages=[
             {
@@ -41,7 +39,7 @@ async def main(question: str, id): # -> Union[str, None]:
                 "content": format_session_data,
             }
         ],
-        model="gpt-3.5-turbo", #"gpt-4", "text-davinci-002", "text-curie-003", or "gpt-3.5-turbo"
+        model=models_chat,
     )
 
     answer = chat_completion.choices[0].message.content # Ответ
@@ -53,7 +51,7 @@ async def main(question: str, id): # -> Union[str, None]:
     session_data.append(f"{answer}\n") # Добавляю ответ
     clear_data = ' '.join(session_data) # Пробелы между словами и убираю запятую
     # Передаю переменую ОЗУ в DB переписывая ячейку по id
-
+    #raise
     add_session_data(id, clear_data) # Вношу данные из переменной в DB, дата меняется автоматом
     session_data = [] # Чистим переменную
     return total_answer or None # Возвращаю ответ

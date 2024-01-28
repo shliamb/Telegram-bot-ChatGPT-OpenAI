@@ -7,11 +7,12 @@ from typing_extensions import Literal
 
 import httpx
 
+from ... import _legacy_response
 from ..._types import NOT_GIVEN, Body, Query, Headers, NotGiven
 from ..._utils import maybe_transform
 from ..._compat import cached_property
 from ..._resource import SyncAPIResource, AsyncAPIResource
-from ..._response import to_raw_response_wrapper, async_to_raw_response_wrapper
+from ..._response import to_streamed_response_wrapper, async_to_streamed_response_wrapper
 from ...pagination import SyncCursorPage, AsyncCursorPage
 from ..._base_client import (
     AsyncPaginator,
@@ -33,6 +34,10 @@ class Jobs(SyncAPIResource):
     def with_raw_response(self) -> JobsWithRawResponse:
         return JobsWithRawResponse(self)
 
+    @cached_property
+    def with_streaming_response(self) -> JobsWithStreamingResponse:
+        return JobsWithStreamingResponse(self)
+
     def create(
         self,
         *,
@@ -49,7 +54,8 @@ class Jobs(SyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
     ) -> FineTuningJob:
         """
-        Creates a job that fine-tunes a specified model from a given dataset.
+        Creates a fine-tuning job which begins the process of creating a new model from
+        a given dataset.
 
         Response includes details of the enqueued job including job status and the name
         of the fine-tuned models once complete.
@@ -143,6 +149,8 @@ class Jobs(SyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
+        if not fine_tuning_job_id:
+            raise ValueError(f"Expected a non-empty value for `fine_tuning_job_id` but received {fine_tuning_job_id!r}")
         return self._get(
             f"/fine_tuning/jobs/{fine_tuning_job_id}",
             options=make_request_options(
@@ -221,6 +229,8 @@ class Jobs(SyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
+        if not fine_tuning_job_id:
+            raise ValueError(f"Expected a non-empty value for `fine_tuning_job_id` but received {fine_tuning_job_id!r}")
         return self._post(
             f"/fine_tuning/jobs/{fine_tuning_job_id}/cancel",
             options=make_request_options(
@@ -258,6 +268,8 @@ class Jobs(SyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
+        if not fine_tuning_job_id:
+            raise ValueError(f"Expected a non-empty value for `fine_tuning_job_id` but received {fine_tuning_job_id!r}")
         return self._get_api_list(
             f"/fine_tuning/jobs/{fine_tuning_job_id}/events",
             page=SyncCursorPage[FineTuningJobEvent],
@@ -283,6 +295,10 @@ class AsyncJobs(AsyncAPIResource):
     def with_raw_response(self) -> AsyncJobsWithRawResponse:
         return AsyncJobsWithRawResponse(self)
 
+    @cached_property
+    def with_streaming_response(self) -> AsyncJobsWithStreamingResponse:
+        return AsyncJobsWithStreamingResponse(self)
+
     async def create(
         self,
         *,
@@ -299,7 +315,8 @@ class AsyncJobs(AsyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
     ) -> FineTuningJob:
         """
-        Creates a job that fine-tunes a specified model from a given dataset.
+        Creates a fine-tuning job which begins the process of creating a new model from
+        a given dataset.
 
         Response includes details of the enqueued job including job status and the name
         of the fine-tuned models once complete.
@@ -393,6 +410,8 @@ class AsyncJobs(AsyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
+        if not fine_tuning_job_id:
+            raise ValueError(f"Expected a non-empty value for `fine_tuning_job_id` but received {fine_tuning_job_id!r}")
         return await self._get(
             f"/fine_tuning/jobs/{fine_tuning_job_id}",
             options=make_request_options(
@@ -471,6 +490,8 @@ class AsyncJobs(AsyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
+        if not fine_tuning_job_id:
+            raise ValueError(f"Expected a non-empty value for `fine_tuning_job_id` but received {fine_tuning_job_id!r}")
         return await self._post(
             f"/fine_tuning/jobs/{fine_tuning_job_id}/cancel",
             options=make_request_options(
@@ -508,6 +529,8 @@ class AsyncJobs(AsyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
+        if not fine_tuning_job_id:
+            raise ValueError(f"Expected a non-empty value for `fine_tuning_job_id` but received {fine_tuning_job_id!r}")
         return self._get_api_list(
             f"/fine_tuning/jobs/{fine_tuning_job_id}/events",
             page=AsyncCursorPage[FineTuningJobEvent],
@@ -530,37 +553,83 @@ class AsyncJobs(AsyncAPIResource):
 
 class JobsWithRawResponse:
     def __init__(self, jobs: Jobs) -> None:
-        self.create = to_raw_response_wrapper(
+        self._jobs = jobs
+
+        self.create = _legacy_response.to_raw_response_wrapper(
             jobs.create,
         )
-        self.retrieve = to_raw_response_wrapper(
+        self.retrieve = _legacy_response.to_raw_response_wrapper(
             jobs.retrieve,
         )
-        self.list = to_raw_response_wrapper(
+        self.list = _legacy_response.to_raw_response_wrapper(
             jobs.list,
         )
-        self.cancel = to_raw_response_wrapper(
+        self.cancel = _legacy_response.to_raw_response_wrapper(
             jobs.cancel,
         )
-        self.list_events = to_raw_response_wrapper(
+        self.list_events = _legacy_response.to_raw_response_wrapper(
             jobs.list_events,
         )
 
 
 class AsyncJobsWithRawResponse:
     def __init__(self, jobs: AsyncJobs) -> None:
-        self.create = async_to_raw_response_wrapper(
+        self._jobs = jobs
+
+        self.create = _legacy_response.async_to_raw_response_wrapper(
             jobs.create,
         )
-        self.retrieve = async_to_raw_response_wrapper(
+        self.retrieve = _legacy_response.async_to_raw_response_wrapper(
             jobs.retrieve,
         )
-        self.list = async_to_raw_response_wrapper(
+        self.list = _legacy_response.async_to_raw_response_wrapper(
             jobs.list,
         )
-        self.cancel = async_to_raw_response_wrapper(
+        self.cancel = _legacy_response.async_to_raw_response_wrapper(
             jobs.cancel,
         )
-        self.list_events = async_to_raw_response_wrapper(
+        self.list_events = _legacy_response.async_to_raw_response_wrapper(
+            jobs.list_events,
+        )
+
+
+class JobsWithStreamingResponse:
+    def __init__(self, jobs: Jobs) -> None:
+        self._jobs = jobs
+
+        self.create = to_streamed_response_wrapper(
+            jobs.create,
+        )
+        self.retrieve = to_streamed_response_wrapper(
+            jobs.retrieve,
+        )
+        self.list = to_streamed_response_wrapper(
+            jobs.list,
+        )
+        self.cancel = to_streamed_response_wrapper(
+            jobs.cancel,
+        )
+        self.list_events = to_streamed_response_wrapper(
+            jobs.list_events,
+        )
+
+
+class AsyncJobsWithStreamingResponse:
+    def __init__(self, jobs: AsyncJobs) -> None:
+        self._jobs = jobs
+
+        self.create = async_to_streamed_response_wrapper(
+            jobs.create,
+        )
+        self.retrieve = async_to_streamed_response_wrapper(
+            jobs.retrieve,
+        )
+        self.list = async_to_streamed_response_wrapper(
+            jobs.list,
+        )
+        self.cancel = async_to_streamed_response_wrapper(
+            jobs.cancel,
+        )
+        self.list_events = async_to_streamed_response_wrapper(
             jobs.list_events,
         )

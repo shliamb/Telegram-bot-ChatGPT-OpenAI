@@ -55,7 +55,7 @@ def handle_message(message):
     async def run_main():
         bot.send_chat_action(message.chat.id, 'typing') # Typing bot
         result = await main(message.text, id)
-        send = f"{result[0]}\n- - - - - - - - - - - - - - - - - - - - - - - - - - - - -\nВерсия модели: {result[1]}\nЗавершенные токены: {result[2]}\nПодсказки токены: {result[3]}\nВсего токенов: {result[4]}"
+        send = f"{result[0]}\n- - - - - - - - - - - - - - - - - - - - - - - - - -\nВерсия модели: {result[1]}\nЗавершенные токены: {result[2]}\nПодсказки токены: {result[3]}\nВсего токенов: {result[4]}"
         # send = f"{переменная}\n<b>Жирным - b</b> <i>Курсив - i</i> <code>Код - code</code> <pre>Отдельный блок для копирования - pre</pre>"
         bot.reply_to(message, send) # bot.reply_to(message, send, parse_mode='HTML')
     loop = asyncio.new_event_loop()

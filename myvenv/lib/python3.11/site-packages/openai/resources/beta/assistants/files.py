@@ -6,11 +6,12 @@ from typing_extensions import Literal
 
 import httpx
 
+from .... import _legacy_response
 from ...._types import NOT_GIVEN, Body, Query, Headers, NotGiven
 from ...._utils import maybe_transform
 from ...._compat import cached_property
 from ...._resource import SyncAPIResource, AsyncAPIResource
-from ...._response import to_raw_response_wrapper, async_to_raw_response_wrapper
+from ...._response import to_streamed_response_wrapper, async_to_streamed_response_wrapper
 from ....pagination import SyncCursorPage, AsyncCursorPage
 from ...._base_client import (
     AsyncPaginator,
@@ -25,6 +26,10 @@ class Files(SyncAPIResource):
     @cached_property
     def with_raw_response(self) -> FilesWithRawResponse:
         return FilesWithRawResponse(self)
+
+    @cached_property
+    def with_streaming_response(self) -> FilesWithStreamingResponse:
+        return FilesWithStreamingResponse(self)
 
     def create(
         self,
@@ -56,6 +61,8 @@ class Files(SyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
+        if not assistant_id:
+            raise ValueError(f"Expected a non-empty value for `assistant_id` but received {assistant_id!r}")
         extra_headers = {"OpenAI-Beta": "assistants=v1", **(extra_headers or {})}
         return self._post(
             f"/assistants/{assistant_id}/files",
@@ -90,6 +97,10 @@ class Files(SyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
+        if not assistant_id:
+            raise ValueError(f"Expected a non-empty value for `assistant_id` but received {assistant_id!r}")
+        if not file_id:
+            raise ValueError(f"Expected a non-empty value for `file_id` but received {file_id!r}")
         extra_headers = {"OpenAI-Beta": "assistants=v1", **(extra_headers or {})}
         return self._get(
             f"/assistants/{assistant_id}/files/{file_id}",
@@ -142,6 +153,8 @@ class Files(SyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
+        if not assistant_id:
+            raise ValueError(f"Expected a non-empty value for `assistant_id` but received {assistant_id!r}")
         extra_headers = {"OpenAI-Beta": "assistants=v1", **(extra_headers or {})}
         return self._get_api_list(
             f"/assistants/{assistant_id}/files",
@@ -188,6 +201,10 @@ class Files(SyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
+        if not assistant_id:
+            raise ValueError(f"Expected a non-empty value for `assistant_id` but received {assistant_id!r}")
+        if not file_id:
+            raise ValueError(f"Expected a non-empty value for `file_id` but received {file_id!r}")
         extra_headers = {"OpenAI-Beta": "assistants=v1", **(extra_headers or {})}
         return self._delete(
             f"/assistants/{assistant_id}/files/{file_id}",
@@ -202,6 +219,10 @@ class AsyncFiles(AsyncAPIResource):
     @cached_property
     def with_raw_response(self) -> AsyncFilesWithRawResponse:
         return AsyncFilesWithRawResponse(self)
+
+    @cached_property
+    def with_streaming_response(self) -> AsyncFilesWithStreamingResponse:
+        return AsyncFilesWithStreamingResponse(self)
 
     async def create(
         self,
@@ -233,6 +254,8 @@ class AsyncFiles(AsyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
+        if not assistant_id:
+            raise ValueError(f"Expected a non-empty value for `assistant_id` but received {assistant_id!r}")
         extra_headers = {"OpenAI-Beta": "assistants=v1", **(extra_headers or {})}
         return await self._post(
             f"/assistants/{assistant_id}/files",
@@ -267,6 +290,10 @@ class AsyncFiles(AsyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
+        if not assistant_id:
+            raise ValueError(f"Expected a non-empty value for `assistant_id` but received {assistant_id!r}")
+        if not file_id:
+            raise ValueError(f"Expected a non-empty value for `file_id` but received {file_id!r}")
         extra_headers = {"OpenAI-Beta": "assistants=v1", **(extra_headers or {})}
         return await self._get(
             f"/assistants/{assistant_id}/files/{file_id}",
@@ -319,6 +346,8 @@ class AsyncFiles(AsyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
+        if not assistant_id:
+            raise ValueError(f"Expected a non-empty value for `assistant_id` but received {assistant_id!r}")
         extra_headers = {"OpenAI-Beta": "assistants=v1", **(extra_headers or {})}
         return self._get_api_list(
             f"/assistants/{assistant_id}/files",
@@ -365,6 +394,10 @@ class AsyncFiles(AsyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
+        if not assistant_id:
+            raise ValueError(f"Expected a non-empty value for `assistant_id` but received {assistant_id!r}")
+        if not file_id:
+            raise ValueError(f"Expected a non-empty value for `file_id` but received {file_id!r}")
         extra_headers = {"OpenAI-Beta": "assistants=v1", **(extra_headers or {})}
         return await self._delete(
             f"/assistants/{assistant_id}/files/{file_id}",
@@ -377,31 +410,71 @@ class AsyncFiles(AsyncAPIResource):
 
 class FilesWithRawResponse:
     def __init__(self, files: Files) -> None:
-        self.create = to_raw_response_wrapper(
+        self._files = files
+
+        self.create = _legacy_response.to_raw_response_wrapper(
             files.create,
         )
-        self.retrieve = to_raw_response_wrapper(
+        self.retrieve = _legacy_response.to_raw_response_wrapper(
             files.retrieve,
         )
-        self.list = to_raw_response_wrapper(
+        self.list = _legacy_response.to_raw_response_wrapper(
             files.list,
         )
-        self.delete = to_raw_response_wrapper(
+        self.delete = _legacy_response.to_raw_response_wrapper(
             files.delete,
         )
 
 
 class AsyncFilesWithRawResponse:
     def __init__(self, files: AsyncFiles) -> None:
-        self.create = async_to_raw_response_wrapper(
+        self._files = files
+
+        self.create = _legacy_response.async_to_raw_response_wrapper(
             files.create,
         )
-        self.retrieve = async_to_raw_response_wrapper(
+        self.retrieve = _legacy_response.async_to_raw_response_wrapper(
             files.retrieve,
         )
-        self.list = async_to_raw_response_wrapper(
+        self.list = _legacy_response.async_to_raw_response_wrapper(
             files.list,
         )
-        self.delete = async_to_raw_response_wrapper(
+        self.delete = _legacy_response.async_to_raw_response_wrapper(
+            files.delete,
+        )
+
+
+class FilesWithStreamingResponse:
+    def __init__(self, files: Files) -> None:
+        self._files = files
+
+        self.create = to_streamed_response_wrapper(
+            files.create,
+        )
+        self.retrieve = to_streamed_response_wrapper(
+            files.retrieve,
+        )
+        self.list = to_streamed_response_wrapper(
+            files.list,
+        )
+        self.delete = to_streamed_response_wrapper(
+            files.delete,
+        )
+
+
+class AsyncFilesWithStreamingResponse:
+    def __init__(self, files: AsyncFiles) -> None:
+        self._files = files
+
+        self.create = async_to_streamed_response_wrapper(
+            files.create,
+        )
+        self.retrieve = async_to_streamed_response_wrapper(
+            files.retrieve,
+        )
+        self.list = async_to_streamed_response_wrapper(
+            files.list,
+        )
+        self.delete = async_to_streamed_response_wrapper(
             files.delete,
         )

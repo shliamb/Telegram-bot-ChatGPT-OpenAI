@@ -7,6 +7,7 @@ from typing_extensions import Literal
 
 import httpx
 
+from .. import _legacy_response
 from ..types import (
     ImagesResponse,
     image_edit_params,
@@ -17,7 +18,7 @@ from .._types import NOT_GIVEN, Body, Query, Headers, NotGiven, FileTypes
 from .._utils import extract_files, maybe_transform, deepcopy_minimal
 from .._compat import cached_property
 from .._resource import SyncAPIResource, AsyncAPIResource
-from .._response import to_raw_response_wrapper, async_to_raw_response_wrapper
+from .._response import to_streamed_response_wrapper, async_to_streamed_response_wrapper
 from .._base_client import (
     make_request_options,
 )
@@ -29,6 +30,10 @@ class Images(SyncAPIResource):
     @cached_property
     def with_raw_response(self) -> ImagesWithRawResponse:
         return ImagesWithRawResponse(self)
+
+    @cached_property
+    def with_streaming_response(self) -> ImagesWithStreamingResponse:
+        return ImagesWithStreamingResponse(self)
 
     def create_variation(
         self,
@@ -93,7 +98,6 @@ class Images(SyncAPIResource):
             # sent to the server will contain a `boundary` parameter, e.g.
             # multipart/form-data; boundary=---abc--
             extra_headers = {"Content-Type": "multipart/form-data", **(extra_headers or {})}
-
         return self._post(
             "/images/variations",
             body=maybe_transform(body, image_create_variation_params.ImageCreateVariationParams),
@@ -177,7 +181,6 @@ class Images(SyncAPIResource):
             # sent to the server will contain a `boundary` parameter, e.g.
             # multipart/form-data; boundary=---abc--
             extra_headers = {"Content-Type": "multipart/form-data", **(extra_headers or {})}
-
         return self._post(
             "/images/edits",
             body=maybe_transform(body, image_edit_params.ImageEditParams),
@@ -273,6 +276,10 @@ class AsyncImages(AsyncAPIResource):
     def with_raw_response(self) -> AsyncImagesWithRawResponse:
         return AsyncImagesWithRawResponse(self)
 
+    @cached_property
+    def with_streaming_response(self) -> AsyncImagesWithStreamingResponse:
+        return AsyncImagesWithStreamingResponse(self)
+
     async def create_variation(
         self,
         *,
@@ -336,7 +343,6 @@ class AsyncImages(AsyncAPIResource):
             # sent to the server will contain a `boundary` parameter, e.g.
             # multipart/form-data; boundary=---abc--
             extra_headers = {"Content-Type": "multipart/form-data", **(extra_headers or {})}
-
         return await self._post(
             "/images/variations",
             body=maybe_transform(body, image_create_variation_params.ImageCreateVariationParams),
@@ -420,7 +426,6 @@ class AsyncImages(AsyncAPIResource):
             # sent to the server will contain a `boundary` parameter, e.g.
             # multipart/form-data; boundary=---abc--
             extra_headers = {"Content-Type": "multipart/form-data", **(extra_headers or {})}
-
         return await self._post(
             "/images/edits",
             body=maybe_transform(body, image_edit_params.ImageEditParams),
@@ -513,25 +518,59 @@ class AsyncImages(AsyncAPIResource):
 
 class ImagesWithRawResponse:
     def __init__(self, images: Images) -> None:
-        self.create_variation = to_raw_response_wrapper(
+        self._images = images
+
+        self.create_variation = _legacy_response.to_raw_response_wrapper(
             images.create_variation,
         )
-        self.edit = to_raw_response_wrapper(
+        self.edit = _legacy_response.to_raw_response_wrapper(
             images.edit,
         )
-        self.generate = to_raw_response_wrapper(
+        self.generate = _legacy_response.to_raw_response_wrapper(
             images.generate,
         )
 
 
 class AsyncImagesWithRawResponse:
     def __init__(self, images: AsyncImages) -> None:
-        self.create_variation = async_to_raw_response_wrapper(
+        self._images = images
+
+        self.create_variation = _legacy_response.async_to_raw_response_wrapper(
             images.create_variation,
         )
-        self.edit = async_to_raw_response_wrapper(
+        self.edit = _legacy_response.async_to_raw_response_wrapper(
             images.edit,
         )
-        self.generate = async_to_raw_response_wrapper(
+        self.generate = _legacy_response.async_to_raw_response_wrapper(
+            images.generate,
+        )
+
+
+class ImagesWithStreamingResponse:
+    def __init__(self, images: Images) -> None:
+        self._images = images
+
+        self.create_variation = to_streamed_response_wrapper(
+            images.create_variation,
+        )
+        self.edit = to_streamed_response_wrapper(
+            images.edit,
+        )
+        self.generate = to_streamed_response_wrapper(
+            images.generate,
+        )
+
+
+class AsyncImagesWithStreamingResponse:
+    def __init__(self, images: AsyncImages) -> None:
+        self._images = images
+
+        self.create_variation = async_to_streamed_response_wrapper(
+            images.create_variation,
+        )
+        self.edit = async_to_streamed_response_wrapper(
+            images.edit,
+        )
+        self.generate = async_to_streamed_response_wrapper(
             images.generate,
         )

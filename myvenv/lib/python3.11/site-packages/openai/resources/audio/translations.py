@@ -7,11 +7,12 @@ from typing_extensions import Literal
 
 import httpx
 
+from ... import _legacy_response
 from ..._types import NOT_GIVEN, Body, Query, Headers, NotGiven, FileTypes
 from ..._utils import extract_files, maybe_transform, deepcopy_minimal
 from ..._compat import cached_property
 from ..._resource import SyncAPIResource, AsyncAPIResource
-from ..._response import to_raw_response_wrapper, async_to_raw_response_wrapper
+from ..._response import to_streamed_response_wrapper, async_to_streamed_response_wrapper
 from ...types.audio import Translation, translation_create_params
 from ..._base_client import (
     make_request_options,
@@ -24,6 +25,10 @@ class Translations(SyncAPIResource):
     @cached_property
     def with_raw_response(self) -> TranslationsWithRawResponse:
         return TranslationsWithRawResponse(self)
+
+    @cached_property
+    def with_streaming_response(self) -> TranslationsWithStreamingResponse:
+        return TranslationsWithStreamingResponse(self)
 
     def create(
         self,
@@ -86,7 +91,6 @@ class Translations(SyncAPIResource):
             # sent to the server will contain a `boundary` parameter, e.g.
             # multipart/form-data; boundary=---abc--
             extra_headers = {"Content-Type": "multipart/form-data", **(extra_headers or {})}
-
         return self._post(
             "/audio/translations",
             body=maybe_transform(body, translation_create_params.TranslationCreateParams),
@@ -102,6 +106,10 @@ class AsyncTranslations(AsyncAPIResource):
     @cached_property
     def with_raw_response(self) -> AsyncTranslationsWithRawResponse:
         return AsyncTranslationsWithRawResponse(self)
+
+    @cached_property
+    def with_streaming_response(self) -> AsyncTranslationsWithStreamingResponse:
+        return AsyncTranslationsWithStreamingResponse(self)
 
     async def create(
         self,
@@ -164,7 +172,6 @@ class AsyncTranslations(AsyncAPIResource):
             # sent to the server will contain a `boundary` parameter, e.g.
             # multipart/form-data; boundary=---abc--
             extra_headers = {"Content-Type": "multipart/form-data", **(extra_headers or {})}
-
         return await self._post(
             "/audio/translations",
             body=maybe_transform(body, translation_create_params.TranslationCreateParams),
@@ -178,13 +185,35 @@ class AsyncTranslations(AsyncAPIResource):
 
 class TranslationsWithRawResponse:
     def __init__(self, translations: Translations) -> None:
-        self.create = to_raw_response_wrapper(
+        self._translations = translations
+
+        self.create = _legacy_response.to_raw_response_wrapper(
             translations.create,
         )
 
 
 class AsyncTranslationsWithRawResponse:
     def __init__(self, translations: AsyncTranslations) -> None:
-        self.create = async_to_raw_response_wrapper(
+        self._translations = translations
+
+        self.create = _legacy_response.async_to_raw_response_wrapper(
+            translations.create,
+        )
+
+
+class TranslationsWithStreamingResponse:
+    def __init__(self, translations: Translations) -> None:
+        self._translations = translations
+
+        self.create = to_streamed_response_wrapper(
+            translations.create,
+        )
+
+
+class AsyncTranslationsWithStreamingResponse:
+    def __init__(self, translations: AsyncTranslations) -> None:
+        self._translations = translations
+
+        self.create = async_to_streamed_response_wrapper(
             translations.create,
         )
