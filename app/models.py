@@ -40,29 +40,14 @@ class ChatGpt(Base):
     id = Column(Integer, ForeignKey('users_telegram.id'), primary_key=True)
     temp_chat = Column(Float, default=0.7, server_default="0.7", nullable=False)
     lang_chat = Column(String(15), default="RU", server_default="RU",  nullable=False)
-    count_req_chat = Column(Integer, nullable=True)
-    used_token_chat = Column(Integer, nullable=True)
-    limit_token_chat = Column(Integer, nullable=True)
+    count_req_chat = Column(Integer, default=0, server_default="0",  nullable=False)
+    used_token_chat = Column(Integer, default=0, server_default="0",  nullable=False)
+    limit_token_chat = Column(Integer, default=0, server_default="0",  nullable=False)
+    the_gap = Column(Float, default=0.15, server_default="0.15", nullable=False)
+    model_id = Column(String(50), default="gpt-3.5-turbo", server_default="gpt-3.5-turbo",  nullable=False) 
     ###
-    model_id = Column(Integer, ForeignKey("models_chat.id"), default=1, server_default="1",  nullable=False)  # Связь с ModelsChat. Внешний ключ, автоматом установил 2 id из таблицы, куда скриптом init_db добавятся модели gpt
-    patch_chat = Column(Integer, ForeignKey("patch_chat.id"), default=1, server_default="1",  nullable=False)
+    #patch_chat = Column(Integer, ForeignKey("patch_chat.id"), default=1, server_default="1",  nullable=False)
     userstelegram = relationship("UsersTelegram", back_populates="chatgpt")
-
-# models_chat gpt choice
-class ModelsChat(Base):
-    __tablename__ = 'models_chat'
-    id = Column(Integer, primary_key=True)
-    models_chat = Column(String(30), nullable=True)
-    ###
-    chatgpt_setings = relationship("ChatGpt")
-
-# patch_chat choice
-class PatchChat(Base):
-    __tablename__ = 'patch_chat'
-    id = Column(Integer, primary_key=True)
-    patch_chat = Column(String(100), nullable=True)
-    ###
-    chatgpt_setings = relationship("ChatGpt")
 
 # SavedQuestion
 class SavedQuestion(Base):
@@ -75,3 +60,30 @@ class SavedQuestion(Base):
 
 
 Base.metadata.create_all(engine) # Создаем таблицы в базе данных
+
+
+
+
+
+
+
+
+
+
+
+# # models_chat gpt choice
+# class ModelsChat(Base):
+#     __tablename__ = 'models_chat'
+#     id = Column(Integer, primary_key=True)
+#     models_chat = Column(String(30), nullable=True)
+#     ###
+#     chatgpt_setings = relationship("ChatGpt")
+
+# patch_chat choice
+# class PatchChat(Base):
+#     __tablename__ = 'patch_chat'
+#     id = Column(Integer, primary_key=True)
+#     patch_chat = Column(String(100), nullable=True)
+#     ###
+#     chatgpt_setings = relationship("ChatGpt")
+

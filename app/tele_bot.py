@@ -1,5 +1,6 @@
 import telebot
-from keys import token
+from telebot import types
+from keys import token, azil, asilisav, admin_user_ids
 from worker_db import read_tele_user, add_tele_user, add_chatgpt_setings, add_new_session_data
 import asyncio
 from open_ai import main
@@ -9,8 +10,14 @@ bot = telebot.TeleBot(token) # Conection for API Telegram
 # /start
 @bot.message_handler(commands=['start'])
 def start(context):
+    #print(admin_user_ids)
+    #print(context.from_user.id)
     # Проверяем где есть имя у Телегарм польз-ля
-    if context.from_user.username:
+    if int(context.from_user.id) == int(azil) or int(context.from_user.id) == int(asilisav):
+        about = "доченька от папы"
+    if int(context.from_user.id) == int(admin_user_ids):
+        about = "брооооо"
+    elif context.from_user.username:
         about = context.from_user.username
     elif context.from_user.first_name:
         about = context.from_user.first_name
@@ -19,7 +26,7 @@ def start(context):
     else:
         about = "друг"
     # Выводим привествие пользователю
-    bot.send_message(context.chat.id, text=f"Привет, {about}! Я ChatGPT бот.\nМне можно сразу задать вопрос\nили настроить - /setup.")
+    bot.send_message(context.chat.id, text=f"Привет {about}! Мне можно сразу задать вопрос или сначала настроить - /setup.")
     user_id = context.from_user.id # Телеграм id нажавшего старт
     read_id = read_tele_user(user_id) # Считываем в базе с таким id все его данные
     # user_id_1, user_username_1, user_db_id_1 = read_id # Теперь вы можете извлечь значения из кортежа
@@ -55,12 +62,47 @@ def handle_message(message):
     async def run_main():
         bot.send_chat_action(message.chat.id, 'typing') # Typing bot
         result = await main(message.text, id)
-        send = f"{result[0]}\n- - - - - - - - - - - - - - - - - - - - - - - - - -\nВерсия модели: {result[1]}\nЗавершенные токены: {result[2]}\nПодсказки токены: {result[3]}\nВсего токенов: {result[4]}"
+        send = f"{result[0]}\n- - - - - - - - - - - - - - - - - - - - - - - - - -\nВерсия модели: {result[1]}\nТок. вопрос + ответ: {result[4]}\nТокенов за все время: {result[5]}\nТокенов осталось: {result[6]}" #Завершенные токены: {result[2]}\nПодсказки токены: {result[3]}\nВсего токенов: {result[4]}"
         # send = f"{переменная}\n<b>Жирным - b</b> <i>Курсив - i</i> <code>Код - code</code> <pre>Отдельный блок для копирования - pre</pre>"
         bot.reply_to(message, send) # bot.reply_to(message, send, parse_mode='HTML')
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     loop.run_until_complete(run_main())
+
+
+# Вызов меню /setup
+# Главное меню
+#flag_menu = False
+
+@bot.message_handler(commands=['setup'])
+def main_menu(message):
+    keyboard = types.InlineKeyboardMarkup(row_width=1)
+    version_chat = types.InlineKeyboardButton(text="Модель ChatGPT 🦾", callback_data="version_chat")
+    version_dialog = types.InlineKeyboardButton(text="Время памяти 🗣", callback_data="mode_dialog")
+    #version_creativity = types.InlineKeyboardButton(text="Уровень творчества 👻", callback_data="level_creativity")
+    response_volume = types.InlineKeyboardButton(text="Статистика 👻", callback_data="response_volume")
+    close_menu_button = types.InlineKeyboardButton(text="Закрыть меню ✖️", callback_data="close_menu")
+    keyboard.add(version_chat, version_dialog, response_volume, close_menu_button)
+    #if flag_menu == False:
+    bot.send_message(message.chat.id, "Настройки ChatGPT:", reply_markup=keyboard)
+        #flag_menu = True
+    #else:
+        #breakpoint
+        #bot.edit_message_text(chat_id=message.chat.id, message_id=message.message_id, text="Выберите версию ChatGPT:", reply_markup=keyboard)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

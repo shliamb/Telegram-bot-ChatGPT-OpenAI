@@ -43,7 +43,7 @@ def add_new_session_data(id):
 
 
 
-# Read Answer-Question to the Base
+# Read Answer-Question in the Base
 def read_data_ans_ques(id):
     read_data = session.query(SavedQuestion).filter(SavedQuestion.users_telegram_id == id).all()
     for data in read_data:
@@ -63,8 +63,21 @@ def add_session_data(user_id, session_data):
     session.commit()# Сохраняем изменения в базе данных
 
 
+# Read settings ChatGpt in Base
+def get_settings(id):
+    read_data = session.query(ChatGpt).filter(ChatGpt.id == id).all()
+    for data in read_data:
+        return data.id, data.temp_chat, data.lang_chat, data.count_req_chat, data.used_token_chat, data.limit_token_chat, data.the_gap, data.model_id or None
 
-
+# Write settings ChatGpt in Base
+def update_settings(id, all_token, limit_token):
+    existing_data = session.query(ChatGpt).filter_by(id=id).first() # Ищем запись по id
+    existing_data.used_token_chat = all_token
+    existing_data.limit_token_chat = limit_token
+    session.commit()
+    # read_data = session.query(ChatGpt).filter(ChatGpt.id == id).all()
+    # for data in read_data:
+    #     return data.id, data.temp_chat, data.lang_chat, data.count_req_chat, data.used_token_chat, data.limit_token_chat, data.the_gap, data.model_id or None
 
     # data = SavedQuestion(question_text=session_data)
     # session.add(data)
