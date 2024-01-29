@@ -7,39 +7,56 @@ Session = sessionmaker(bind=engine) # Создаем сессию для раб�
 session = Session()
 
 
-# Reading User telegram data
-def read_tele_user(user_id):
-    user_data = session.query(UsersTelegram).filter(UsersTelegram.user_id == user_id).all()
+# Reading all data telegram by user ID
+def read_tele_user(id):
+    user_data = session.query(UsersTelegram).filter(UsersTelegram.id == id).all()
     for data in user_data:
-        return data.user_id, data.user_username, data.user_first_name, data.user_last_name, data.id 
-        # if data.id: 
-        #     return data.user_id, data.user_username, data.user_first_name, data.user_last_name, data.id 
-        # else:
-        #     print("Error: Dont have user to this id !!!")
-        #     return None
-
-
-##### Позже объеденить #####
+        return data.id, data.user_username, data.user_first_name, data.user_last_name, data.chat_id
     
-# Writing User telegram data
-def add_tele_user(user_id, user_username, user_first_name, user_last_name):
-    new_user = UsersTelegram(user_id=user_id, user_username=user_username, user_first_name=user_first_name, user_last_name=user_last_name)
+# Writing all telegram data user, abstractness
+def add_tele_user(user_id=None, user_username=None, user_first_name=None, user_last_name=None, chat_id=None, is_user_admin=None, is_user_block=None, is_user_good=None):
+    new_user = UsersTelegram()
+
+    if user_id is not None:
+        new_user.id = user_id
+    if user_username is not None:
+        new_user.user_username = user_username
+    if user_first_name is not None:
+        new_user.user_first_name = user_first_name
+    if user_last_name is not None:
+        new_user.user_last_name = user_last_name
+    if chat_id is not None:
+        new_user.chat_id = chat_id
+    if is_user_admin is not None:
+        new_user.is_user_admin = is_user_admin
+    if is_user_block is not None:
+        new_user.is_user_block = is_user_block
+    if is_user_good is not None:
+        new_user.is_user_good = is_user_good
+ 
     session.add(new_user)
     session.commit()
 
-# Writing Default id Setings ChatGpt
-def add_chatgpt_setings(id):
-    new_user = ChatGpt(id=id)
-    session.add(new_user)
+# Set default settings when add new user
+def add_default_data(id):
+    new_chatgpt_settings = ChatGpt(id=id)
+    session.add(new_chatgpt_settings)
+    new_saved_question = SavedQuestion(users_telegram_id=id)
+    session.add(new_saved_question)
     session.commit()
 
-# Writing Default id SavedQuestion
-def add_new_session_data(id):
-    new_user = SavedQuestion(users_telegram_id=id)
-    session.add(new_user)
-    session.commit()
+# # Writing Default id Setings ChatGpt
+# def add_chatgpt_setings(id):
+#     new_user = ChatGpt(id=id)
+#     session.add(new_user)
+#     session.commit()
 
-##### Позже объеденить #####
+# # Writing Default id SavedQuestion
+# def add_new_session_data(id):
+#     new_user = SavedQuestion(users_telegram_id=id)
+#     session.add(new_user)
+#     session.commit()
+
 
 
 

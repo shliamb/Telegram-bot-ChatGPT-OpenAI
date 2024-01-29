@@ -20,12 +20,10 @@ class UsersBase(Base):
 # users Telegram
 class UsersTelegram(Base):
     __tablename__ = 'users_telegram'
-    id = Column(Integer, primary_key=True) # Primari_key - уникален по умолчанию
-    name = Column(String(50), nullable=True)
-    user_id = Column(Integer, unique=True, nullable=False, index=True) # user_id unique
+    id = Column(Integer, primary_key=True, unique=True, nullable=False, index=True) # user_id unique
+    user_username = Column(String(50), nullable=True)
     user_first_name = Column(String(50), nullable=True)
     user_last_name = Column(String(50), nullable=True)
-    user_username = Column(String(50), nullable=True)
     chat_id = Column(Integer, nullable=True) # если не пользователь, а от лица группы то свой id, если  user то user_id
     is_user_admin = Column(Boolean, default=False, server_default="False", nullable=False) # default срабатывает только так
     is_user_block = Column(Boolean, default=False, server_default="False", nullable=False)
@@ -46,7 +44,6 @@ class ChatGpt(Base):
     the_gap = Column(Float, default=0.15, server_default="0.15", nullable=False)
     model_id = Column(String(50), default="gpt-3.5-turbo", server_default="gpt-3.5-turbo",  nullable=False) 
     ###
-    #patch_chat = Column(Integer, ForeignKey("patch_chat.id"), default=1, server_default="1",  nullable=False)
     userstelegram = relationship("UsersTelegram", back_populates="chatgpt")
 
 # SavedQuestion
@@ -60,30 +57,3 @@ class SavedQuestion(Base):
 
 
 Base.metadata.create_all(engine) # Создаем таблицы в базе данных
-
-
-
-
-
-
-
-
-
-
-
-# # models_chat gpt choice
-# class ModelsChat(Base):
-#     __tablename__ = 'models_chat'
-#     id = Column(Integer, primary_key=True)
-#     models_chat = Column(String(30), nullable=True)
-#     ###
-#     chatgpt_setings = relationship("ChatGpt")
-
-# patch_chat choice
-# class PatchChat(Base):
-#     __tablename__ = 'patch_chat'
-#     id = Column(Integer, primary_key=True)
-#     patch_chat = Column(String(100), nullable=True)
-#     ###
-#     chatgpt_setings = relationship("ChatGpt")
-
