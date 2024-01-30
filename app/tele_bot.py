@@ -1,14 +1,14 @@
 import telebot
 from telebot import types
 from keys import token, azil, asilisav, admin_user_ids, block
-from worker_db import read_tele_user, add_tele_user, add_default_data, get_settings
+from worker_db import read_tele_user, add_update_tele_user, add_default_data, get_settings, update_talking, add_update_settings
 import asyncio
 from open_ai import main
 
 bot = telebot.TeleBot(token) # Conection for API Telegram
 
 
-# /start
+# /start 
 @bot.message_handler(commands=['start'])
 def start(context):
     id = context.from_user.id # telegram id user were tap /start
@@ -36,14 +36,12 @@ def start(context):
     elif last_name:
         about = last_name
     else:
-        about = "друг"
+        about = "bro"
 
     bot.send_message(context.chat.id, text=f"Привет {about}! Мне можно сразу задать вопрос или сначала настроить - /setup.")
-    read_user_all_data = read_tele_user(id) # Reading in DB all data for user id
-    # If this user is not in the database, we will add
-    if read_user_all_data == None:
-        add_tele_user(user_id=id, user_username=name, user_first_name=first_name, user_last_name=last_name, chat_id=chat, is_user_admin=is_user_admin , is_user_block=is_user_block , is_user_good=is_user_good) # abstractness
-        add_default_data(id)
+    # If this user is not in the database, we will add or update
+    add_update_tele_user(id=id, user_username=name, user_first_name=first_name, user_last_name=last_name, chat_id=chat, is_user_admin=is_user_admin , is_user_block=is_user_block , is_user_good=is_user_good) # abstractness
+    add_default_data(id) # Set default settings and text
 
 
 # # /admin - статистика будет, загруженность базы, токены..
@@ -51,31 +49,27 @@ def start(context):
 # def start(context): 
 
 
-# Message from OpenAI
+# Messages to OpenAI
 @bot.message_handler(func=lambda message: message.text is not None and not message.text.startswith('/')) # Декоратор Telebot принимает все, кроме того, что начинается на /
 def handle_message(message):
     bot.send_chat_action(message.chat.id, 'typing') # Typing bot
-
-    user_id = message.from_user.id # Телеграм id начавшего диалог
-    id_all = read_tele_user(user_id)# Вся строка по id в таблице Users Telegram
-    if id_all == None:
-        start(message) # Если почему то не нажал /start, нажимаем
-        print("This User ID is None in DB. Automatically add.") # raise ValueError("ID is None. Program stopped. So Soory bro.") - жестко выйдет из программы
-    id_all = read_tele_user(user_id)# Вся строка по id в таблице Users Telegram
-    id = id_all[4] # id 4 по счету в кортеже
+    id = message.from_user.id # Telegram id user were send message
+    read_user_all_data = read_tele_user(id) # Reading in DB all data for user id
+    if read_user_all_data == None:
+        start(message) # If the user has not clicked / start, click it now
+        print(f"Error: This User ID is None in DB. Automatically add.")
 
     async def run_main():
         bot.send_chat_action(message.chat.id, 'typing') # Typing bot
-        result = await main(message.text, id)
-        send = f"{result[0]}\n- - - - - - - - - - - - - - - - - - - - - - - - - -\nВерсия модели: {result[1]}\nТок. вопрос + ответ: {result[4]}\nТокенов за все время: {result[5]}\nТокенов осталось: {result[6]}" #Завершенные токены: {result[2]}\nПодсказки токены: {result[3]}\nВсего токенов: {result[4]}"
-        # send = f"{переменная}\n<b>Жирным - b</b> <i>Курсив - i</i> <code>Код - code</code> <pre>Отдельный блок для копирования - pre</pre>"
-        bot.reply_to(message, send) # bot.reply_to(message, send, parse_mode='HTML')
+        result = await main(message.text, id) # Send to open_ai.py
+        send = f"{result[0]}\n\nМодель: {result[1]}\nТокенов: {result[2]}\nНастроить: /setup"#\nЛимит токенов: {result[3]}"
+        bot.reply_to(message, send) # Send to Telegram user 
     loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
+    asyncio.set_event_loop(loop)       #  гавно какое то, нужно разобраться..
     loop.run_until_complete(run_main())
 
 
-# Вызов меню /setup or /menu
+# Menu /setup or /menu
 @bot.message_handler(commands=['setup', 'menu', 'setings', 'set'])
 def main_menu(message):
     keyboard = types.InlineKeyboardMarkup(row_width=1)
@@ -88,41 +82,45 @@ def main_menu(message):
     bot.send_message(message.chat.id, "Настройки ChatGPT:", reply_markup=keyboard)
     #bot.edit_message_text(chat_id=message.chat.id, message_id=message.message_id, text="Выберите версию ChatGPT:", reply_markup=keyboard)
 
-# Под меню mode_dialog
+# Submenu Model
 def model(call):
-    keyboard = types.InlineKeyboardMarkup(row_width=2)
-    amnesia = types.InlineKeyboardButton(text="Амнезия", callback_data="amnesia")
-    dialog = types.InlineKeyboardButton(text="Диалог", callback_data="dialog")
-    keyboard.add(amnesia, dialog)
+    keyboard = types.InlineKeyboardMarkup(row_width=1) # 3
+    gpt4 = types.InlineKeyboardButton(text="ChatGPT 4", callback_data="gpt4")
+    gpt4_1 = types.InlineKeyboardButton(text="ChatGPT 4 1106 preview", callback_data="gpt4_1")
+    gpt3_5 = types.InlineKeyboardButton(text="ChatGPT 3.5 turbo", callback_data="gpt3_5")
+    keyboard.add(gpt4, gpt4_1, gpt3_5)
     back_button = types.InlineKeyboardButton(text="Назад в главное меню", callback_data="back_menu")
     keyboard.row(back_button)
-    bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="Выберите режим ответа ChatGPT:", reply_markup=keyboard)
+    bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="Выберите модель ChatGPT:", reply_markup=keyboard)
 
-# Под меню time_limit
+# Submenu Time Limit
 def time_limit(call):
-    bot.answer_callback_query(call.id, "Вы нажали кнопку time_limit!")
-    # keyboard = types.InlineKeyboardMarkup(row_width=2)
-    # amnesia = types.InlineKeyboardButton(text="Амнезия", callback_data="amnesia")
-    # dialog = types.InlineKeyboardButton(text="Диалог", callback_data="dialog")
-    # keyboard.add(amnesia, dialog)
-    # back_button = types.InlineKeyboardButton(text="Назад в главное меню", callback_data="back_menu")
-    # keyboard.row(back_button)
-    # bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="Выберите режим ответа ChatGPT:", reply_markup=keyboard)
+    #settings = get_settings(id) # Get in DB all data settings
+    keyboard = types.InlineKeyboardMarkup(row_width=1)
+    min30 = types.InlineKeyboardButton(text="30 мин", callback_data="min30")
+    min15 = types.InlineKeyboardButton(text="15 мин", callback_data="min15")
+    min5 = types.InlineKeyboardButton(text="5 мин", callback_data="min5")
+    min0 = types.InlineKeyboardButton(text="Не запоминать", callback_data="min0")
+    keyboard.add(min30, min15, min5, min0)
+    back_button = types.InlineKeyboardButton(text="Назад в главное меню", callback_data="back_menu")
+    keyboard.row(back_button)
+    bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="Выберите время ChatGPT:", reply_markup=keyboard)
 
-# Под меню reset
+# # SubMenu Reset dialog
 def reset(call):
-    pass
+    id = call.from_user.id # telegram id user
+    update_talking(id, session_data='')
     bot.answer_callback_query(call.id, text='Ваш диалог с ChatGPT сброшен 😉', show_alert=True)
 
-# Под меню stat
+# SubMenu Statistic
 def stat(call):
-    bot.send_chat_action(call.chat.id, 'typing') # Typing bot
-    # settings = get_settings(id)
-    # model_chat = settings[7] # Модель
-    # the_gap = settings[6] # Часы.минуты время использования истории общения
-    # total_used_token = settings[4] # Всего использованно токенов
-    # limit_token = settings[5] # Выданный лимит токенов
-    # bot.answer_callback_query(call.id, text=f"Ваша статистика:\nВерсия модели: {model_chat}\nВремя хранения диалога: {the_gap}\nВсего использованно токенов: {total_used_token}\nЛимит токенов: {limit_token}", show_alert=True)
+    id = call.from_user.id # telegram id user
+    settings = get_settings(id) # Get in DB all data settings
+    model_chat = settings[7] # Модель
+    the_gap = settings[6] # Часы.минуты время использования истории общения
+    total_used_token = settings[4] # Всего использованно токенов
+    limit_token = settings[5] # Выданный лимит токенов
+    bot.answer_callback_query(call.id, text=f"Версия модели: {model_chat}\nВремя хранения диалога: {the_gap}\nВсего использованно токенов: {total_used_token}\nЛимит токенов: {limit_token}", show_alert=True)
 
 # Закрыть клавиатуру
 @bot.callback_query_handler(func=lambda call: call.data == "close_menu")
@@ -133,17 +131,50 @@ def handle_close_menu(call):
 @bot.callback_query_handler(func=lambda call: True)
 def callback_inline(call):
     chat_id = call.message.chat.id if call.message is not None else None
-
+    id = call.from_user.id # telegram id user
+    # Model
     if call.data == "model":
         model(call)
+    elif call.data == "gpt4":
+        model_id="gpt-4"
+        add_update_settings(id, model_id=model_id)
+        bot.answer_callback_query(call.id, "Вы выбрали ChatGPT 4!")
+    elif call.data == "gpt4_1":
+        model_id="gpt-4-1106-preview"
+        add_update_settings(id, model_id=model_id)
+        bot.answer_callback_query(call.id, "Вы выбрали ChatGPT 4 1106 preview!")
+    elif call.data == "gpt3_5":
+        model_id="gpt-3.5-turbo"
+        add_update_settings(id, model_id=model_id)
+        bot.answer_callback_query(call.id, "Вы выбрали ChatGPT 3.5 turbo!")
+    # Time
     elif call.data == "time_limit":
-        #bot.answer_callback_query(call.id, "Вы нажали кнопку mode_dialog!")
         time_limit(call)
+    elif call.data == "min30":
+        the_gap = 0.3
+        add_update_settings(id, the_gap=the_gap)
+        bot.answer_callback_query(call.id, "ChatGPT будет помнить диалог 30 минут!")
+    elif call.data == "min15":
+        the_gap = 0.15
+        add_update_settings(id, the_gap=the_gap)
+        bot.answer_callback_query(call.id, "ChatGPT будет помнить диалог 15 минут!")
+    elif call.data == "min5":
+        the_gap = 0.05
+        add_update_settings(id, the_gap=the_gap)
+        bot.answer_callback_query(call.id, "ChatGPT будет помнить диалог 5 минут!")
+    elif call.data == "min0":
+        the_gap = 0
+        add_update_settings(id, the_gap=the_gap)
+        bot.answer_callback_query(call.id, "ChatGPT не будет помнить диалог!")
+    # Reset
     elif call.data == "reset":
         reset(call)
+    # Statistic
     elif call.data == "stat":
         stat(call)
+    # Menu Back
     elif call.data == "back_menu":
+        pass
         if chat_id:
             main_menu(call.message)
 
