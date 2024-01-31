@@ -10,10 +10,11 @@ async def main(question: str, id: int):
     session_data = [] # Clearing the variable RAM
     # Get Settings
     settings = get_settings(id) # Get in DB all data settings ChatGPT
-    model_chat = settings[7] # Model gpt
-    the_gap = settings[6] # The storage time of the communication history
-    total_used_token = settings[4] # Total tokens spent
-    limit_token = settings[5] # Allowed Token Limit
+    if settings is not None:
+        model_chat = settings[7] # Model gpt
+        the_gap = settings[6] # The storage time of the communication history
+        total_used_token = settings[4] # Total tokens spent
+        limit_token = settings[5] # Allowed Token Limit
     # The condition for using the communication history from the database
     read_history = read_history_db(id)
     if read_history:

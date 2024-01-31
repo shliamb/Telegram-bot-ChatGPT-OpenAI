@@ -9,7 +9,7 @@ session = Session()
 def read_tele_user(id):
     user_data = session.query(UsersTelegram).filter(UsersTelegram.id == id).all()
     for data in user_data:
-        return data.id, data.user_username, data.user_first_name, data.user_last_name, data.chat_id or None
+        return data.id, data.user_username, data.user_first_name, data.user_last_name, data.chat_id, data.is_user_admin, data.is_user_block, data.is_user_good or None
     
 # Writing or Update all telegram data user, abstractness
 def add_update_tele_user(id, user_username=None, user_first_name=None, user_last_name=None, chat_id=None, is_user_admin=None, is_user_block=None, is_user_good=None):

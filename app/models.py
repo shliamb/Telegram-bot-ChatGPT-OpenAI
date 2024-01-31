@@ -40,7 +40,7 @@ class ChatGpt(Base):
     lang_chat = Column(String(15), default="RU", server_default="RU",  nullable=False)
     count_req_chat = Column(Integer, default=0, server_default="0",  nullable=False)
     used_token_chat = Column(Integer, default=0, server_default="0",  nullable=False)
-    limit_token_chat = Column(Integer, default=0, server_default="0",  nullable=False)
+    limit_token_chat = Column(Integer, default=1000, server_default="1000",  nullable=False)
     the_gap = Column(Float, default=0.15, server_default="0.15", nullable=False)
     model_id = Column(String(50), default="gpt-3.5-turbo", server_default="gpt-3.5-turbo",  nullable=False) 
     ###
