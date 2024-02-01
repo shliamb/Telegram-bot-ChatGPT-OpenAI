@@ -6,7 +6,7 @@ from logging_bot import logger
 while True:
     try:
         pass
-        print("Погнали...")
+        print("Telegram ChatGPT bot is started")
         from tele_bot import start_bot
         start_bot(none_stop=True, timeout=60)
         break
