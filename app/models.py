@@ -8,7 +8,6 @@ engine = create_engine('sqlite:///./db/sqlite3.db') # Создаем соеди�
 Base = declarative_base() # Создаем базовый класс для объявления моделей
 
 
-
 # if has access to base
 class UsersBase(Base):
     __tablename__ = 'users'

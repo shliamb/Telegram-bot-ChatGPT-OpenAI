@@ -147,8 +147,8 @@ def handle_message(message):
                     text = result[0] # Text response
                     model = result[1] # The name of the model geting from the OpenAI response
                     used_token = result[2]
-                    money = result[3] # geting from the Calculation.py
-                    # money = user_money[8]
+                    # money = result[3] # geting from the Calculation.py
+                    money = user_money[8]
 
                 send = f"{text}\n\n\n{model}\nисп.:{used_token}токенов\nВсего:{money}руб.\nНастроить: /setup"
                 bot.reply_to(message, send) # Send to Telegram user  - parse_mode='HTML'
