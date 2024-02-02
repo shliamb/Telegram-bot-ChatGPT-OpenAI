@@ -72,5 +72,12 @@ class SavedQuestion(Base):
     ###
     users_telegram_id = Column(Integer, ForeignKey("users_telegram.id"), index=True)
 
+# Save data exchange USD to RUB  first at day - None
+class Exchange(Base):
+    __tablename__ = 'exchange'
+    id = Column(Integer, primary_key=True)
+    timestamp = Column(DateTime, onupdate=datetime.datetime.utcnow, default=datetime.datetime.utcnow, nullable=False) # Каждый раз обновляется, при изменениях в ячейке
+    price = Column(Float(30), default=100, server_default="100", nullable=False)
+    ###
 
 Base.metadata.create_all(engine) # Создаем таблицы в базе данных
