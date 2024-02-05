@@ -1,4 +1,47 @@
 from worker_db import get_settings, add_update_settings
+import telebot
+from app.bot import types, bot
+# from yandex_checkout import Configuration, Payment
+
+
+# Настройка API Яндекс.Кассы
+# Configuration.account_id = "YOUR_YANDEX_KASSA_ACCOUNT_ID"
+# Configuration.secret_key = "YOUR_YANDEX_KASSA_SECRET_KEY"
+
+# Обработчик команды для начала оплаты
+@bot.message_handler(commands=['start'])
+def start_payment(message):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.add(types.KeyboardButton("Оплатить"))
+
+    bot.send_message(message.chat.id, "Нажмите кнопку 'Оплатить', чтобы произвести оплату", reply_markup=markup)
+
+# Обработчик кнопки оплаты
+@bot.message_handler(func=lambda message: message.text == "Оплатить")
+def process_payment(message):
+    payment = Payment.create({
+        "amount": {
+            "value": 100.00,
+            "currency": "RUB"
+        },
+        "description": "Оплата за услуги",
+        "confirmation": {
+            "type": "redirect",
+            "return_url": "https://yourwebsite.com/payment/success"
+        },
+        "capture": True
+    })
+
+    bot.send_message(message.chat.id, f"Для оплаты перейдите по ссылке: {payment.confirmation.confirmation_url}")
+
+
+
+
+
+
+
+
+
 
 
 # Получаем из базы
