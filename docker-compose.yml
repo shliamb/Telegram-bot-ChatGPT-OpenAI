@@ -1,20 +1,30 @@
-version: '3.9'
+version: '3.8'
 
 services:
-  telegram-bot:
-    build: .
+
+  postgres:
+    # build: . Запускает Dockefile
+    # image: my_postgres_image
+    image: postgres:latest
+    container_name: my_postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: my_database
+    ports:
+      - "5432:5432"
     volumes:
-      - .:/usr/src/app
-    restart: always # docker restart if it crash
+      - postgres_data:/postgres
+      # - postgres_data:/var/lib/postgresql/data
     networks:
       - network
-#     ports:
-#       - "0000:0000"
-#     volumes:
-#       - bot_data:/var/lib/bot/data
+
+    #restart: always
+
 volumes:
-  bot_data:
+  postgres_data:
 
 networks:
   network:
     driver: bridge
+
