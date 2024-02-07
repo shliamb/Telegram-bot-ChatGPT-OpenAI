@@ -1,19 +1,48 @@
-from worker_db import write_stat_db, add_update_settings
+import asyncio
+from worker_db import add_statistic, update_settings
 
-def save_ctatistics(id, model_version, used_tokens, value_1_tok_rub, rashod, all_countcount_req_chat, money_user,\
-                    total_spent_money, used_token_chat): # Запуск функции статистики
+async def save_ctatistics(data): # Запуск функции статистики
+
+    if data is not None:
+        id = data['id']
+        model_version = data['model_version']
+        used_tokens = data['used_tokens']
+        value_1_tok_rub = data['value_1_tok_rub']
+        all_count_before = data['all_count']
+        all_token_before = data['all_token']
+        give_me_money = data['give_me_money']
+        money = data['money']
+        all_in_money = data['all_in_money']
+        rashod = data['rashod']
+
     ###
     # Statistics
-    write_stat_db(model=model_version, used_token=used_tokens, cost_token=value_1_tok_rub,\
-                  entire_cost=rashod, users_telegram_id=id)
+    new_data = {
+        "use_model": model_version,
+        "sesion_token": used_tokens,
+        "price_1_tok": value_1_tok_rub,
+        "price_sesion_tok": rashod,
+        "users_telegram_id": id,
+    }
+    await add_statistic(new_data)
+
     ###
     # SettingsGPT
-    all_token = used_token_chat + used_tokens
-    all_count = all_countcount_req_chat + 1
-    all_money = money_user - rashod
-    total_spent_money = total_spent_money
-    add_update_settings(id, used_token_chat=all_token, count_req_chat=all_count,\
-                         money_user=all_money)#, total_spent_money=) - при пополнении баланса
+    all_token = all_token_before + used_tokens
+    all_count = all_count_before + 1
+    all_money = money - rashod
+    # total_spent_money = total_spent_money # - при пополнении баланса
 
-
+    updated_data = {
+        "all_count": all_count,
+        "all_token": all_token,
+        "money": all_money,
+    }
+    await update_settings(id, updated_data)
+ 
     return
+
+
+if __name__ == "__save_ctatistics__":
+    asyncio.run(save_ctatistics())
+

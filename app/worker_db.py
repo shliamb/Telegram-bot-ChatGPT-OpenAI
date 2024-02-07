@@ -5,7 +5,7 @@ import sqlalchemy
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from models import Base, UsersTelegram, Settings, Discussion
+from models import Base, UsersTelegram, Settings, Discussion, Exchange, Statistics
 from sqlalchemy import select, insert, update, func
 
 async def create_async_engine_and_session():
@@ -41,6 +41,7 @@ async def update_user(id, updated_data):
             await session.execute(query)
             await session.commit()
             confirmation = True
+            logging.info(f"update_user {id}")
         except Exception as e:
             logging.error(f"Failed to update user: {e}")
     return confirmation
@@ -55,6 +56,7 @@ async def adding_user(user_data):
             await session.execute(query)
             await session.commit()
             confirmation = True
+            logging.info("adding_user")
         except Exception as e:
             logging.error(f"Failed to add user: {e}")
     return confirmation
@@ -82,6 +84,7 @@ async def update_settings(id, updated_data):
             await session.execute(query)
             await session.commit()
             confirmation = True
+            logging.info(f"Update Settings {id}")
         except Exception as e:
             logging.error(f"Failed to update settings: {e}")
     return confirmation
@@ -97,6 +100,7 @@ async def add_settings(id):
             await session.execute(query)
             await session.commit()
             confirmation = True
+            logging.info(f"add_settings {id}")
         except Exception as e:
             logging.error(f"Failed to add id settings: {e}")
     return confirmation
@@ -124,6 +128,7 @@ async def update_discussion(id, updated_data):
             await session.execute(query)
             await session.commit()
             confirmation = True
+            logging.info(f"Update Discussion {id}")
         except Exception as e:
             logging.error(f"Failed to update Discussion: {e}")
     return confirmation
@@ -139,8 +144,84 @@ async def add_discussion(id):
             await session.execute(query)
             await session.commit()
             confirmation = True
+            logging.info(f"add_discussion {id}")
         except Exception as e:
             logging.error(f"Failed to add id Discussion: {e}")
     return confirmation
 
 
+#### ECXHANGE ####
+# Read exchange
+async def get_exchange():
+    id = 1
+    async_session = await create_async_engine_and_session()
+    async with async_session() as session:
+        query = select(Exchange).filter(Exchange.id == id)
+        result = await session.execute(query)
+        data = result.scalar_one_or_none() 
+        return data or None
+
+# Add_exchange
+async def add_exchange(data):
+    async_session = await create_async_engine_and_session()
+    confirmation = False
+    async with async_session() as session:
+        try:
+            query = insert(Exchange).values(**data)
+            await session.execute(query)
+            await session.commit()
+            confirmation = True
+            logging.info("Add_exchange")
+        except Exception as e:
+            logging.error(f"Failed to add Excheange rait: {e}")
+    return confirmation
+
+
+# Update_exchange 
+async def update_exchange(id, updated_data):
+    async_session = await create_async_engine_and_session()
+    confirmation = False
+    async with async_session() as session:
+        try:
+            query = update(Exchange).where(Exchange.id == id).values(**updated_data)
+            await session.execute(query)
+            await session.commit()
+            confirmation = True
+            logging.info("Update_exchange")
+        except Exception as e:
+            logging.error(f"Failed to update Exchange rait: {e}")
+    return confirmation
+
+
+
+
+#### STATISTICS ####
+# Add statistics
+async def add_statistic(data):
+    async_session = await create_async_engine_and_session()
+    confirmation = False
+    async with async_session() as session:
+        try:
+            query = insert(Statistics).values(**data)
+            await session.execute(query)
+            await session.commit()
+            confirmation = True
+            logging.info("Add a one statistics line to table")
+        except Exception as e:
+            logging.error(f"Failed to add statistics: {e}")
+    return confirmation
+
+
+# Read Statistics on id all 30 line
+async def get_last_30_statistics(id):
+    async_session = await create_async_engine_and_session()
+    async with async_session() as session:
+        query = (
+            select(Statistics)
+            .filter(Statistics.users_telegram_id == id)
+            .order_by(Statistics.time.desc())  # Сортировка по убыванию даты
+            .limit(30)  # Ограничение на количество строк
+        )
+        result = await session.execute(query)
+        data = result.scalars().all()  # Получение всех строк
+        return data

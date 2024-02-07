@@ -1,7 +1,16 @@
-import datetime
+import datetime # not support async
+import logging
 
 def get_time():
-    date_time = datetime.datetime.utcnow() # Current date and time
-    date = date_time.strftime("%Y-%m-%d") # Only date 
-    time = date_time.strftime("%H.%M") # Only time
-    return date_time, date, time # in Tuple
+    try:
+        all_date = datetime.datetime.utcnow()
+        day = all_date.strftime("%Y-%m-%d")
+        time = all_date.strftime("%H.%M")
+        send = {"day": day, "time": time, "all_date": all_date}
+        logging.info(f"Current date and time geted.")
+        return send
+    except Exception as e:
+        logging.error(f"Error get current date and time: {e}")
+
+if __name__ == "__get_time__":
+    get_time()

@@ -1,3 +1,4 @@
+import asyncio
 from exchange import usd_to_rub
 from statistics import save_ctatistics
 
@@ -13,8 +14,20 @@ price = {                         # if 1$ - 90.23:
 
 
 # Калькуляция расхода и запись в базу
-def calculation(id, model_version, used_tokens, count_req_chat, money_user, total_spent_money, used_token_chat):
-    curs = usd_to_rub()
+async def calculation(data):
+    if data is not None:
+        id = data['id']
+        model_version = data['model_version']
+        used_tokens = data['used_tokens']
+        all_count = data['all_count']
+        all_token = data['all_token']
+        give_me_money = data['give_me_money']
+        money = data['money']
+        all_in_money = data['all_in_money']
+
+
+
+    curs = await usd_to_rub()
     value_1_tok_rub = None
 
     for key, value in price.items():
@@ -27,12 +40,25 @@ def calculation(id, model_version, used_tokens, count_req_chat, money_user, tota
         value_1_tok_rub = 0.03248
     rashod = value_1_tok_rub * used_tokens # Расход
 
-    save_ctatistics(id, model_version, used_tokens, value_1_tok_rub, rashod, count_req_chat, money_user,\
-                    total_spent_money, used_token_chat) # Запуск функции статистики
+    data = {
+        "id": id,
+        "model_version": model_version,
+        "used_tokens": used_tokens,
+        "value_1_tok_rub": value_1_tok_rub,
+        "all_count": all_count,
+        "all_token": all_token,
+        "give_me_money": give_me_money,
+        "money": money,
+        "all_in_money": all_in_money,
+        "rashod": rashod,
+    }
+
+    await save_ctatistics(data) # Запуск функции статистики
 
     return rashod
 
-
+if __name__ == "__calculation__":
+    asyncio.run(calculation())
 
 
 # 1Febr2024 OpenAI:
