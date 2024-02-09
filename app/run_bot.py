@@ -4,21 +4,18 @@ import sys
 import logging
 import asyncio
 from openai import AsyncOpenAI
-from aiogram import Bot, Dispatcher, Router, types, F
+from aiogram import Bot, Dispatcher, types, F, Router
 from aiogram.enums import ParseMode
 from aiogram.utils.markdown import hbold
 from aiogram.filters import CommandStart, Command
-from aiogram.types import Message, BotCommand, InlineKeyboardMarkup, InlineKeyboardButton
-from worker_db import adding_user, get_user_by_id, update_user, add_settings, add_discussion, update_settings,\
-get_settings, get_discussion, update_discussion, get_exchange, update_exchange, get_last_30_statistics
+from aiogram.types import Message, BotCommand
 from get_time import get_time
 from calculation import calculation
-
-# from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
-
+from worker_db import (
+    adding_user, get_user_by_id, update_user, add_settings, add_discussion, update_settings,
+    get_settings, get_discussion, update_discussion, get_exchange, update_exchange, get_last_30_statistics
+)
 import datetime # позже удалить
-
-
 
 
 
@@ -26,7 +23,6 @@ client = AsyncOpenAI(api_key=api_key)
 TOKEN = token # Telegram
 dp = Dispatcher() # All handlers should be attached to the Router (or Dispatcher)
 bot = Bot(TOKEN, parse_mode="markdown") # Initialize Bot instance with a default parse mode which will be passed to all API calls
-
 
 
 
@@ -40,95 +36,6 @@ async def typing(action) -> None:
 
 
 
-
-
-
-# Меню
-async def main_menu(message: types.Message):
-    keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(text="Настройки", callback_data="submenu1"),
-                InlineKeyboardButton(text="Баланс", callback_data="submenu2")
-            ],
-            [InlineKeyboardButton(text="Закрыть меню", callback_data="close")]
-        ]
-    )
-    await message.answer("Выберите действие:", reply_markup=keyboard)
-
-
-async def submenu1(callback_query: types.CallbackQuery):
-    keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(text="Вернуться назад", callback_data="back_to_main")
-            ]
-        ]
-    )
-    await bot.edit_message_reply_markup(chat_id=callback_query.message.chat.id,
-                                        message_id=callback_query.message.message_id,
-                                        reply_markup=keyboard)
-
-async def submenu2(callback_query: types.CallbackQuery):
-    keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(text="Вернуться назад", callback_data="back_to_main")
-            ]
-        ]
-    )
-    await bot.edit_message_reply_markup(chat_id=callback_query.message.chat.id,
-                                         message_id=callback_query.message.message_id,
-                                         reply_markup=keyboard)
-
-
-async def back_to_main(callback_query: types.CallbackQuery):
-    keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(text="Настройки", callback_data="submenu1"),
-                InlineKeyboardButton(text="Баланс", callback_data="submenu2")
-            ],
-            [
-                InlineKeyboardButton(text="Закрыть меню", callback_data="close")
-            ]
-        ]
-    )
-    await bot.edit_message_reply_markup(chat_id=callback_query.message.chat.id,
-                                         message_id=callback_query.message.message_id,
-                                         reply_markup=keyboard)
-
-
-
-
-@dp.message(Command('setup', 'menu', 'setings'))
-async def start(message: types.Message):
-    await main_menu(message)
-
-@dp.callback_query(lambda c: c.data == 'submenu1')
-async def process_submenu1(callback_query: types.CallbackQuery):
-    await callback_query.answer("Нажали кнопку ") # Выводит уведомление быстрое
-    await submenu1(callback_query)
-
-
-@dp.callback_query(lambda c: c.data == 'submenu2')
-async def process_submenu2(callback_query: types.CallbackQuery):
-    await submenu2(callback_query)
-
-@dp.callback_query(lambda c: c.data == 'back_to_main')
-async def process_back_to_main(callback_query: types.CallbackQuery):
-    await back_to_main(callback_query)
-
-@dp.callback_query(lambda c: c.data == 'close')
-async def close_main(callback_query: types.CallbackQuery):
-    chat_id = callback_query.message.chat.id
-    message_id = callback_query.message.message_id
-    await bot.delete_message(chat_id=chat_id, message_id=message_id) # Удалить и меню и сообщение
-
-
-
-
-
 # PUSH /START
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
@@ -136,8 +43,8 @@ async def command_start_handler(message: Message) -> None:
 
     # Меню
     bot_commands = [
-        BotCommand(command="/setup", description="Настройки"),
-        BotCommand(command="/help", description="Help"),
+        BotCommand(command="/menu", description="Главное меню"),
+        # BotCommand(command="/help", description="Help"),
     ]
     await bot.set_my_commands(bot_commands)
 
@@ -186,7 +93,7 @@ async def command_start_handler(message: Message) -> None:
         money = 1000 # Yep!
         updated_data = {"money": money}
         confirmation = await update_settings(id, updated_data) # Gives money
-        if confirmation is True:
+        if confirmation is True: # Подтверждение из worcker_db
             logging.info(f"1000 RUB added, he id is:{id}.")
         else:
             logging.error(f"A 1000 RUB has not added, he id is:{id}.")
@@ -237,7 +144,8 @@ async def set(message: types.Message):
         money = user.money
         all_in_money = user.all_in_money
         flag_stik = user.flag_stik
-        print(id, temp_chat, frequency, presence, flag_stik, all_count, all_token, the_gap, set_model, give_me_money, money, all_in_money)
+        print(id, temp_chat, frequency, presence, flag_stik, all_count, all_token, the_gap,\
+               set_model, give_me_money, money, all_in_money)
     else:
         print("Settings not found")
 
@@ -269,10 +177,6 @@ async def set(message: types.Message):
                    statistic.price_1_tok, statistic.price_sesion_tok, statistic.users_telegram_id )
     else:
         print("Нет данных для этого пользователя")
-
-
-
-
 
 
 
@@ -314,6 +218,412 @@ async def upex(message: types.Message):
 #             await message.answer("Извините, вас нет в списках администраторов.")
 
 
+
+
+
+
+
+
+
+
+#### WORK MENU ####
+
+from keyboards import (
+    main_menu, sub_setings, sub_balance, back_to_main, back_to_setings,\
+    sub_setings_model, sub_setings_time, sub_setings_creativ, sub_setings_repet, sub_setings_repet_all, sub_add_money
+)
+
+
+# Main menu strat
+@dp.message(Command('setup', 'menu', 'setings'))
+async def start(message: types.Message):
+    await main_menu(bot, message)
+
+# Back to main
+@dp.callback_query(lambda c: c.data == 'back_to_main')
+async def process_back_to_main(callback_query: types.CallbackQuery):
+    await back_to_main(bot, callback_query)
+    await bot.answer_callback_query(callback_query.id)
+
+# Close menu
+@dp.callback_query(lambda c: c.data == 'close')
+async def close_main(callback_query: types.CallbackQuery):
+    chat_id = callback_query.message.chat.id
+    message_id = callback_query.message.message_id
+    await bot.delete_message(chat_id=chat_id, message_id=message_id) # Удалить и меню и сообщение
+    await bot.answer_callback_query(callback_query.id)
+####
+
+#### SETTINGS #### 
+# Settings
+@dp.callback_query(lambda c: c.data == 'sub_setings')
+async def process_sub_setings(callback_query: types.CallbackQuery):
+    #await callback_query.answer("Нажали кнопку ") # Выводит уведомление быстрое
+    await sub_setings(bot, callback_query)
+    await bot.answer_callback_query(callback_query.id)
+
+# Back to Settings
+@dp.callback_query(lambda c: c.data == 'back_to_setings')
+async def process_back_to_settings(callback_query: types.CallbackQuery):
+    await back_to_setings(bot, callback_query)
+    await bot.answer_callback_query(callback_query.id)
+####
+
+# Settings - model
+@dp.callback_query(lambda c: c.data == 'model')
+async def process_sub_settings_modell(callback_query: types.CallbackQuery):
+    await sub_setings_model(bot, callback_query)
+    await bot.answer_callback_query(callback_query.id)
+
+# Settings - model - gpt-4-1106-preview
+@dp.callback_query(lambda c: c.data == 'gpt-4-1106-preview')
+async def process_sub_settings_modell_1106(callback_query: types.CallbackQuery):
+    # chat_id = callback_query.message.chat.id
+    # message_id = callback_query.message.message_id
+    # await bot.send_chat_action(chat_id, action='typing')
+    id = user_id(callback_query)
+    # await bot.send_chat_action(chat_id, action='typing')
+    updated_data = {"set_model": "gpt-4-1106-preview"}
+    await update_settings(id, updated_data)
+    await callback_query.answer("Установлена модель - gpt-4-1106-preview")
+    await bot.answer_callback_query(callback_query.id)
+
+# Settings - model - gpt-4-0125-preview
+@dp.callback_query(lambda c: c.data == 'gpt-4-0125-preview')
+async def process_sub_settings_modell_0125(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+    updated_data = {"set_model": "gpt-4-0125-preview"}
+    await update_settings(id, updated_data)
+    await callback_query.answer("Установлена модель - gpt-4-0125-preview")
+    await bot.answer_callback_query(callback_query.id)
+
+# Settings - model - gpt-3.5-turbo-0613
+@dp.callback_query(lambda c: c.data == 'gpt-3.5-turbo-0613')
+async def process_sub_settings_modell_0125(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+    updated_data = {"set_model": "gpt-3.5-turbo-0613"}
+    await update_settings(id, updated_data)
+    await callback_query.answer("Установлена модель - gpt-3.5-turbo-0613")
+    await bot.answer_callback_query(callback_query.id)
+####
+
+# Settings - time
+@dp.callback_query(lambda c: c.data == 'time')
+async def process_sub_settings_time(callback_query: types.CallbackQuery):
+    await sub_setings_time(bot, callback_query)
+    await bot.answer_callback_query(callback_query.id)
+
+# Settings - time - no
+@dp.callback_query(lambda c: c.data == 'no_time')
+async def process_sub_settings_time_no(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+    updated_data = {"the_gap": 0}
+    await update_settings(id, updated_data)
+    await callback_query.answer("Каждый вопрос для ChatGPT будет новым.")
+    await bot.answer_callback_query(callback_query.id)
+
+# Settings - time - 5 min
+@dp.callback_query(lambda c: c.data == '5_time')
+async def process_sub_settings_time_5(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+    updated_data = {"the_gap": 0.05}
+    await update_settings(id, updated_data)
+    await callback_query.answer("Диалог будет актуальным в течении 5 минут.")
+    await bot.answer_callback_query(callback_query.id)
+
+# Settings - time - 15 min
+@dp.callback_query(lambda c: c.data == '15_time')
+async def process_sub_settings_time_15(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+    updated_data = {"the_gap": 0.15}
+    await update_settings(id, updated_data)
+    await callback_query.answer("Диалог будет актуальным в течении 15 минут.")
+    await bot.answer_callback_query(callback_query.id)
+
+# Settings - time - 30 min
+@dp.callback_query(lambda c: c.data == '30_time')
+async def process_sub_settings_time_30(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+    updated_data = {"the_gap": 0.30}
+    await update_settings(id, updated_data)
+    await callback_query.answer("Диалог будет актуальным в течении 30 минут.")
+    await bot.answer_callback_query(callback_query.id)
+####
+
+# Settings - Creativ
+@dp.callback_query(lambda c: c.data == 'creativ')
+async def process_sub_settings_creativ(callback_query: types.CallbackQuery):
+    await sub_setings_creativ(bot, callback_query)
+    await bot.answer_callback_query(callback_query.id)
+
+# Settings - Creativ - no
+@dp.callback_query(lambda c: c.data == 'creativ_0')
+async def process_sub_settings_creativ_0(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+    updated_data = {"temp_chat": 0}
+    await update_settings(id, updated_data)
+    await callback_query.answer("100% консервативности в ответах.")
+    await bot.answer_callback_query(callback_query.id)
+
+# Settings - Creativ - creativ_3
+@dp.callback_query(lambda c: c.data == 'creativ_3')
+async def process_sub_settings_creativ_3(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+    updated_data = {"temp_chat": 0.3}
+    await update_settings(id, updated_data)
+    await callback_query.answer("Консервативность 70%, Разнообразие 30%")
+    await bot.answer_callback_query(callback_query.id)
+
+# Settings - Creativ - creativ_5
+@dp.callback_query(lambda c: c.data == 'creativ_5')
+async def process_sub_settings_creativ_5(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+    updated_data = {"temp_chat": 0.5}
+    await update_settings(id, updated_data)
+    await callback_query.answer("Консервативность 50%, Разнообразие 50%")
+    await bot.answer_callback_query(callback_query.id)
+
+# Settings - Creativ - creativ_7
+@dp.callback_query(lambda c: c.data == 'creativ_7')
+async def process_sub_settings_creativ_7(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+    updated_data = {"temp_chat": 0.7}
+    await update_settings(id, updated_data)
+    await callback_query.answer("Консервативность 30%, Разнообразие 70%")
+    await bot.answer_callback_query(callback_query.id)
+
+# Settings - Creativ - creativ_1
+@dp.callback_query(lambda c: c.data == 'creativ_1')
+async def process_sub_settings_creativ_1(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+    updated_data = {"temp_chat": 1}
+    await update_settings(id, updated_data)
+    await callback_query.answer("100% Разнообразия в ответах.")
+    await bot.answer_callback_query(callback_query.id)
+####
+    
+
+# Settings - repet
+@dp.callback_query(lambda c: c.data == 'repet')
+async def process_sub_settings_repet(callback_query: types.CallbackQuery):
+    await sub_setings_repet(bot, callback_query)
+    await bot.answer_callback_query(callback_query.id)
+
+# Settings - repet - no
+@dp.callback_query(lambda c: c.data == 'repet_0')
+async def process_sub_settings_repet_0(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+    updated_data = {"frequency": 0}
+    await update_settings(id, updated_data)
+    await callback_query.answer("Минимальное повторение в ответе.")
+    await bot.answer_callback_query(callback_query.id)
+
+# Settings - repet - 3
+@dp.callback_query(lambda c: c.data == 'repet_3')
+async def process_sub_settings_repet_3(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+    updated_data = {"frequency": 0.3}
+    await update_settings(id, updated_data)
+    await callback_query.answer("На 30% возможных повторений больше в ответе.")
+    await bot.answer_callback_query(callback_query.id)
+
+# Settings - repet - 5
+@dp.callback_query(lambda c: c.data == 'repet_5')
+async def process_sub_settings_repet_5(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+    updated_data = {"frequency": 0.5}
+    await update_settings(id, updated_data)
+    await callback_query.answer("На 50% возможных повторений больше в ответе.")
+    await bot.answer_callback_query(callback_query.id)
+
+# Settings - repet - 7
+@dp.callback_query(lambda c: c.data == 'repet_7')
+async def process_sub_settings_repet_7(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+    updated_data = {"frequency": 0.7}
+    await update_settings(id, updated_data)
+    await callback_query.answer("На 70% возможных повторений больше в ответе.")
+    await bot.answer_callback_query(callback_query.id)
+
+# Settings - repet - 1
+@dp.callback_query(lambda c: c.data == 'repet_1')
+async def process_sub_settings_repet_1(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+    updated_data = {"frequency": 1}
+    await update_settings(id, updated_data)
+    await callback_query.answer("На 100% возможных повторений больше в ответе.")
+    await bot.answer_callback_query(callback_query.id)
+####
+
+
+# Settings - presence
+@dp.callback_query(lambda c: c.data == 'repet_all')
+async def process_sub_settings_repet_all(callback_query: types.CallbackQuery):
+    await sub_setings_repet_all(bot, callback_query)
+    await bot.answer_callback_query(callback_query.id)
+
+# Settings - presence - no
+@dp.callback_query(lambda c: c.data == 'repet_all_0')
+async def process_sub_settings_repet_all_0(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+    updated_data = {"presence": 0}
+    await update_settings(id, updated_data)
+    await callback_query.answer("Минимальное повторение в ответах.")
+    await bot.answer_callback_query(callback_query.id)
+
+# Settings - presence - 3
+@dp.callback_query(lambda c: c.data == 'repet_all_3')
+async def process_sub_settings_repet_all_3(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+    updated_data = {"presence": 0.3}
+    await update_settings(id, updated_data)
+    await callback_query.answer("На 30% возможных повторений больше в ответах.")
+    await bot.answer_callback_query(callback_query.id)
+
+# Settings - presence - 5
+@dp.callback_query(lambda c: c.data == 'repet_all_5')
+async def process_sub_settings_repet_all_5(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+    updated_data = {"presence": 0.5}
+    await update_settings(id, updated_data)
+    await callback_query.answer("На 50% возможных повторений больше в ответах.")
+    await bot.answer_callback_query(callback_query.id)
+
+# Settings - presence - 7
+@dp.callback_query(lambda c: c.data == 'repet_all_7')
+async def process_sub_settings_repet_all_7(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+    updated_data = {"presence": 0.7}
+    await update_settings(id, updated_data)
+    await callback_query.answer("На 70% возможных повторений больше в ответах.")
+    await bot.answer_callback_query(callback_query.id)
+
+# Settings - presence - 1
+@dp.callback_query(lambda c: c.data == 'repet_all_1')
+async def process_sub_settings_repet_all_1(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+    updated_data = {"presence": 1}
+    await update_settings(id, updated_data)
+    await callback_query.answer("На 100% возможных повторений больше в ответах.")
+    await bot.answer_callback_query(callback_query.id)
+####
+
+
+# Settings - flag_stik
+@dp.callback_query(lambda c: c.data == 'flag_stik')
+async def process_sub_settings_flag_stik(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+    data = await get_settings(id)
+    if data:
+        flag_stik = data.flag_stik
+    if flag_stik == True:
+        updated_data = {"flag_stik": False}
+        await update_settings(id, updated_data)
+        await callback_query.answer("Строка статистики в ответе отключена.")
+    if flag_stik == False:
+        updated_data = {"flag_stik": True}
+        await update_settings(id, updated_data)
+        await callback_query.answer("Строка статистики в ответе включена.")
+        await bot.answer_callback_query(callback_query.id)
+####
+
+
+# Settings - reset dialog
+@dp.callback_query(lambda c: c.data == 'sub_dialog')
+async def process_sub_dialog(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+    updated_data = {"discus": None}
+    await update_discussion(id, updated_data)
+    await callback_query.answer("Ваш диалог с ChatGPT сброшен.")
+    await bot.answer_callback_query(callback_query.id)
+####
+
+# Settings - finansi
+@dp.callback_query(lambda c: c.data == 'sub_balance')
+async def process_sub_balance(callback_query: types.CallbackQuery):
+    await sub_balance(bot, callback_query)
+    await bot.answer_callback_query(callback_query.id)
+####
+
+# Settings - my_many
+@dp.callback_query(lambda c: c.data == 'my_many')
+async def process_sub_settings_my_many(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+    data = await get_settings(id)
+    if data:
+        money = round(data.money, 2)
+        await bot.send_message(callback_query.from_user.id, f"<b>На вашем счету:\n{money}</b> RUB\n", parse_mode="HTML")
+    await bot.answer_callback_query(callback_query.id)
+####
+
+# Settings - add_money
+@dp.callback_query(lambda c: c.data == 'add_money')
+async def process_sub_settings_add_money(callback_query: types.CallbackQuery):
+    await sub_add_money(bot, callback_query)
+    await bot.answer_callback_query(callback_query.id)
+
+# Settings - add_money - 100
+@dp.callback_query(lambda c: c.data == 'many_100')
+async def process_sub_settings_add_money_100(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+    await callback_query.answer("100")
+    await bot.answer_callback_query(callback_query.id)
+
+# Settings - add_money - 200
+@dp.callback_query(lambda c: c.data == 'many_200')
+async def process_sub_settings_add_money_200(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+    await callback_query.answer("200")
+    await bot.answer_callback_query(callback_query.id)
+
+# Settings - add_money - 500
+@dp.callback_query(lambda c: c.data == 'many_500')
+async def process_sub_settings_add_money_500(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+    await callback_query.answer("500")
+    await bot.answer_callback_query(callback_query.id)
+
+# Settings - add_money - 700
+@dp.callback_query(lambda c: c.data == 'many_700')
+async def process_sub_settings_add_money_700(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+    await callback_query.answer("700")
+    await bot.answer_callback_query(callback_query.id)
+
+# Settings - add_money - 1000
+@dp.callback_query(lambda c: c.data == 'many_1000')
+async def process_sub_settings_add_money_1000(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+    await callback_query.answer("1000")
+    await bot.answer_callback_query(callback_query.id)
+
+# Settings - add_money - 2000
+@dp.callback_query(lambda c: c.data == 'many_2000')
+async def process_sub_settings_add_money_2000(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+    await callback_query.answer("2000")
+    await bot.answer_callback_query(callback_query.id)
+
+
+
+####
+
+# Settings - about
+@dp.callback_query(lambda c: c.data == 'sub_about')
+async def process_sub_about(callback_query: types.CallbackQuery):
+    #await sub_about(bot, callback_query)
+    await bot.send_message(callback_query.from_user.id, f"<b>🤙🏼 О боте</b>\nБот работает на API OpenAI.", parse_mode="HTML")
+    await bot.answer_callback_query(callback_query.id)
+
+
+
+
+
+
+
+
+
+
 # Message to OpenAI
 @dp.message()
 async def handle_message(message: types.Message):
@@ -331,8 +641,8 @@ async def handle_message(message: types.Message):
             all_count = data.all_count
             all_token = data.all_token
             the_gap = data.the_gap
-            set_model = data.set_model
-            #set_model = "gpt-4-1106-preview"
+            #set_model = data.set_model
+            set_model = "gpt-4-1106-preview"
             give_me_money = data.give_me_money
             money = data.money
             all_in_money = data.all_in_money
@@ -412,15 +722,17 @@ async def handle_message(message: types.Message):
                 await update_discussion(id, updated_data)
                 cache = []
 
-            else:
+            if money < 0 and money == 0:
                 await message.answer("Извините, но похоже, у вас нулевой баланс.\n Пополнить - [/setup]")
                 logging.info(f"User {id} her money is finish.")
-        else:
+        if data is None:
             await command_start_handler(message)
             logging.info(f"User {id} is not on DB, added.")
     else:
         await message.answer("Извините, сообщение в неподдерживаемом формате.")
         logging.error(f"Error, not correct message from User whose id is {id}")
+
+
 
 
 
@@ -436,324 +748,10 @@ if __name__ == "__main__":
     while retries > 0:
         try:
             asyncio.run(main())
+            break # Если выполнение успешно - выходим из цикла.
         except Exception as e:
-            logging.error("Request timeout exceeded. Restart...")
+            logging.error(f"An error occurred: {e}. Restarting after a delay...")
             retries -= 1
-            time.sleep(5)
-        finally:
-            pass
-
-
-
-# if __name__ ==  '__main__':
-#     executor.start_polling(dp, skip_updates=True, on_startup=setup_bot_commands)
-
-
-# async def main():
-#     bot = Bot(token=os.getenv("BOT_TOKEN"))
-#     dp = Dispatcher()
-#     dp.include_router(router)
-#     await dp.start_polling(bot)
-
-
-
-
-
-
-
-
-
-# async def main():
-#     async_session = await create_async_engine_and_session()
-#     async with async_session() as session:
-#         # Do some asynchronous database operations here
-#         pass
-
-
-# async def main():
-#     async_session = await create_async_engine_and_session()
-#     async with async_session() as session:
-#         # Пример чтения данных из базы данных Этот код выполняет запрос на выборку всех пользователей из таблицы User и выводит их имена.
-#         result = await session.execute(select(UsersBase))
-#         users = result.scalars().all()
-#         for user in users:
-#             print(user.name)
-
-
-# await main(1)  # Здесь 1 - это id пользователя, которого вы хотите найти
-
-# found_users = await main(1)  # Здесь 1 - это id пользователя, которого вы хотите найти
-# if found_users:
-#     for user in found_users:
-#         # Делаете что-то с каждым найденным пользователем
-# else:
-#     print("Пользователь не найден.")
-
-
-
-
-
-# from aiogram import Bot, Dispatcher, Router, types
-# from aiogram.enums import ParseMode
-# from aiogram.utils.markdown import hbold
-# from aiogram.filters import CommandStart, Command
-# from aiogram.types import Message
-# from keys import token, api_key, white_list, admin_user_ids, block
-# from worker_db import read_tele_user, add_update_tele_user, add_default_data, get_settings, update_talking, add_update_settings, admin_static_db, read_history_db
-# from get_time import get_time
-# from calculation import calculation
-
-# from openai import AsyncOpenAI
-# import asyncio
-# import logging
-# import time
-# import sys
-
-
-# client = AsyncOpenAI(api_key=api_key)
-# TOKEN = token # Telegram
-# dp = Dispatcher() # All handlers should be attached to the Router (or Dispatcher)
-# bot = Bot(TOKEN, parse_mode="markdown") # Initialize Bot instance with a default parse mode which will be passed to all API calls
-
-
-
-# # User_ID
-# def user_id(action) -> int:
-#     return action.from_user.id
-
-# # Typing
-# async def typing(action) -> None:
-#     await bot.send_chat_action(action.chat.id, action='typing')
-
-
-
-# # START Command("start")
-# @dp.message(CommandStart())
-# async def command_start_handler(message: Message) -> None:
-#     await typing(message)
-#     id = user_id(message)
-#     ###
-#     #full_name = message.from_user.full_name
-#     name = message.from_user.username
-#     first_name = message.from_user.first_name
-#     last_name = message.from_user.last_name
-#     chat = message.chat.id
-#     is_user_admin = False
-#     is_user_block = False
-#     is_user_good = 3
-#     ###
-#     # Checking and added the parameters
-#     if str(id) in admin_user_ids:
-#         is_user_admin = True
-#         logging.info(f"User id:{id} is admin added.")
-#     if str(id) in block:
-#         is_user_block=True
-#         logging.info(f"User id:{id} is blocked added.")
-
-#     # If this user is not in the database, we will add or update, because the user could get a block
-#     add_update_tele_user(id=id, user_username=name, user_first_name=first_name, user_last_name=last_name,\
-#     chat_id=chat, is_user_admin=is_user_admin , is_user_block=is_user_block , is_user_good=is_user_good) # abstractness
-#     add_default_data(id) # Set default settings and text
-#     logging.info(f"User id:{id} added in DB or not, if have added.")
-    
-#     # Choosing a name user
-#     about = name if name else (first_name if first_name else (last_name if last_name else "bro"))
-
-#     # Checking and added the parameters in Settings to white list users And gives them money
-#     if str(id) in white_list:
-#         money = 1000
-#         add_update_settings(id, money_user=money) # Gives money
-#         logging.info(f"User {about} received 1000 RUB")
-
-#     logging.info(f"User {id} press /start")
-#     await message.answer(f"Привет {about}! Я *ChatGPT*. Мне можно сразу задать вопрос или настроить - /setup.")
-
-
-
-# # Admin statistic lite menu /admin
-# @dp.message(Command("admin"))
-# async def admin(message: types.Message):
-#     await typing(message)
-#     id = user_id(message)
-#     data = read_tele_user(id)
-#     if data is not None:
-#         if data[5] == True:
-#             await message.answer("Статистика: [/admin_static]\n Скачать: [/log] Очистить логи: [/clearlog]") 
-#         else:
-#             await message.answer("Извините, вас нет в списках администраторов.")
-
-
-# # Message to OpenAI
-# @dp.message()
-# async def handle_message(message: types.Message):
-#     id = user_id(message)
-#     user_money = get_settings(id)
-#     if message.text is not None and not message.text.startswith('/') and isinstance(message.text, str):
-#         if user_money != (None, None):
-#             if user_money[8] > 0 and user_money[8] != 0:
-#                 await typing(message)
-
-#                 cache = []
-                
-#                 ###### Data #######
-#                 settings = get_settings(id)
-#                 if settings is not None:
-#                     model_chat = settings[7] # Модель из базы
-#                     temp = settings[1] # Температура
-#                     the_gap = settings[6] # Время хранения беседы
-#                     count_req_chat = settings[3] # Всего вопросов заданных чату, для подсчетов ниже
-#                     money_user = settings[8] # Деньги на счету  User money
-#                     total_spent_money = settings[9] # Всего внесенно денег -  Total spending money
-#                     used_token_chat = settings[4] # Всего использованно токенов за все время
-#                 ####### Data #######
-
-#                 read_history = read_history_db(id)
-#                 if read_history:
-#                     session_date = read_history[1] # Время из базы записи
-#                     time_data = session_date.strftime("%Y-%m-%d"), session_date.strftime("%H.%M")
-#                     time_now = get_time()
-#                     difference = float(time_now[2]) - float(time_data[1]) # Difference
-#                     if time_data[0] == time_now[1] and difference < the_gap and read_history[0] is not None:
-#                         cache.append(read_history[0])
-#                 # Question to OpenAI
-#                 cache.append(f"{message.text}\n")
-#                 format_session_data = ' '.join(cache)
-
-#                 # OpenAI
-#                 answer = await client.chat.completions.create(
-#                     messages = [{"role": "user", "content": format_session_data,}],
-#                     model = model_chat,
-#                     temperature = temp,      # консервативность - разнообразие
-#                     frequency_penalty = 0.5,  # 0 - допускает повторение слов и фраз в рамках данного ответа, 
-#                     presence_penalty = 0.5, # 0 - допускает повторение слов и фраз из прошлых ответов
-#                     #max_tokens=1000,
-#                     )
-                
-#                 await typing(message)
-#                 if answer != None:
-#                     ######### This date from Open AI ########
-#                     text = answer.choices[0].message.content # Text response AI
-#                     model_version = answer.model # Model
-#                     used_tokens = answer.usage.total_tokens 
-#                     # completion_tokens = chat_completion.usage.completion_tokens
-#                     # prompt_tokens = chat_completion.usage.prompt_tokens
-#                     ######### This date from Open AI ########
-#                     flag_stik = False
-#                     stik = f"\n_{model_version}_\n_{used_tokens} ток._\n[/setup]" if flag_stik else ""
-#                     send = f"{text}\n\n{stik}"
-#                     await message.reply(send)
-#                 logging.info(f"User {id} - {message.text}")
-
-
-#                 # Push calcu..
-#                 calculation(id, model_version, used_tokens, count_req_chat, money_user,\
-#                             total_spent_money, used_token_chat) # Запуск функции статистики и возврат остатка денег на счете
-
-#                 # Push update talking to DB
-#                 cache.append(f"{text}\n")
-#                 clear_data = ' '.join(cache)
-#                 update_talking(id, clear_data)
-#                 cache = [] 
-
-
-
-
-#             else:
-#                 await message.answer("Извините, но похоже, у вас нулевой баланс.\n Пополнить - [/setup]")
-#                 logging.info(f"User {id} her money is finish.")
-#         else:
-#             await command_start_handler(message)
-#             logging.info(f"User {id} is not on DB, added.")
-#     else:
-#         logging.error(f"Error, not correct message from User whose id is {id}")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# # Main polling
-# async def main() -> None:
-#     await dp.start_polling(bot)
-
-# # Start and Restart
-# if __name__ == "__main__":
-#     logging.basicConfig(level=logging.INFO, stream=sys.stdout) # При деплое закомментировать
-#     #logging.basicConfig(level=logging.INFO, filename='log/app.log', filemode='a', format='%(levelname)s - %(asctime)s - %(name)s - %(message)s',) # При деплое активировать логирование в файл
-#     retries = 5
-#     while retries > 0:
-#         try:
-#             asyncio.run(main())
-#         except Exception as e:
-#             logging.error("Request timeout exceeded. Restart...")
-#             retries -= 1
-#             time.sleep(5)
-#         finally:
-#             pass
-
-
-
-
-
-
-
-
-
-
-# # Temperature: Это параметр, который контролирует "консервативность" или "рискованность" ответов модели. При более высокой температуре модель будет более экспериментальной и неожиданной в своих ответах, иногда генерируя менее вероятные, но более креативные ответы. При низкой температуре модель будет более консервативной, предпочитая более вероятные, но менее разнообразные ответы. В вашем коде установлено значение 0.8, что означает умеренно высокую температуру.
-
-# # Frequency Penalty: Этот параметр штрафует модель за генерацию тех же слов или фраз слишком часто в течение одного ответа. Увеличение этого значения приведет к более разнообразным ответам, так как модель будет стараться избегать повторений. В вашем коде установлено значение 0, что означает, что нет штрафа за частые повторения.
-
-# # Presence Penalty: Этот параметр штрафует модель за включение некоторых слов или фраз, которые были использованы в предыдущих сообщениях чата. Увеличение этого значения побуждает модель к использованию более уникальных и разнообразных фраз. В вашем коде установлено значение 0.3, что указывает на умеренный штраф за повторы в предыдущих сообщениях.
-
-
-
-#     # Most event objects have aliases for API methods that can be called in events' context
-#     # For example if you want to answer to incoming message you can use `message.answer(...)` alias
-#     # and the target chat will be passed to :ref:`aiogram.methods.send_message.SendMessage`
-#     # method automatically or call API method directly via
-#     # Bot instance: `bot.send_message(chat_id=message.chat.id, ...)`
-
-
-# # @dp.message()
-# # async def echo_handler(message: types.Message) -> None:
-# #     """
-# #     Handler will forward receive a message back to the sender
-
-# #     By default, message handler will handle all message types (like a text, photo, sticker etc.)
-# #     """
-# #     try:
-# #         # Send a copy of the received message
-# #         await message.send_copy(chat_id=message.chat.id)
-# #     except TypeError:
-# #         # But not all the types is supported to be copied so need to handle it
-# #         await message.answer("Nice try!")
-        
-#     # full_name = message.from_user.full_name
-#     # name = message.from_user.username
-#     # first_name = message.from_user.first_name
-#     # last_name = message.from_user.last_name
-#     # chat = message.chat.id
+            
+            if retries > 0:
+                time.sleep(5)  # Ожидаем перед попыткой перезапуска

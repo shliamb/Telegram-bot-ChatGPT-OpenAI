@@ -50,7 +50,7 @@ class Settings(Base):
     temp_chat = Column(sqlalchemy.Float, default=0.7, server_default="0.7", nullable=False)  # 0 - 1 консервативность - разнообразие
     frequency = Column(sqlalchemy.Float, default=0.5, server_default="0.5", nullable=False) # 0 - 1 допускает повторение слов и фраз в рамках данного ответа, 
     presence = Column(sqlalchemy.Float, default=0.5, server_default="0.5", nullable=False) # 0 - 1 допускает повторение слов и фраз из прошлых ответов
-    flag_stik = Column(sqlalchemy.Boolean, default=False, server_default="False", nullable=False)
+    flag_stik = Column(sqlalchemy.Boolean, default=False, server_default="False", nullable=False) # Статистика в ответе
     all_count = Column(sqlalchemy.Integer, default=0, server_default="0",  nullable=False) # Колличество вопросов за все время
     all_token = Column(sqlalchemy.Integer, default=0, server_default="0",  nullable=False) # Всего токенов затраченых за все время
     the_gap = Column(sqlalchemy.Float, default=0.05, server_default="0.05", nullable=False) # Выбранное время хранения диалога
