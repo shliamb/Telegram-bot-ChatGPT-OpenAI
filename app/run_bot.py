@@ -816,7 +816,8 @@ async def process_sub_settings_statis_30(callback_query: types.CallbackQuery):
 
     data = await get_last_30_statistics(id)
     all_static = []
-    all_static.append(["№", "Имя" , "Время", "Модель", "Токенов в сесии", "Цена 1 токена RUB", "Общая цена сесии RUB"]) # First a names row
+    all_static.append(["№", "Имя" , "Время", "Модель", "Токенов в сесии",
+                        "Цена 1 токена RUB", "Общая цена сесии RUB"]) # First a names row
     if data:
         for statistic in data:
             namba_id = statistic.id
