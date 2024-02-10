@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from models import Base, UsersTelegram, Settings, Discussion, Exchange, Statistics
-from sqlalchemy import select, insert, update, func
+from sqlalchemy import select, insert, update, join, func
 
 async def create_async_engine_and_session():
     engine = create_async_engine(f"postgresql+asyncpg://admin:{pass_psgresql}@localhost:5432/my_database") # echo=True - вывод логирования
@@ -14,10 +14,6 @@ async def create_async_engine_and_session():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     return async_session
-
-#logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
-#logging.basicConfig(level=logging.INFO, filename='log/app.log', filemode='a', format='%(levelname)s - %(asctime)s - %(name)s - %(message)s',) # При деплое активировать логирование в файл
-
 
 #### USER TELEGRAM PROPERTY ####
 # Read User Telegram Data
@@ -220,8 +216,27 @@ async def get_last_30_statistics(id):
             select(Statistics)
             .filter(Statistics.users_telegram_id == id)
             .order_by(Statistics.time.desc())  # Сортировка по убыванию даты
-            .limit(30)  # Ограничение на количество строк
+            .limit(100)  # Ограничение на количество строк
         )
         result = await session.execute(query)
         data = result.scalars().all()  # Получение всех строк
+        return data
+
+
+# ADMIN Read all settings and users an id
+async def get_all_stat_admin():
+    async_session = await create_async_engine_and_session()
+    async with async_session() as session:
+
+        query = (
+            select(UsersTelegram, Settings)
+            .join(Settings)
+        )
+
+        # for user_telegram, settings in data:
+        #     print("User:", user_telegram.id, user_telegram.is_admin, user_telegram.full_name,\
+        #            user_telegram.name)
+        #     print("Settings:", settings.id, settings.temp_chat, settings.money)
+        result = await session.execute(query)
+        data = result.fetchall()  # Получение всех строк
         return data

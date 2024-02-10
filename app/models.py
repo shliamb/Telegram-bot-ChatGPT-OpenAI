@@ -2,10 +2,13 @@
 import datetime
 from sqlalchemy import ForeignKey
 import sqlalchemy
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import relationship
+from typing import AsyncGenerator
+
+#from sqlalchemy.orm import AsyncSession
 
 
 DATABASE_URL = f"postgresql+asyncpg://admin:12345@localhost:5432/my_database"
@@ -106,7 +109,11 @@ async_session = sessionmaker(
     engine, expire_on_commit=False, class_=AsyncSession
 )
 
-# Функция для получения асинхронной сессии
-async def get_session() -> AsyncSession:
+async def get_session() -> AsyncGenerator[AsyncSession, None]:
     async with async_session() as session:
         yield session
+
+# Функция для получения асинхронной сессии
+# async def get_session() -> AsyncSession:
+#     async with async_session() as session:
+#         yield session

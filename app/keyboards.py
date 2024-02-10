@@ -10,9 +10,9 @@ from aiogram import types
 async def main_menu(bot, message: types.Message):
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="Настройки", callback_data="sub_setings")], # Модель, разнобразие ответа, повторение в ответе, повторение из прош. ответов, статистика в ответе, время диалога
+            [InlineKeyboardButton(text="Настройки", callback_data="sub_setings")], 
             [InlineKeyboardButton(text="Сброс диалога", callback_data="sub_dialog")],
-            [InlineKeyboardButton(text="Финансы", callback_data="sub_balance")], # Баланс, пополнить, расходы 30 дней 
+            [InlineKeyboardButton(text="Финансы", callback_data="sub_balance")], 
             [InlineKeyboardButton(text="О боте", callback_data="sub_about")],
             [InlineKeyboardButton(text="Закрыть меню X", callback_data="close")]
         ]
@@ -23,9 +23,9 @@ async def main_menu(bot, message: types.Message):
 async def back_to_main(bot, callback_query: types.CallbackQuery):
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="Настройки", callback_data="sub_setings")], # Модель, разнобразие ответа, повторение в ответе, повторение из прош. ответов, статистика в ответе, время диалога
+            [InlineKeyboardButton(text="Настройки", callback_data="sub_setings")], 
             [InlineKeyboardButton(text="Сброс диалога", callback_data="sub_dialog")],
-            [InlineKeyboardButton(text="Финансы", callback_data="sub_balance")], # Баланс, пополнить, расходы 30 дней 
+            [InlineKeyboardButton(text="Финансы", callback_data="sub_balance")], 
             [InlineKeyboardButton(text="О боте", callback_data="sub_about")],
             [InlineKeyboardButton(text="Закрыть меню X", callback_data="close")]
         ]
@@ -155,7 +155,7 @@ async def sub_balance(bot, callback_query: types.CallbackQuery):
         inline_keyboard=[
                 [InlineKeyboardButton(text="Баланс", callback_data="my_many")],
                 [InlineKeyboardButton(text="Пополнить баланс", callback_data="add_money")],
-                [InlineKeyboardButton(text="Статистика за 30 дней", callback_data="statis_30")],
+                [InlineKeyboardButton(text="Статистика 100 пос.", callback_data="statis_30")],
                 [InlineKeyboardButton(text="Вернуться назад", callback_data="back_to_main")],
         ]
     )
@@ -180,6 +180,24 @@ async def sub_add_money(bot, callback_query: types.CallbackQuery):
     await bot.edit_message_reply_markup(chat_id=callback_query.message.chat.id,
                                          message_id=callback_query.message.message_id,
                                          reply_markup=keyboard)
+
+
+
+
+
+
+async def admin_menu(bot, message: types.Message):
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="Скачать статистику", callback_data="admin_stat")], 
+            [InlineKeyboardButton(text="Скачать логи", callback_data="admin_get_log")],
+            [InlineKeyboardButton(text="Очистить логи", callback_data="admin_clear_log")], 
+            [InlineKeyboardButton(text="Подтвердить оплату переводом", callback_data="confirm_pay")],
+            [InlineKeyboardButton(text="Закрыть меню X", callback_data="close_admin")]
+        ]
+    )
+    await message.answer("Выберите действие:", reply_markup=keyboard)
+
 
 
 

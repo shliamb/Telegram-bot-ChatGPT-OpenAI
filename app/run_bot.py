@@ -1,6 +1,7 @@
 from keys import token, api_key, white_list, admin_user_ids, block
 import time
 import sys
+import os
 import logging
 import asyncio
 from openai import AsyncOpenAI
@@ -8,31 +9,38 @@ from aiogram import Bot, Dispatcher, types, F, Router
 from aiogram.enums import ParseMode
 from aiogram.utils.markdown import hbold
 from aiogram.filters import CommandStart, Command
-from aiogram.types import Message, BotCommand
+from aiogram.types import Message, BotCommand, InputFile
+import csv
+from io import StringIO, BytesIO
 from get_time import get_time
 from calculation import calculation
 from worker_db import (
     adding_user, get_user_by_id, update_user, add_settings, add_discussion, update_settings,
-    get_settings, get_discussion, update_discussion, get_exchange, update_exchange, get_last_30_statistics
+    get_settings, get_discussion, update_discussion, get_exchange, update_exchange, get_last_30_statistics,
+    get_all_stat_admin
+)
+from keyboards import (
+    main_menu, sub_setings, sub_balance, back_to_main, back_to_setings,\
+    sub_setings_model, sub_setings_time, sub_setings_creativ, sub_setings_repet, sub_setings_repet_all,\
+    sub_add_money, admin_menu
 )
 import datetime # позже удалить
 
 
-
 client = AsyncOpenAI(api_key=api_key)
-TOKEN = token # Telegram
 dp = Dispatcher() # All handlers should be attached to the Router (or Dispatcher)
-bot = Bot(TOKEN, parse_mode="markdown") # Initialize Bot instance with a default parse mode which will be passed to all API calls
-
+bot = Bot(token, parse_mode="markdown") # Initialize Bot instance with a default parse mode which will be passed to all API calls
 
 
 # Get User_ID
 def user_id(action) -> int:
     return action.from_user.id
 
-# Show Typing
+# Show Typing - для обращения к OpenAI другая функция которая запускается вместе с...
 async def typing(action) -> None:
     await bot.send_chat_action(action.chat.id, action='typing')
+    # await asyncio.sleep(5)
+
 
 
 
@@ -205,17 +213,6 @@ async def upex(message: types.Message):
     await update_exchange(1, timer)
 
 
-# # Admin statistic lite menu /admin
-# @dp.message(Command("admin"))
-# async def admin(message: types.Message):
-#     await typing(message)
-#     id = user_id(message)
-#     data = read_tele_user(id)
-#     if data is not None:
-#         if data[5] == True:
-#             await message.answer("Статистика: [/admin_static]\n Скачать: [/log] Очистить логи: [/clearlog]") 
-#         else:
-#             await message.answer("Извините, вас нет в списках администраторов.")
 
 
 
@@ -223,21 +220,186 @@ async def upex(message: types.Message):
 
 
 
+
+
+#### WORK MENU ADMIN ####
+# Admin statistic menu /admin
+@dp.message(Command("admin"))
+async def admin(message: types.Message):
+    await bot.send_chat_action(message.chat.id, action='typing')
+    id = user_id(message)
+    user = await get_user_by_id(id)
+    if user:
+        is_admin = user.is_admin
+    if is_admin is True:
+        await admin_menu(bot, message)
+    else:
+        logging.info(f"User id:{id} tried to log into the admin panel.")
+
+
+# Admin submenu stat
+@dp.callback_query(lambda c: c.data == 'admin_stat')
+async def process_sub_admin_stat(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+    chat_id = callback_query.message.chat.id
+    # message_id = callback_query.message.message_id
+    data = await get_all_stat_admin()
+
+    all_static = []
+    number = 0
+    all_static.append(["№", "Имя", "id", "Полное имя", "Первое имя", "Второе имя", "Админ",\
+                        "Заблок", "Колл. вопросов", "Исп. токенов за все время", "Модель по умолч.",\
+                              "Запрос на пополнение", "Баланс", "Внесенно денег за все время", "Статистика ниже ответа",\
+                                  "Время по умолчанию"]) # First a names row
+    
+    for user, settings in data:
+        number += 1
+        id = settings.id
+        temp_chat = settings.temp_chat
+        frequency = settings.frequency
+        presence = settings.presence
+        all_count = settings.all_count
+        all_token = settings.all_token
+        the_gap = settings.the_gap
+        set_model = settings.set_model
+        give_me_money = settings.give_me_money
+        money = round(settings.money, 2)
+        all_in_money = round(settings.all_in_money, 2)
+        flag_stik = settings.flag_stik
+
+        id = user.id
+        name = user.name
+        full_name = user.full_name
+        first_name = user.first_name
+        last_name = user.last_name
+        #chat_id = user.chat_id в перехлест актуальному для отправки сообщения
+        is_admin = user.is_admin
+        is_block = user.is_block
+        is_good = user.is_good
+        all_static.append([number, name, id, full_name, first_name, last_name, is_admin, is_block, all_count,\
+                            all_token, set_model, give_me_money, money, all_in_money, flag_stik, the_gap]) # added user data
+
+    # Create csv file
+    output = StringIO()
+    writer = csv.writer(output)
+    for row in all_static:
+        writer.writerow(row)
+    csv_data = output.getvalue()
+    output.close()
+    # csv file to download
+    file = BytesIO(csv_data.encode())
+    # Name file
+    date_time = datetime.datetime.utcnow() # Current date and time
+    formtime = date_time.strftime("%Y-%m-%d-%H-%M")
+    file_name = f"Admin-{formtime}.csv"
+    buffered_input_file = types.input_file.BufferedInputFile(file=file.read(), filename=file_name)
+    await bot.send_document(chat_id=chat_id, document=buffered_input_file)
+    await bot.answer_callback_query(callback_query.id)
+
+
+# # Back to main
+# @dp.callback_query(lambda c: c.data == 'back_to_main')
+# async def process_back_to_main(callback_query: types.CallbackQuery):
+#     await back_to_main(bot, callback_query)
+#     await bot.answer_callback_query(callback_query.id)
+
+# Close menu
+@dp.callback_query(lambda c: c.data == 'close_admin')
+async def close_admin_menu(callback_query: types.CallbackQuery):
+    chat_id = callback_query.message.chat.id
+    message_id = callback_query.message.message_id
+    await bot.delete_message(chat_id=chat_id, message_id=message_id) # Удалить и меню и сообщение
+    await bot.answer_callback_query(callback_query.id)
+####
+
+
+# Settings - satatistic for 100
+@dp.callback_query(lambda c: c.data == 'statis_30')
+async def process_sub_settings_statis_30(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+
+    name = callback_query.from_user.username
+    full_name = callback_query.from_user.full_name
+    first_name = callback_query.from_user.first_name
+    last_name = callback_query.from_user.last_name
+    if name is not None:
+        about = name
+    elif full_name is not None:
+        about = full_name
+    elif first_name is not None:
+        about = first_name
+    elif last_name is not None:
+        about = last_name
+
+    chat_id = callback_query.message.chat.id
+    # message_id = callback_query.message.message_id
+
+    data = await get_last_30_statistics(id)
+    all_static = []
+    all_static.append(["№", "Имя" , "Время", "Модель", "Токенов в сесии", "Цена 1 токена RUB", "Общая цена сесии RUB"]) # First a names row
+    if data:
+        for statistic in data:
+            namba_id = statistic.id
+            time = statistic.time
+            use_model = statistic.use_model
+            sesion_token = statistic.sesion_token
+            price_1_tok = round(statistic.price_1_tok,8)
+            price_sesion_tok = round(statistic.price_sesion_tok, 5)
+            # users_telegram_id = statistic.users_telegram_id # Обычные люди при виде id вспомнят РЕНтв)))
+            all_static.append([namba_id, about, time, use_model, sesion_token, price_1_tok, price_sesion_tok]) # added user data
+    
+    # Create csv file
+    output = StringIO()
+    writer = csv.writer(output)
+    for row in all_static:
+        writer.writerow(row)
+    csv_data = output.getvalue()
+    output.close()
+    # csv file to download
+    file = BytesIO(csv_data.encode())
+    # Name file
+    date_time = datetime.datetime.utcnow() # Current date and time
+    formtime = date_time.strftime("%Y-%m-%d-%H-%M")
+    file_name = f"Stat-{formtime}.csv"
+    buffered_input_file = types.input_file.BufferedInputFile(file=file.read(), filename=file_name)
+    await bot.send_document(chat_id=chat_id, document=buffered_input_file)
+    await bot.answer_callback_query(callback_query.id)
+
+
+# Admin submenu download log
+@dp.callback_query(lambda c: c.data == 'admin_get_log')
+async def process_sub_admin_stat(callback_query: types.CallbackQuery):
+
+    if os.path.exists("./log/app.log") and os.path.getsize("./log/app.log") > 0:
+        await bot.send_document(chat_id=callback_query.from_user.id, document=types.input_file.FSInputFile("./log/app.log"))
+        await bot.answer_callback_query(callback_query.id)
+    else:
+        await bot.send_message(callback_query.from_user.id, "Файл app.log пустой или отсуствует.")
+        await bot.answer_callback_query(callback_query.id)
+
+
+# Admin clear log /clearlog
+@dp.callback_query(lambda c: c.data == 'admin_clear_log')
+async def process_sub_admin_stat(callback_query: types.CallbackQuery):
+
+    if os.path.exists("./log/app.log") and os.path.getsize("./log/app.log") > 0:
+
+        with open("./log/app.log", 'w'):
+            pass
+        await bot.send_message(callback_query.from_user.id, "Файл app.log очищен успешно.")
+        await bot.answer_callback_query(callback_query.id)
+    else:
+        await bot.send_message(callback_query.from_user.id, "Файл app.log пустой или отсуствует.")
+        await bot.answer_callback_query(callback_query.id)
 
 
 
 #### WORK MENU ####
-
-from keyboards import (
-    main_menu, sub_setings, sub_balance, back_to_main, back_to_setings,\
-    sub_setings_model, sub_setings_time, sub_setings_creativ, sub_setings_repet, sub_setings_repet_all, sub_add_money
-)
-
-
 # Main menu strat
 @dp.message(Command('setup', 'menu', 'setings'))
 async def start(message: types.Message):
     await main_menu(bot, message)
+    #await bot.answer_callback_query(callback_query.id)
 
 # Back to main
 @dp.callback_query(lambda c: c.data == 'back_to_main')
@@ -606,28 +768,118 @@ async def process_sub_settings_add_money_2000(callback_query: types.CallbackQuer
 
 
 
+
+# Settings - satatistic for 30 days
+@dp.callback_query(lambda c: c.data == 'statis_30')
+async def process_sub_settings_statis_30(callback_query: types.CallbackQuery):
+    id = user_id(callback_query)
+
+    name = callback_query.from_user.username
+    full_name = callback_query.from_user.full_name
+    first_name = callback_query.from_user.first_name
+    last_name = callback_query.from_user.last_name
+    if name is not None:
+        about = name
+    elif full_name is not None:
+        about = full_name
+    elif first_name is not None:
+        about = first_name
+    elif last_name is not None:
+        about = last_name
+
+    chat_id = callback_query.message.chat.id
+    # message_id = callback_query.message.message_id
+
+    data = await get_last_30_statistics(id)
+    all_static = []
+    all_static.append(["№", "Имя" , "Время", "Модель", "Токенов в сесии", "Цена 1 токена RUB", "Общая цена сесии RUB"]) # First a names row
+    if data:
+        for statistic in data:
+            namba_id = statistic.id
+            time = statistic.time
+            use_model = statistic.use_model
+            sesion_token = statistic.sesion_token
+            price_1_tok = round(statistic.price_1_tok,8)
+            price_sesion_tok = round(statistic.price_sesion_tok, 5)
+            # users_telegram_id = statistic.users_telegram_id # Обычные люди при виде id вспомнят РЕНтв)))
+            all_static.append([namba_id, about, time, use_model, sesion_token, price_1_tok, price_sesion_tok]) # added user data
+    
+    # Create csv file
+    output = StringIO()
+    writer = csv.writer(output)
+    for row in all_static:
+        writer.writerow(row)
+    csv_data = output.getvalue()
+    output.close()
+    # csv file to download
+    file = BytesIO(csv_data.encode())
+    # Name file
+    date_time = datetime.datetime.utcnow() # Current date and time
+    formtime = date_time.strftime("%Y-%m-%d-%H-%M")
+    file_name = f"Stat-{formtime}.csv"
+    buffered_input_file = types.input_file.BufferedInputFile(file=file.read(), filename=file_name)
+    await bot.send_document(chat_id=chat_id, document=buffered_input_file)
+    await bot.answer_callback_query(callback_query.id)
+
+   
+
+
+
+
+
+# ...
+
+
+
+
+
+
+
+
+
+
+
+
+
 ####
 
 # Settings - about
 @dp.callback_query(lambda c: c.data == 'sub_about')
 async def process_sub_about(callback_query: types.CallbackQuery):
     #await sub_about(bot, callback_query)
-    await bot.send_message(callback_query.from_user.id, f"<b>🤙🏼 О боте</b>\nБот работает на API OpenAI.", parse_mode="HTML")
+    await bot.send_message(callback_query.from_user.id, f"\
+<b>🤙🏼 Привет!</b>\n\n\
+Этот бот использует официальное API OpenAI без изменений. Я сохранил все\
+ возможности настроек.\n\n На балансе есть небольшая сумма для проверки, но вы всегда можете\
+ пополнить его.\n\n Для экономии средств рекомендую не использовать длительное сохранение\
+ диалогов и контекста, по умолчанию установленно - 5 минут. Время диалогов значительно увеличивает расход\
+ токенов OpenAI, а значит и ваших средств.\n\
+\n\
+<b>Цены:</b>\n\
+gpt-3.5-turbo-0613      0.006$ 1000 tok\n\
+gpt-4-0613                       0.18$ 1000  tok\n\
+gpt-4-1106-preview        0.08$ 1000  tok\n\
+gpt-4-0125-preview        0.08$ 1000  tok\n\
+\n\
+Бот проверяет курс доллара каждый день и ведет расчет согласно курса, так как токены в OpenAI\
+ оплачиваются так же в $. В любой момент вы можете скачать файл с точными расходами, где можно\
+ посмотреть соотношение цен.\n\n\
+По всем вопросам, можно написать мне - @Shliambur в телеграм.", parse_mode="HTML")
     await bot.answer_callback_query(callback_query.id)
 
 
 
 
+#### OpenAI ####
+# Флаг для отслеживания статуса второй функции.
+second_function_finished = False
+
+async def first_function(message):
+    await bot.send_chat_action(message.chat.id, action='typing')
+    await asyncio.sleep(5)
 
 
-
-
-
-
-# Message to OpenAI
-@dp.message()
-async def handle_message(message: types.Message):
-    await typing(message)
+async def second_function(message: types.Message):
     id = user_id(message)
     logging.info(f"User {id} - {message.text}")
 
@@ -641,8 +893,7 @@ async def handle_message(message: types.Message):
             all_count = data.all_count
             all_token = data.all_token
             the_gap = data.the_gap
-            #set_model = data.set_model
-            set_model = "gpt-4-1106-preview"
+            set_model = data.set_model
             give_me_money = data.give_me_money
             money = data.money
             all_in_money = data.all_in_money
@@ -672,18 +923,14 @@ async def handle_message(message: types.Message):
                 cache.append(f"{message.text}\n")
                 format_session_data = ' '.join(cache)
 
-                # OpenAI
-                await typing(message)
                 answer = await client.chat.completions.create(
-                    messages = [{"role": "user", "content": format_session_data,}],
-                    model = set_model,
-                    temperature = temp_chat,      # консервативность - разнообразие
-                    frequency_penalty = frequency,  # 0 - допускает повторение слов и фраз в рамках данного ответа, 
-                    presence_penalty = presence, # 0 - допускает повторение слов и фраз из прошлых ответов
-                    #max_tokens=1000,
-                    )
-                
-                await typing(message)
+                    messages=[{"role": "user", "content": format_session_data}],
+                    model=set_model,
+                    temperature=temp_chat,
+                    frequency_penalty=frequency,
+                    presence_penalty=presence
+                )
+
                 if answer is not None:
                     ######### This date from Open AI ########
                     text = answer.choices[0].message.content # Text response AI
@@ -692,10 +939,6 @@ async def handle_message(message: types.Message):
                     # completion_tokens = chat_completion.usage.completion_tokens
                     # prompt_tokens = chat_completion.usage.prompt_tokens
                     ######### This date from Open AI ########
-
-                    stik = f"\n_{model_version}_\n_{used_tokens} ток._\n[/setup]" if flag_stik else ""
-                    send = f"{text}\n\n{stik}"
-                    await message.answer(send)
 
                 data = {
                     "id": id,
@@ -708,9 +951,10 @@ async def handle_message(message: types.Message):
                     "all_in_money": all_in_money,
                 }
                 rashod = await calculation(data)
-                print("Rashod:",rashod)
 
-
+                stik = f"\nмодель:{model_version}\nисп.:{used_tokens}ток.\nрасх.:{round(rashod, 2)}RUB  [/setup]" if flag_stik else ""
+                send = f"{text}\n\n{stik}"
+                await message.answer(send)
 
                 # Push update talking to DB
                 cache.append(f"{text}\n")
@@ -722,15 +966,40 @@ async def handle_message(message: types.Message):
                 await update_discussion(id, updated_data)
                 cache = []
 
+                global second_function_finished
+                second_function_finished = True
+
             if money < 0 and money == 0:
                 await message.answer("Извините, но похоже, у вас нулевой баланс.\n Пополнить - [/setup]")
                 logging.info(f"User {id} her money is finish.")
+                second_function_finished = True
+
         if data is None:
             await command_start_handler(message)
             logging.info(f"User {id} is not on DB, added.")
+            second_function_finished = True
     else:
         await message.answer("Извините, сообщение в неподдерживаемом формате.")
         logging.error(f"Error, not correct message from User whose id is {id}")
+        second_function_finished = True
+
+
+
+
+# Message to OpenAI
+@dp.message()
+async def start_main(message):
+    global second_function_finished
+    # Запускаем вторую функцию в фоновом режиме.
+    asyncio.create_task(second_function(message))
+
+    # Цикл для периодического запуска первой функции каждые 5 секунд.
+    while not second_function_finished:
+        await first_function(message)
+        await asyncio.sleep(0.1)  # Ожидаем 0.1 секунд перед следующим запуском.
+    second_function_finished = False
+######
+
 
 
 
@@ -743,7 +1012,7 @@ async def main() -> None:
 # Start and Restart
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, stream=sys.stdout) # При деплое закомментировать
-    #logging.basicConfig(level=logging.INFO, filename='log/app.log', filemode='a', format='%(levelname)s - %(asctime)s - %(name)s - %(message)s',) # При деплое активировать логирование в файл
+    # logging.basicConfig(level=logging.INFO, filename='log/app.log', filemode='a', format='%(levelname)s - %(asctime)s - %(name)s - %(message)s',) # При деплое активировать логирование в файл
     retries = 5
     while retries > 0:
         try:
