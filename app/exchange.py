@@ -66,7 +66,7 @@ async def usd_to_rub():
 
 
 
-if __name__ == "__usd_to_rub__":
+if __name__ == "__main__":
     asyncio.get(usd_to_rub())
 
 

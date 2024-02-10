@@ -4,9 +4,9 @@ services:
 
   postgres:
     # build: . Запускает Dockefile
-    # image: my_postgres_image
-    image: postgres:latest
-    container_name: my_postgres
+    image: postgres:15.5
+    #image: postgres:latest
+    container_name: bot_postgres
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: 12345
@@ -14,8 +14,8 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/postgres
-      # - postgres_data:/var/lib/postgresql/data
+      #- postgres_data:/postgres
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - network
 

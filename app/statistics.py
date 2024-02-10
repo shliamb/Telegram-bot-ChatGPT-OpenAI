@@ -43,6 +43,6 @@ async def save_ctatistics(data): # Запуск функции статисти�
     return
 
 
-if __name__ == "__save_ctatistics__":
+if __name__ == "__main__":
     asyncio.run(save_ctatistics())
 

@@ -193,6 +193,7 @@ async def admin_menu(bot, message: types.Message):
             [InlineKeyboardButton(text="Скачать логи", callback_data="admin_get_log")],
             [InlineKeyboardButton(text="Очистить логи", callback_data="admin_clear_log")], 
             [InlineKeyboardButton(text="Подтвердить оплату переводом", callback_data="confirm_pay")],
+            [InlineKeyboardButton(text="Резервная копия базы данных", callback_data="backup")],
             [InlineKeyboardButton(text="Закрыть меню X", callback_data="close_admin")]
         ]
     )

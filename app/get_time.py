@@ -12,5 +12,5 @@ def get_time():
     except Exception as e:
         logging.error(f"Error get current date and time: {e}")
 
-if __name__ == "__get_time__":
+if __name__ == "__main__":
     get_time()

@@ -57,7 +57,7 @@ async def calculation(data):
 
     return rashod
 
-if __name__ == "__calculation__":
+if __name__ == "__main__":
     asyncio.run(calculation())
 
 

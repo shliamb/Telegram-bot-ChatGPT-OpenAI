@@ -1,4 +1,5 @@
 from keys import token, api_key, white_list, admin_user_ids, block
+from about_bot import about_text
 import time
 import sys
 import os
@@ -6,7 +7,7 @@ import logging
 import asyncio
 from openai import AsyncOpenAI
 from aiogram import Bot, Dispatcher, types, F, Router
-from aiogram.enums import ParseMode
+# from aiogram.enums import ParseMode
 from aiogram.utils.markdown import hbold
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, BotCommand, InputFile
@@ -14,6 +15,8 @@ import csv
 from io import StringIO, BytesIO
 from get_time import get_time
 from calculation import calculation
+from backupdb import backup_db
+import task_backup
 from worker_db import (
     adding_user, get_user_by_id, update_user, add_settings, add_discussion, update_settings,
     get_settings, get_discussion, update_discussion, get_exchange, update_exchange, get_last_30_statistics,
@@ -391,6 +394,27 @@ async def process_sub_admin_stat(callback_query: types.CallbackQuery):
     else:
         await bot.send_message(callback_query.from_user.id, "Файл app.log пустой или отсуствует.")
         await bot.answer_callback_query(callback_query.id)
+
+
+# Admin BackupDB
+@dp.callback_query(lambda c: c.data == 'backup')
+async def process_sub_admin_stat(callback_query: types.CallbackQuery):
+    confirmation = backup_db() # - резервная копия
+    if confirmation is True:
+        await bot.send_message(callback_query.from_user.id, "Резервная копия базы данных создана успешно.")
+        await bot.answer_callback_query(callback_query.id)
+    else:
+        await bot.send_message(callback_query.from_user.id, "Ошибка создания резервной копии базы данных.")
+        await bot.answer_callback_query(callback_query.id)
+
+
+
+
+
+
+
+
+
 
 
 
@@ -820,173 +844,139 @@ async def process_sub_settings_statis_30(callback_query: types.CallbackQuery):
     buffered_input_file = types.input_file.BufferedInputFile(file=file.read(), filename=file_name)
     await bot.send_document(chat_id=chat_id, document=buffered_input_file)
     await bot.answer_callback_query(callback_query.id)
-
-   
-
-
-
-
-
-# ...
-
-
-
-
-
-
-
-
-
-
-
-
-
 ####
 
 # Settings - about
 @dp.callback_query(lambda c: c.data == 'sub_about')
 async def process_sub_about(callback_query: types.CallbackQuery):
     #await sub_about(bot, callback_query)
-    await bot.send_message(callback_query.from_user.id, f"\
-<b>🤙🏼 Привет!</b>\n\n\
-Этот бот использует официальное API OpenAI без изменений. Я сохранил все\
- возможности настроек.\n\n На балансе есть небольшая сумма для проверки, но вы всегда можете\
- пополнить его.\n\n Для экономии средств рекомендую не использовать длительное сохранение\
- диалогов и контекста, по умолчанию установленно - 5 минут. Время диалогов значительно увеличивает расход\
- токенов OpenAI, а значит и ваших средств.\n\
-\n\
-<b>Цены:</b>\n\
-gpt-3.5-turbo-0613      0.006$ 1000 tok\n\
-gpt-4-0613                       0.18$ 1000  tok\n\
-gpt-4-1106-preview        0.08$ 1000  tok\n\
-gpt-4-0125-preview        0.08$ 1000  tok\n\
-\n\
-Бот проверяет курс доллара каждый день и ведет расчет согласно курса, так как токены в OpenAI\
- оплачиваются так же в $. В любой момент вы можете скачать файл с точными расходами, где можно\
- посмотреть соотношение цен.\n\n\
-По всем вопросам, можно написать мне - @Shliambur в телеграм.", parse_mode="HTML")
+    await bot.send_message(callback_query.from_user.id, about_text, parse_mode="HTML") # about_bot.py
     await bot.answer_callback_query(callback_query.id)
 
 
 
 
-#### OpenAI ####
-# Флаг для отслеживания статуса второй функции.
-second_function_finished = False
 
+#### OpenAI ####
+second_function_finished = False # Флаг для отслеживания статуса второй функции.
+
+# Typing in OpenAI
 async def first_function(message):
     await bot.send_chat_action(message.chat.id, action='typing')
     await asyncio.sleep(5)
 
-
+# Answer OpenAI
 async def second_function(message: types.Message):
+    global second_function_finished
     id = user_id(message)
     logging.info(f"User {id} - {message.text}")
 
-    if message.text is not None and not message.text.startswith('/') and isinstance(message.text, str):
-
-        data = await get_settings(id)
-        if data is not None:
-            temp_chat = data.temp_chat
-            frequency = data.frequency
-            presence = data.presence
-            all_count = data.all_count
-            all_token = data.all_token
-            the_gap = data.the_gap
-            set_model = data.set_model
-            give_me_money = data.give_me_money
-            money = data.money
-            all_in_money = data.all_in_money
-            flag_stik = data.flag_stik
-
-            if money > 0 and money != 0:
-                cache = []
-                ged = await get_discussion(id)
-
-                if ged is not None:
-                    # Time in a DB
-                    discus = ged.discus # Text data
-                    date_db = ged.timestamp  # Время из базы записи
-                    day_db = date_db.strftime("%Y-%m-%d")
-                    time_db = date_db.strftime("%H.%M")
-                    # Time now
-                    now = get_time()
-                    if now:
-                        date_now = now['day']
-                        time_now = now['time']
-
-                    difference = float(time_now) - float(time_db) # Difference
-                    if day_db == date_now and difference < the_gap and discus is not None:
-                        cache.append(discus)
-
-                # Question to OpenAI
-                cache.append(f"{message.text}\n")
-                format_session_data = ' '.join(cache)
-
-                answer = await client.chat.completions.create(
-                    messages=[{"role": "user", "content": format_session_data}],
-                    model=set_model,
-                    temperature=temp_chat,
-                    frequency_penalty=frequency,
-                    presence_penalty=presence
-                )
-
-                if answer is not None:
-                    ######### This date from Open AI ########
-                    text = answer.choices[0].message.content # Text response AI
-                    model_version = answer.model # Model in answer
-                    used_tokens = answer.usage.total_tokens 
-                    # completion_tokens = chat_completion.usage.completion_tokens
-                    # prompt_tokens = chat_completion.usage.prompt_tokens
-                    ######### This date from Open AI ########
-
-                data = {
-                    "id": id,
-                    "model_version": model_version,
-                    "used_tokens": used_tokens,
-                    "all_count": all_count,
-                    "all_token": all_token,
-                    "give_me_money": give_me_money,
-                    "money": money,
-                    "all_in_money": all_in_money,
-                }
-                rashod = await calculation(data)
-
-                stik = f"\nмодель:{model_version}\nисп.:{used_tokens}ток.\nрасх.:{round(rashod, 2)}RUB  [/setup]" if flag_stik else ""
-                send = f"{text}\n\n{stik}"
-                await message.answer(send)
-
-                # Push update talking to DB
-                cache.append(f"{text}\n")
-                clear_data = ' '.join(cache)
-                updated_data = {
-                    "discus": clear_data,
-                    # "timestamp": timestamp,
-                    }
-                await update_discussion(id, updated_data)
-                cache = []
-
-                global second_function_finished
-                second_function_finished = True
-
-            if money < 0 and money == 0:
-                await message.answer("Извините, но похоже, у вас нулевой баланс.\n Пополнить - [/setup]")
-                logging.info(f"User {id} her money is finish.")
-                second_function_finished = True
-
-        if data is None:
-            await command_start_handler(message)
-            logging.info(f"User {id} is not on DB, added.")
-            second_function_finished = True
-    else:
+    if message.text is None or message.text.startswith('/') or not isinstance(message.text, str):
         await message.answer("Извините, сообщение в неподдерживаемом формате.")
         logging.error(f"Error, not correct message from User whose id is {id}")
         second_function_finished = True
+        return
+
+    data = await get_settings(id) # Получаем настройки
+    if data is None:
+        await command_start_handler(message)
+        logging.info(f"User {id} is not on DB, added.")
+        second_function_finished = True
+        return
+
+    if str(id) in block:
+        await message.answer("Извините, но вы заблокированы, попробуйте обратиться к @Shliambur.")
+        logging.info(f"The user id:{id} blocked and typing queshen.")
+        second_function_finished = True
+        return
+
+    temp_chat = data.temp_chat
+    frequency = data.frequency
+    presence = data.presence
+    all_count = data.all_count
+    all_token = data.all_token
+    the_gap = data.the_gap
+    set_model = data.set_model
+    give_me_money = data.give_me_money
+    money = data.money
+    all_in_money = data.all_in_money
+    flag_stik = data.flag_stik
+
+    if money < 0 or money == 0:
+        await message.answer("Извините, но похоже, у вас нулевой баланс.\n Пополнить - [/setup]")
+        logging.info(f"User {id} her money is finish.")
+        second_function_finished = True
+        return
+
+    cache = []
+    ged = await get_discussion(id)
+    if ged is not None:
+        discus = ged.discus # Text data
+        date_db = ged.timestamp  # Время из базы записи
+        day_db = date_db.strftime("%Y-%m-%d")
+        time_db = date_db.strftime("%H.%M")
+
+        now = get_time()
+        date_now = now['day']
+        time_now = now['time']
+
+        difference = float(time_now) - float(time_db) # Difference
+        if day_db == date_now and difference < the_gap and discus is not None:
+            cache.append(discus)
+
+    # Question to OpenAI
+    cache.append(f"{message.text}\n")
+    format_session_data = ' '.join(cache)
+
+    answer = await client.chat.completions.create(
+        messages=[{"role": "user", "content": format_session_data}],
+        model=set_model,
+        temperature=temp_chat,
+        frequency_penalty=frequency,
+        presence_penalty=presence
+    )
+
+    if answer is not None:
+        ######### This date from Open AI ########
+        text = answer.choices[0].message.content # Text response AI
+        model_version = answer.model # Model in answer
+        used_tokens = answer.usage.total_tokens 
+        # completion_tokens = chat_completion.usage.completion_tokens
+        # prompt_tokens = chat_completion.usage.prompt_tokens
+        ######### This date from Open AI ########
+
+    data = {
+        "id": id,
+        "model_version": model_version,
+        "used_tokens": used_tokens,
+        "all_count": all_count,
+        "all_token": all_token,
+        "give_me_money": give_me_money,
+        "money": money,
+        "all_in_money": all_in_money,
+    }
+    rashod = await calculation(data)
+
+    stik = f"\nмодель:{model_version}\nисп.:{used_tokens}ток.\nрасх.:{round(rashod, 2)}RUB  [/setup]" if flag_stik else ""
+    send = f"{text}\n\n{stik}"
+    await message.answer(send)
+
+    # Push update talking to DB
+    cache.append(f"{text}\n")
+    clear_data = ' '.join(cache)
+
+    updated_data = {
+        "discus": clear_data,
+        # "timestamp": timestamp,
+        }
+    
+    await update_discussion(id, updated_data)
+    cache = []
+
+    second_function_finished = True # Turn off typing
 
 
-
-
-# Message to OpenAI
+# Start Message to OpenAI
 @dp.message()
 async def start_main(message):
     global second_function_finished
@@ -1006,8 +996,16 @@ async def start_main(message):
 
 
 # Main polling
+async def backup_loop(): # Запуск таски на бекап 
+    while True:
+        task_backup.schedule.run_pending()
+        await asyncio.sleep(1)
+
 async def main() -> None:
+    backup_task = asyncio.create_task(backup_loop())
     await dp.start_polling(bot)
+
+
 
 # Start and Restart
 if __name__ == "__main__":

@@ -15,7 +15,7 @@ async def create_async_engine_and_session():
         await conn.run_sync(Base.metadata.create_all)
     return async_session
 
-#### USER TELEGRAM PROPERTY ####
+#### USER TELEGRAM PROPERTY #### 
 # Read User Telegram Data
 async def get_user_by_id(id):
     async_session = await create_async_engine_and_session()
