@@ -17,7 +17,9 @@ def backup_db():
     backup_filename = f'{db_name}_backup_{current_datetime}.sql'
 
     # Формирование команды для создания резервной копии с помощью pg_dump
-    pg_dump_command = f'PGPASSWORD={db_password} pg_dump -h localhost -p 5432 -U {db_username} -d {db_name} -f {backup_path}{backup_filename}'
+    #pg_dump_command = f'PGPASSWORD={db_password} pg_dump -h localhost -p 5432 -U {db_username} -d {db_name} -f {backup_path}{backup_filename}'
+    pg_dump_command = f'PGPASSWORD={db_password} pg_dump -h localhost -p 5432 -U {db_username} -d {db_name} -F c -f {backup_path}{backup_filename}' # В бинарный формат
+
 
     try:
         subprocess.run(pg_dump_command, shell=True) # Выполнение команды через subprocess
@@ -26,7 +28,7 @@ def backup_db():
 
 
 
-        
+
     except subprocess.CalledProcessError as e:
         confirmation = False
         logging.error(f"Error when creating a backup: {e}")

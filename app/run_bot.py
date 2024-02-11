@@ -8,15 +8,24 @@ import asyncio
 from pathlib import Path
 from openai import AsyncOpenAI
 from aiogram import Bot, Dispatcher, types, F, Router
+
 # from aiogram.enums import ParseMode
 from aiogram.utils.markdown import hbold
-from aiogram.filters import CommandStart, Command
-from aiogram.types import Message, BotCommand, InputFile
+from aiogram.filters import CommandStart, Command, Filter
+from aiogram.types import Message, BotCommand, ContentType, InputFile, Document, PhotoSize, ReplyKeyboardRemove
+
+
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.storage.memory import MemoryStorage
+
+from aiogram.fsm.state import State, StatesGroup
+
 import csv
 from io import StringIO, BytesIO
 from get_time import get_time
 from calculation import calculation
 from backupdb import backup_db
+from restore_db import restore_db
 import task_backup
 from worker_db import (
     adding_user, get_user_by_id, update_user, add_settings, add_discussion, update_settings,
@@ -30,7 +39,12 @@ from keyboards import (
 )
 import datetime # позже удалить
 
-
+# Флаг технических работ, избегает обращения к базе пользователями, для восстановления базы
+global work_in_progress
+work_in_progress = False
+async def worc_in_progress(goo):
+    await goo.answer("Извините, ведутся технические работы, попробуйте через 1 минуту.")
+    logging.info(f"Tech maintenance in progress, sorry.")
 
 client = AsyncOpenAI(api_key=api_key)
 dp = Dispatcher() # All handlers should be attached to the Router (or Dispatcher)
@@ -53,6 +67,10 @@ async def typing(action) -> None:
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
     await typing(message)
+
+    if work_in_progress == True:
+        await worc_in_progress(message)
+        return
 
     # Меню
     bot_commands = [
@@ -315,60 +333,6 @@ async def close_admin_menu(callback_query: types.CallbackQuery):
     message_id = callback_query.message.message_id
     await bot.delete_message(chat_id=chat_id, message_id=message_id) # Удалить и меню и сообщение
     await bot.answer_callback_query(callback_query.id)
-####
-
-
-# Settings - satatistic for 100
-@dp.callback_query(lambda c: c.data == 'statis_30')
-async def process_sub_settings_statis_30(callback_query: types.CallbackQuery):
-    id = user_id(callback_query)
-
-    name = callback_query.from_user.username
-    full_name = callback_query.from_user.full_name
-    first_name = callback_query.from_user.first_name
-    last_name = callback_query.from_user.last_name
-    if name is not None:
-        about = name
-    elif full_name is not None:
-        about = full_name
-    elif first_name is not None:
-        about = first_name
-    elif last_name is not None:
-        about = last_name
-
-    chat_id = callback_query.message.chat.id
-    # message_id = callback_query.message.message_id
-
-    data = await get_last_30_statistics(id)
-    all_static = []
-    all_static.append(["№", "Имя" , "Время", "Модель", "Токенов в сесии", "Цена 1 токена RUB", "Общая цена сесии RUB"]) # First a names row
-    if data:
-        for statistic in data:
-            namba_id = statistic.id
-            time = statistic.time
-            use_model = statistic.use_model
-            sesion_token = statistic.sesion_token
-            price_1_tok = round(statistic.price_1_tok,8)
-            price_sesion_tok = round(statistic.price_sesion_tok, 5)
-            # users_telegram_id = statistic.users_telegram_id # Обычные люди при виде id вспомнят РЕНтв)))
-            all_static.append([namba_id, about, time, use_model, sesion_token, price_1_tok, price_sesion_tok]) # added user data
-    
-    # Create csv file
-    output = StringIO()
-    writer = csv.writer(output)
-    for row in all_static:
-        writer.writerow(row)
-    csv_data = output.getvalue()
-    output.close()
-    # csv file to download
-    file = BytesIO(csv_data.encode())
-    # Name file
-    date_time = datetime.datetime.utcnow() # Current date and time
-    formtime = date_time.strftime("%Y-%m-%d-%H-%M")
-    file_name = f"Stat-{formtime}.csv"
-    buffered_input_file = types.input_file.BufferedInputFile(file=file.read(), filename=file_name)
-    await bot.send_document(chat_id=chat_id, document=buffered_input_file)
-    await bot.answer_callback_query(callback_query.id)
 
 
 # Admin submenu download log
@@ -402,32 +366,189 @@ async def process_sub_admin_stat(callback_query: types.CallbackQuery):
 async def process_sub_admin_stat(callback_query: types.CallbackQuery):
     confirmation = backup_db() # - резервная копия
     if confirmation is True:
-        await bot.send_message(callback_query.from_user.id, "Резервная копия базы данных создана успешно.")
-        await bot.answer_callback_query(callback_query.id)
+        await bot.send_message(callback_query.from_user.id, "Резервная копия базы данных создана успешно и представленна ниже. Сохранены 3 последние версии в рабочей папке, остальные удалены.")
     else:
         await bot.send_message(callback_query.from_user.id, "Ошибка создания резервной копии базы данных.")
-        await bot.answer_callback_query(callback_query.id)
 
-    await asyncio.sleep(1)
+    await asyncio.sleep(0.5)
 
     data_folder = Path("./backup_db/")
 
-    # Получаем список всех файлов в директории
-    files = [entry for entry in data_folder.iterdir() if entry.is_file()]
+    files = [entry for entry in data_folder.iterdir() if entry.is_file()] # Получаем список всех файлов в директории
 
-    # Сортируем список файлов по дате изменения (от новых к старым)
-    sorted_files = sorted(files, key=lambda x: x.stat().st_mtime, reverse=True)
+    sorted_files = sorted(files, key=lambda x: x.stat().st_mtime, reverse=True) # Сортируем список файлов по дате изменения (от новых к старым)
 
-    # Оставляем последние 3 файла, удаляем остальные
-    for file_to_delete in sorted_files[1:]:
+    for file_to_delete in sorted_files[3:]: # Оставляем последние 3 файла, удаляем остальные
         os.remove(file_to_delete)
+    logging.info("Remove all file DB, saved 3 latest files.")
 
-    # Последний скачанный файл будет первым в отсортированном списке (новейшим)
-    last_downloaded_file = sorted_files[0] if sorted_files else None
-    # print("last_downloaded_file")
+    last_downloaded_file = sorted_files[0] if sorted_files else None   # Последний скачанный файл будет первым в отсортированном списке (новейшим) (адрес)
+    logging.info("Download last DB file.")
 
-    # Здесь можно добавить код для скачивания файла last_downloaded_file,
-    # если имелось в виду "скачать" через интернет или переместить его.
+    await bot.send_document(chat_id=callback_query.from_user.id, document=types.input_file.FSInputFile(last_downloaded_file))
+    await bot.answer_callback_query(callback_query.id)
+
+
+
+
+
+
+
+class Restor_db(StatesGroup):
+    load_db = State()
+    restor_db = State()
+
+
+# # Admin Restore DB
+@dp.callback_query(lambda c: c.data == 'restore_db')
+async def process_sub_admin_stat(callback_query: types.CallbackQuery, state: FSMContext):
+
+    await callback_query.message.answer(text="Прикрепите и отправьте базу данных.", reply_markup=ReplyKeyboardRemove())
+    await state.set_state(Restor_db.load_db)
+    await bot.answer_callback_query(callback_query.id)
+
+
+# @dp.message(Restor_db.load_db)
+# async def student_name(message: Message, state: FSMContext):
+#     data = await state.update_data(load_db=message.document.file_path)
+#     await bot.download(data, './download/file.sql')
+
+@dp.message(Restor_db.load_db)
+async def student_name(message: Message, state: FSMContext):
+    global work_in_progress
+    work_in_progress = True # Блокировка обращений к базе данных всех пользователей
+
+    # await bot.session.close()
+    # await dp.storage.close()
+    # await asyncio.sleep(0.3)
+
+
+    # file_path = './download/file.sql'
+    # data = await state.update_data(load_db=file_path)
+    # print(data['load_db'])
+    await bot.download(message.document, './download/file.sql')
+
+    await message.answer(text=" А теперь еще че то", reply_markup=ReplyKeyboardRemove())
+    work_in_progress = False
+    await state.set_state(Restor_db.restor_db)
+
+@dp.message(Restor_db.restor_db)
+async def student_hui(message: Message, state: FSMContext):
+    await state.update_data(restor_db=message.text)
+    print(f"\n2 - OK")
+    await state.clear()
+
+
+
+
+    # async def download_document(message: types.Message):
+    #     global flag
+    #     await bot.download(message.document, './download/file.sql')
+    #     print("download whil don.")
+    #     flag = True
+    #     return 
+
+
+    #@dp.message_handler(content_types=types.ContentTypes.DOCUMENT, state=None)
+    # @dp.message(F.content_type.in_({'document'}), state=MyStates.some_state)
+    # async def handle_document(message: types.Message, state: FSMContext):
+    #     await download_document(message)
+    #     await state.finish()
+
+    # if flag == True:
+    #return
+
+
+
+
+# from aiogram import types
+# from aiogram.dispatcher import FSMContext
+# from aiogram.dispatcher.filters.state import State, StatesGroup
+
+# class MyStates(StatesGroup):
+#     some_state = State()
+
+# @dp.message_handler(content_types=types.ContentTypes.DOCUMENT, state=MyStates.some_state)
+# async def handle_document(message: types.Message, state: FSMContext):
+#     await download_document(message)
+#     await state.finish()
+
+
+
+
+
+        # if not isinstance(message.document, types.Document):
+        #     print("Not document")
+        #     return
+
+        # file_extension = message.document.file_name.split('.')[-1]
+        # allowed_extensions = ['sql', 'txt']
+
+        # if file_extension not in allowed_extensions:
+        #     print("is not sql or txt")
+        #     return    
+
+
+
+
+# @dp.message(types.document.Document)
+# async def handle_docs(message: types.Message):
+#     pass
+#     # Укажите путь для сохранения файла
+#     destination_file = './download/' + message.document.file_name
+
+#     # Скачивание файла
+#     await message.document.download(destination=destination_file)
+
+#     # Отправьте подтверждение пользователю
+#     await message.answer('Файл успешно загружен!')
+
+class MyFilter(Filter):
+    def __init__(self, my_text: str) -> None:
+        self.my_text = my_text
+
+    async def __call__(self, message: Message) -> bool:
+        return message.text == self.my_text
+
+@dp.message(F.text == "hi")
+async def my_handler(message: Message):
+# async def message_test(message):
+    text = message.text
+
+    print("hi pidor")
+    return
+
+
+
+
+
+# # Создаем новый роутер
+# # router = Router(name=__name__)
+# @dp.message(F.content_type.in_({'document'}))
+# async def download_document_short_way(message):
+#     print("document")
+#     if not isinstance(message.document, types.Document):
+#         print("Not document")
+#         return
+
+#     file_extension = message.document.file_name.split('.')[-1]
+#     allowed_extensions = ['sql', 'txt']
+
+#     if file_extension not in allowed_extensions:
+#         print("is not sql or txt")
+#         return    
+
+
+#     await bot.download(message.document, './download/file.sql')
+#     print("download is don.")
+#     return
+
+
+
+
+
+
+
 
 
 
@@ -442,6 +563,10 @@ async def process_sub_admin_stat(callback_query: types.CallbackQuery):
 # Main menu strat
 @dp.message(Command('setup', 'menu', 'setings'))
 async def start(message: types.Message):
+    if work_in_progress == True:
+        await worc_in_progress(message)
+        return
+
     await main_menu(bot, message)
     #await bot.answer_callback_query(callback_query.id)
 
@@ -484,6 +609,9 @@ async def process_sub_settings_modell(callback_query: types.CallbackQuery):
 # Settings - model - gpt-4-1106-preview
 @dp.callback_query(lambda c: c.data == 'gpt-4-1106-preview')
 async def process_sub_settings_modell_1106(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     # chat_id = callback_query.message.chat.id
     # message_id = callback_query.message.message_id
     # await bot.send_chat_action(chat_id, action='typing')
@@ -497,6 +625,9 @@ async def process_sub_settings_modell_1106(callback_query: types.CallbackQuery):
 # Settings - model - gpt-4-0125-preview
 @dp.callback_query(lambda c: c.data == 'gpt-4-0125-preview')
 async def process_sub_settings_modell_0125(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     id = user_id(callback_query)
     updated_data = {"set_model": "gpt-4-0125-preview"}
     await update_settings(id, updated_data)
@@ -506,6 +637,9 @@ async def process_sub_settings_modell_0125(callback_query: types.CallbackQuery):
 # Settings - model - gpt-3.5-turbo-0613
 @dp.callback_query(lambda c: c.data == 'gpt-3.5-turbo-0613')
 async def process_sub_settings_modell_0125(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     id = user_id(callback_query)
     updated_data = {"set_model": "gpt-3.5-turbo-0613"}
     await update_settings(id, updated_data)
@@ -522,6 +656,9 @@ async def process_sub_settings_time(callback_query: types.CallbackQuery):
 # Settings - time - no
 @dp.callback_query(lambda c: c.data == 'no_time')
 async def process_sub_settings_time_no(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     id = user_id(callback_query)
     updated_data = {"the_gap": 0}
     await update_settings(id, updated_data)
@@ -531,6 +668,9 @@ async def process_sub_settings_time_no(callback_query: types.CallbackQuery):
 # Settings - time - 5 min
 @dp.callback_query(lambda c: c.data == '5_time')
 async def process_sub_settings_time_5(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     id = user_id(callback_query)
     updated_data = {"the_gap": 0.05}
     await update_settings(id, updated_data)
@@ -540,6 +680,9 @@ async def process_sub_settings_time_5(callback_query: types.CallbackQuery):
 # Settings - time - 15 min
 @dp.callback_query(lambda c: c.data == '15_time')
 async def process_sub_settings_time_15(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     id = user_id(callback_query)
     updated_data = {"the_gap": 0.15}
     await update_settings(id, updated_data)
@@ -549,6 +692,9 @@ async def process_sub_settings_time_15(callback_query: types.CallbackQuery):
 # Settings - time - 30 min
 @dp.callback_query(lambda c: c.data == '30_time')
 async def process_sub_settings_time_30(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     id = user_id(callback_query)
     updated_data = {"the_gap": 0.30}
     await update_settings(id, updated_data)
@@ -559,12 +705,18 @@ async def process_sub_settings_time_30(callback_query: types.CallbackQuery):
 # Settings - Creativ
 @dp.callback_query(lambda c: c.data == 'creativ')
 async def process_sub_settings_creativ(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     await sub_setings_creativ(bot, callback_query)
     await bot.answer_callback_query(callback_query.id)
 
 # Settings - Creativ - no
 @dp.callback_query(lambda c: c.data == 'creativ_0')
 async def process_sub_settings_creativ_0(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     id = user_id(callback_query)
     updated_data = {"temp_chat": 0}
     await update_settings(id, updated_data)
@@ -574,6 +726,9 @@ async def process_sub_settings_creativ_0(callback_query: types.CallbackQuery):
 # Settings - Creativ - creativ_3
 @dp.callback_query(lambda c: c.data == 'creativ_3')
 async def process_sub_settings_creativ_3(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     id = user_id(callback_query)
     updated_data = {"temp_chat": 0.3}
     await update_settings(id, updated_data)
@@ -583,6 +738,9 @@ async def process_sub_settings_creativ_3(callback_query: types.CallbackQuery):
 # Settings - Creativ - creativ_5
 @dp.callback_query(lambda c: c.data == 'creativ_5')
 async def process_sub_settings_creativ_5(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     id = user_id(callback_query)
     updated_data = {"temp_chat": 0.5}
     await update_settings(id, updated_data)
@@ -592,6 +750,9 @@ async def process_sub_settings_creativ_5(callback_query: types.CallbackQuery):
 # Settings - Creativ - creativ_7
 @dp.callback_query(lambda c: c.data == 'creativ_7')
 async def process_sub_settings_creativ_7(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     id = user_id(callback_query)
     updated_data = {"temp_chat": 0.7}
     await update_settings(id, updated_data)
@@ -601,6 +762,9 @@ async def process_sub_settings_creativ_7(callback_query: types.CallbackQuery):
 # Settings - Creativ - creativ_1
 @dp.callback_query(lambda c: c.data == 'creativ_1')
 async def process_sub_settings_creativ_1(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     id = user_id(callback_query)
     updated_data = {"temp_chat": 1}
     await update_settings(id, updated_data)
@@ -618,6 +782,9 @@ async def process_sub_settings_repet(callback_query: types.CallbackQuery):
 # Settings - repet - no
 @dp.callback_query(lambda c: c.data == 'repet_0')
 async def process_sub_settings_repet_0(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     id = user_id(callback_query)
     updated_data = {"frequency": 0}
     await update_settings(id, updated_data)
@@ -627,6 +794,9 @@ async def process_sub_settings_repet_0(callback_query: types.CallbackQuery):
 # Settings - repet - 3
 @dp.callback_query(lambda c: c.data == 'repet_3')
 async def process_sub_settings_repet_3(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     id = user_id(callback_query)
     updated_data = {"frequency": 0.3}
     await update_settings(id, updated_data)
@@ -636,6 +806,9 @@ async def process_sub_settings_repet_3(callback_query: types.CallbackQuery):
 # Settings - repet - 5
 @dp.callback_query(lambda c: c.data == 'repet_5')
 async def process_sub_settings_repet_5(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     id = user_id(callback_query)
     updated_data = {"frequency": 0.5}
     await update_settings(id, updated_data)
@@ -645,6 +818,9 @@ async def process_sub_settings_repet_5(callback_query: types.CallbackQuery):
 # Settings - repet - 7
 @dp.callback_query(lambda c: c.data == 'repet_7')
 async def process_sub_settings_repet_7(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     id = user_id(callback_query)
     updated_data = {"frequency": 0.7}
     await update_settings(id, updated_data)
@@ -654,6 +830,9 @@ async def process_sub_settings_repet_7(callback_query: types.CallbackQuery):
 # Settings - repet - 1
 @dp.callback_query(lambda c: c.data == 'repet_1')
 async def process_sub_settings_repet_1(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     id = user_id(callback_query)
     updated_data = {"frequency": 1}
     await update_settings(id, updated_data)
@@ -671,6 +850,9 @@ async def process_sub_settings_repet_all(callback_query: types.CallbackQuery):
 # Settings - presence - no
 @dp.callback_query(lambda c: c.data == 'repet_all_0')
 async def process_sub_settings_repet_all_0(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     id = user_id(callback_query)
     updated_data = {"presence": 0}
     await update_settings(id, updated_data)
@@ -680,6 +862,9 @@ async def process_sub_settings_repet_all_0(callback_query: types.CallbackQuery):
 # Settings - presence - 3
 @dp.callback_query(lambda c: c.data == 'repet_all_3')
 async def process_sub_settings_repet_all_3(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     id = user_id(callback_query)
     updated_data = {"presence": 0.3}
     await update_settings(id, updated_data)
@@ -689,6 +874,9 @@ async def process_sub_settings_repet_all_3(callback_query: types.CallbackQuery):
 # Settings - presence - 5
 @dp.callback_query(lambda c: c.data == 'repet_all_5')
 async def process_sub_settings_repet_all_5(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     id = user_id(callback_query)
     updated_data = {"presence": 0.5}
     await update_settings(id, updated_data)
@@ -698,6 +886,9 @@ async def process_sub_settings_repet_all_5(callback_query: types.CallbackQuery):
 # Settings - presence - 7
 @dp.callback_query(lambda c: c.data == 'repet_all_7')
 async def process_sub_settings_repet_all_7(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     id = user_id(callback_query)
     updated_data = {"presence": 0.7}
     await update_settings(id, updated_data)
@@ -707,6 +898,9 @@ async def process_sub_settings_repet_all_7(callback_query: types.CallbackQuery):
 # Settings - presence - 1
 @dp.callback_query(lambda c: c.data == 'repet_all_1')
 async def process_sub_settings_repet_all_1(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     id = user_id(callback_query)
     updated_data = {"presence": 1}
     await update_settings(id, updated_data)
@@ -718,6 +912,9 @@ async def process_sub_settings_repet_all_1(callback_query: types.CallbackQuery):
 # Settings - flag_stik
 @dp.callback_query(lambda c: c.data == 'flag_stik')
 async def process_sub_settings_flag_stik(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     id = user_id(callback_query)
     data = await get_settings(id)
     if data:
@@ -734,9 +931,13 @@ async def process_sub_settings_flag_stik(callback_query: types.CallbackQuery):
 ####
 
 
+
 # Settings - reset dialog
 @dp.callback_query(lambda c: c.data == 'sub_dialog')
 async def process_sub_dialog(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     id = user_id(callback_query)
     updated_data = {"discus": None}
     await update_discussion(id, updated_data)
@@ -754,6 +955,9 @@ async def process_sub_balance(callback_query: types.CallbackQuery):
 # Settings - my_many
 @dp.callback_query(lambda c: c.data == 'my_many')
 async def process_sub_settings_my_many(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     id = user_id(callback_query)
     data = await get_settings(id)
     if data:
@@ -771,6 +975,9 @@ async def process_sub_settings_add_money(callback_query: types.CallbackQuery):
 # Settings - add_money - 100
 @dp.callback_query(lambda c: c.data == 'many_100')
 async def process_sub_settings_add_money_100(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     id = user_id(callback_query)
     await callback_query.answer("100")
     await bot.answer_callback_query(callback_query.id)
@@ -778,6 +985,9 @@ async def process_sub_settings_add_money_100(callback_query: types.CallbackQuery
 # Settings - add_money - 200
 @dp.callback_query(lambda c: c.data == 'many_200')
 async def process_sub_settings_add_money_200(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     id = user_id(callback_query)
     await callback_query.answer("200")
     await bot.answer_callback_query(callback_query.id)
@@ -785,6 +995,9 @@ async def process_sub_settings_add_money_200(callback_query: types.CallbackQuery
 # Settings - add_money - 500
 @dp.callback_query(lambda c: c.data == 'many_500')
 async def process_sub_settings_add_money_500(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     id = user_id(callback_query)
     await callback_query.answer("500")
     await bot.answer_callback_query(callback_query.id)
@@ -792,6 +1005,9 @@ async def process_sub_settings_add_money_500(callback_query: types.CallbackQuery
 # Settings - add_money - 700
 @dp.callback_query(lambda c: c.data == 'many_700')
 async def process_sub_settings_add_money_700(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     id = user_id(callback_query)
     await callback_query.answer("700")
     await bot.answer_callback_query(callback_query.id)
@@ -799,6 +1015,9 @@ async def process_sub_settings_add_money_700(callback_query: types.CallbackQuery
 # Settings - add_money - 1000
 @dp.callback_query(lambda c: c.data == 'many_1000')
 async def process_sub_settings_add_money_1000(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     id = user_id(callback_query)
     await callback_query.answer("1000")
     await bot.answer_callback_query(callback_query.id)
@@ -806,6 +1025,9 @@ async def process_sub_settings_add_money_1000(callback_query: types.CallbackQuer
 # Settings - add_money - 2000
 @dp.callback_query(lambda c: c.data == 'many_2000')
 async def process_sub_settings_add_money_2000(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     id = user_id(callback_query)
     await callback_query.answer("2000")
     await bot.answer_callback_query(callback_query.id)
@@ -813,9 +1035,17 @@ async def process_sub_settings_add_money_2000(callback_query: types.CallbackQuer
 
 
 
-# Settings - satatistic for 30 days
+
+
+
+
+
+# Settings - satatistic for 100
 @dp.callback_query(lambda c: c.data == 'statis_30')
 async def process_sub_settings_statis_30(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
     id = user_id(callback_query)
 
     name = callback_query.from_user.username
@@ -897,6 +1127,10 @@ async def second_function(message: types.Message):
         logging.error(f"Error, not correct message from User whose id is {id}")
         second_function_finished = True
         return
+
+    # if work_in_progress == True:
+    #     await worc_in_progress(message)
+    #     return
 
     data = await get_settings(id) # Получаем настройки
     if data is None:
@@ -998,8 +1232,11 @@ async def second_function(message: types.Message):
 
 
 # Start Message to OpenAI
-@dp.message()
+@dp.message(F.content_type.in_({'text', 'sticker'})) # Только текст и зачем то стикеры..
 async def start_main(message):
+    if work_in_progress == True:
+        await worc_in_progress(message)
+        return
     global second_function_finished
     # Запускаем вторую функцию в фоновом режиме.
     asyncio.create_task(second_function(message))

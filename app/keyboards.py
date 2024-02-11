@@ -189,11 +189,12 @@ async def sub_add_money(bot, callback_query: types.CallbackQuery):
 async def admin_menu(bot, message: types.Message):
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="Скачать статистику", callback_data="admin_stat")], 
-            [InlineKeyboardButton(text="Скачать логи", callback_data="admin_get_log")],
-            [InlineKeyboardButton(text="Очистить логи", callback_data="admin_clear_log")], 
-            [InlineKeyboardButton(text="Подтвердить оплату переводом", callback_data="confirm_pay")],
-            [InlineKeyboardButton(text="Резервная копия базы данных", callback_data="backup")],
+            [InlineKeyboardButton(text="Download statistics", callback_data="admin_stat")], 
+            [InlineKeyboardButton(text="Download log", callback_data="admin_get_log")],
+            [InlineKeyboardButton(text="Clear log", callback_data="admin_clear_log")], 
+            [InlineKeyboardButton(text="Confirm the payment", callback_data="confirm_pay")],
+            [InlineKeyboardButton(text="Backup DB and Download", callback_data="backup")],
+            [InlineKeyboardButton(text="Upload and Restore DB*", callback_data="restore_db")],
             [InlineKeyboardButton(text="Закрыть меню X", callback_data="close_admin")]
         ]
     )
