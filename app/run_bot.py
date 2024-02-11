@@ -5,6 +5,7 @@ import sys
 import os
 import logging
 import asyncio
+from pathlib import Path
 from openai import AsyncOpenAI
 from aiogram import Bot, Dispatcher, types, F, Router
 # from aiogram.enums import ParseMode
@@ -28,6 +29,7 @@ from keyboards import (
     sub_add_money, admin_menu
 )
 import datetime # позже удалить
+
 
 
 client = AsyncOpenAI(api_key=api_key)
@@ -395,7 +397,6 @@ async def process_sub_admin_stat(callback_query: types.CallbackQuery):
         await bot.send_message(callback_query.from_user.id, "Файл app.log пустой или отсуствует.")
         await bot.answer_callback_query(callback_query.id)
 
-
 # Admin BackupDB
 @dp.callback_query(lambda c: c.data == 'backup')
 async def process_sub_admin_stat(callback_query: types.CallbackQuery):
@@ -407,7 +408,26 @@ async def process_sub_admin_stat(callback_query: types.CallbackQuery):
         await bot.send_message(callback_query.from_user.id, "Ошибка создания резервной копии базы данных.")
         await bot.answer_callback_query(callback_query.id)
 
+    await asyncio.sleep(1)
 
+    data_folder = Path("./backup_db/")
+
+    # Получаем список всех файлов в директории
+    files = [entry for entry in data_folder.iterdir() if entry.is_file()]
+
+    # Сортируем список файлов по дате изменения (от новых к старым)
+    sorted_files = sorted(files, key=lambda x: x.stat().st_mtime, reverse=True)
+
+    # Оставляем последние 3 файла, удаляем остальные
+    for file_to_delete in sorted_files[1:]:
+        os.remove(file_to_delete)
+
+    # Последний скачанный файл будет первым в отсортированном списке (новейшим)
+    last_downloaded_file = sorted_files[0] if sorted_files else None
+    # print("last_downloaded_file")
+
+    # Здесь можно добавить код для скачивания файла last_downloaded_file,
+    # если имелось в виду "скачать" через интернет или переместить его.
 
 
 
