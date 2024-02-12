@@ -1,59 +1,42 @@
 from keys import pass_psgresql
 import subprocess
-import datetime
 import logging
 
-# Параметры подключения к базе данных PostgreSQL
 db_username = "admin"
 db_password = pass_psgresql
 db_name = "my_database"
-confirmation = False
+confirmation = False # На всякий случай подтверждение функции
 
-backup_path = "./backup_db/"
-backup_filename = "my_database_backup_2024-02-11_11-21-10.sql"  # Имя вашего файла резервной копии
 
-def restore_db():
+def restore_db(file_path):
 
-    # Очистка базы данных перед восстановлением
+    terminate_command = f'PGPASSWORD={db_password} psql -h localhost -p 5432 -U {db_username} -d {db_name} -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname=\'{db_name}\';"'
+
     clear_command = f'PGPASSWORD={db_password} psql -h localhost -p 5432 -U {db_username} -d {db_name} -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"'
 
-
-    # Восстановление базы
-    pg_restore_command = f'PGPASSWORD={db_password} pg_restore -h localhost -p 5432 -U {db_username} -d {db_name} {backup_path}{backup_filename}'
+    pg_restore_command = f'PGPASSWORD={db_password} pg_restore -h localhost -p 5432 -U {db_username} -d {db_name} {file_path}'
     
     try:
-        subprocess.run(clear_command, shell=True)
-        # Восстановление базы данных
-        subprocess.run(pg_restore_command, shell=True) # Выполнение команды через subprocess
+        subprocess.run(terminate_command, shell=True) # Формирование команды для завершения активных сеансов
+
+        subprocess.run(clear_command, shell=True) # Формирование команды для удаления базы данных
+
+        subprocess.run(pg_restore_command, shell=True) # Восстановления базы данных из резервной копии с помощью pg_restore, выполнение команды через subprocess
         
         confirmation = True
-        print("Database restore completed successfully.")
+        logging.info("Database restore completed successfully.")
     except Exception as e:
         confirmation = False
-        print(f"An error occurred: {e}")
+        logging.info(f"An error occurred: {e}")
 
     return confirmation
-
 
 
 if __name__ == "__main__":
     restore_db()
 
-
+#
+# Очищает имеющуюся базу и восстанавливает из копии находящейся на сервере по адресу переданному по адресу и имени файла - file_path
 # У меня чет на Linux pg_dump не обновляется выше 15.5, потому я поставил в docker-compose.yml
 # версию 15.5 PostgreSQL, если на сервере будет выше, то в файле просто поставить Last img Postgres.
 #
-#
-#
-#
-#
-# async def restore_database():
-#     # Закрыть текущую сессию и хранилище данных
-#     await bot.session.close()
-#     await dp.storage.close()
-
-#     # Выполнить операцию восстановления из копии базы данных
-#     # Ваш код для восстановления из копии базы данных здесь
-
-# # Затем вызовите функцию восстановления
-# await restore_database()

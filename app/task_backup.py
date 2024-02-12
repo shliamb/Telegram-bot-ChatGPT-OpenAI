@@ -13,7 +13,7 @@ schedule.every().day.at("02:05").do(my_task)
 if __name__ == "__main__":
     my_task()
 
-
+#
 # Автоматический запуск таски, а она запускает бекап
 #
 #    
@@ -23,3 +23,4 @@ if __name__ == "__main__":
 # schedule.every(2).hours.do(task2)
 # schedule.every().monday.at("12:00").do(task1)
 # schedule.every().wednesday.at("14:00").do(task2)
+#

@@ -26,9 +26,6 @@ def backup_db():
         confirmation = True
         logging.info("Backup Data Base is Completed.")
 
-
-
-
     except subprocess.CalledProcessError as e:
         confirmation = False
         logging.error(f"Error when creating a backup: {e}")
@@ -38,11 +35,7 @@ def backup_db():
 if __name__ == "__main__":
     backup_db()
 
-
+#
 # У меня чет на Linux pg_dump не обновляется выше 15.5, потому я поставил в docker-compose.yml
 # версию 15.5 PostgreSQL, если на сервере будет выше, то в файле просто поставить Last img Postgres.
-#
-#
-#
-#
 #

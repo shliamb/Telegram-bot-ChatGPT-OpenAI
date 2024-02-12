@@ -1,7 +1,11 @@
 from worker_db import get_settings, add_update_settings
-import telebot
-from app.bot import types, bot
+from aiogram import Bot, Dispatcher, executor, types
+from aiogram.types import LabeledPrice
 # from yandex_checkout import Configuration, Payment
+
+
+##### ПРИ ОПЛАТЕ ТОНАМИ СКИДКА 5% #####
+
 
 
 # Настройка API Яндекс.Кассы
@@ -33,13 +37,6 @@ def process_payment(message):
     })
 
     bot.send_message(message.chat.id, f"Для оплаты перейдите по ссылке: {payment.confirmation.confirmation_url}")
-
-
-
-
-
-
-
 
 
 

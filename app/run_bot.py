@@ -8,19 +8,16 @@ import asyncio
 from pathlib import Path
 from openai import AsyncOpenAI
 from aiogram import Bot, Dispatcher, types, F, Router
-
 # from aiogram.enums import ParseMode
 from aiogram.utils.markdown import hbold
 from aiogram.filters import CommandStart, Command, Filter
-from aiogram.types import Message, BotCommand, ContentType, InputFile, Document, PhotoSize, ReplyKeyboardRemove
-
-
+from aiogram.types import (Message, BotCommand, LabeledPrice, ContentType,
+                            InputFile, Document, PhotoSize, ReplyKeyboardRemove)
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.memory import MemoryStorage
-
 from aiogram.fsm.state import State, StatesGroup
-
 import csv
+import datetime
 from io import StringIO, BytesIO
 from get_time import get_time
 from calculation import calculation
@@ -37,7 +34,17 @@ from keyboards import (
     sub_setings_model, sub_setings_time, sub_setings_creativ, sub_setings_repet, sub_setings_repet_all,\
     sub_add_money, admin_menu
 )
-import datetime # позже удалить
+
+
+
+
+
+client = AsyncOpenAI(api_key=api_key)
+dp = Dispatcher() # All handlers should be attached to the Router (or Dispatcher)
+bot = Bot(token, parse_mode="markdown") # Initialize Bot instance with a default parse mode which will be passed to all API calls
+
+
+
 
 # Флаг технических работ, избегает обращения к базе пользователями, для восстановления базы
 global work_in_progress
@@ -45,11 +52,6 @@ work_in_progress = False
 async def worc_in_progress(goo):
     await goo.answer("Извините, ведутся технические работы, попробуйте через 1 минуту.")
     logging.info(f"Tech maintenance in progress, sorry.")
-
-client = AsyncOpenAI(api_key=api_key)
-dp = Dispatcher() # All handlers should be attached to the Router (or Dispatcher)
-bot = Bot(token, parse_mode="markdown") # Initialize Bot instance with a default parse mode which will be passed to all API calls
-
 
 # Get User_ID
 def user_id(action) -> int:
@@ -134,110 +136,106 @@ async def command_start_handler(message: Message) -> None:
 
 
 # test user
-@dp.message(Command("user"))
-async def user(message: types.Message):
-    await typing(message)
-    id = user_id(message)
-    user = await get_user_by_id(id)
+# @dp.message(Command("user"))
+# async def user(message: types.Message):
+#     await typing(message)
+#     id = user_id(message)
+#     user = await get_user_by_id(id)
 
-    if user:
-        id = user.id
-        name = user.name
-        full_name = user.full_name
-        first_name = user.first_name
-        last_name = user.last_name
-        chat_id = user.chat_id
-        is_admin = user.is_admin
-        is_block = user.is_block
-        is_good = user.is_good
-        print(id, name, full_name, first_name, last_name, chat_id, is_admin, is_block, is_good)
-    else:
-        print("User not found")
+#     if user:
+#         id = user.id
+#         name = user.name
+#         full_name = user.full_name
+#         first_name = user.first_name
+#         last_name = user.last_name
+#         chat_id = user.chat_id
+#         is_admin = user.is_admin
+#         is_block = user.is_block
+#         is_good = user.is_good
+#         print(id, name, full_name, first_name, last_name, chat_id, is_admin, is_block, is_good)
+#     else:
+#         print("User not found")
 
 
 # test set
-@dp.message(Command("set"))
-async def set(message: types.Message):
-    await typing(message)
-    id = user_id(message)
-    user = await get_settings(id)
+# @dp.message(Command("set"))
+# async def set(message: types.Message):
+#     await typing(message)
+#     id = user_id(message)
+#     user = await get_settings(id)
 
-    if user:
-        id = user.id
-        temp_chat = user.temp_chat
-        frequency = user.frequency
-        presence = user.presence
-        all_count = user.all_count
-        all_token = user.all_token
-        the_gap = user.the_gap
-        set_model = user.set_model
-        give_me_money = user.give_me_money
-        money = user.money
-        all_in_money = user.all_in_money
-        flag_stik = user.flag_stik
-        print(id, temp_chat, frequency, presence, flag_stik, all_count, all_token, the_gap,\
-               set_model, give_me_money, money, all_in_money)
-    else:
-        print("Settings not found")
+#     if user:
+#         id = user.id
+#         temp_chat = user.temp_chat
+#         frequency = user.frequency
+#         presence = user.presence
+#         all_count = user.all_count
+#         all_token = user.all_token
+#         the_gap = user.the_gap
+#         set_model = user.set_model
+#         give_me_money = user.give_me_money
+#         money = user.money
+#         all_in_money = user.all_in_money
+#         flag_stik = user.flag_stik
+#         print(id, temp_chat, frequency, presence, flag_stik, all_count, all_token, the_gap,\
+#                set_model, give_me_money, money, all_in_money)
+#     else:
+#         print("Settings not found")
 
 
 # test desc
-@dp.message(Command("desc"))
-async def set(message: types.Message):
-    await typing(message)
-    id = user_id(message)
-    data = await get_discussion(id)
+# @dp.message(Command("desc"))
+# async def set(message: types.Message):
+#     await typing(message)
+#     id = user_id(message)
+#     data = await get_discussion(id)
 
-    if data:
-        id = data.id
-        discus = data.discus
-        timestamp = data.timestamp
-        print(id, discus, timestamp)
-    else:
-        print("Descussion not found")
+#     if data:
+#         id = data.id
+#         discus = data.discus
+#         timestamp = data.timestamp
+#         print(id, discus, timestamp)
+#     else:
+#         print("Descussion not found")
 
-# Test 30 day statistics for user id
-@dp.message(Command("30"))
-async def set(message: types.Message):
-    await typing(message)
-    id = user_id(message)
-    data = await get_last_30_statistics(id)
-    if data:
-        for statistic in data:
-            print(statistic.id, statistic.time, statistic.use_model, statistic.sesion_token,\
-                   statistic.price_1_tok, statistic.price_sesion_tok, statistic.users_telegram_id )
-    else:
-        print("Нет данных для этого пользователя")
+# # Test 30 day statistics for user id
+# @dp.message(Command("30"))
+# async def set(message: types.Message):
+#     await typing(message)
+#     id = user_id(message)
+#     data = await get_last_30_statistics(id)
+#     if data:
+#         for statistic in data:
+#             print(statistic.id, statistic.time, statistic.use_model, statistic.sesion_token,\
+#                    statistic.price_1_tok, statistic.price_sesion_tok, statistic.users_telegram_id )
+#     else:
+#         print("Нет данных для этого пользователя")
 
 
 
 # test ex
-@dp.message(Command("ex"))
-async def ex(message: types.Message):
-    await typing(message)
-    id = user_id(message)
-    data = await get_exchange()
+# @dp.message(Command("ex"))
+# async def ex(message: types.Message):
+#     await typing(message)
+#     id = user_id(message)
+#     data = await get_exchange()
 
-    if data:
-        id = data.id
-        timestamp = data.timestamp
-        rate = data.rate
-        print(id, timestamp, rate)
-    else:
-        print("ex rate not found")
-
-
-# test ex update
-@dp.message(Command("upex"))
-async def upex(message: types.Message):
-    await typing(message)
-    data = datetime.datetime.strptime('2024-02-05 04:44:23.791821', '%Y-%m-%d %H:%M:%S.%f')
-    timer = {"timestamp": data}
-    await update_exchange(1, timer)
+#     if data:
+#         id = data.id
+#         timestamp = data.timestamp
+#         rate = data.rate
+#         print(id, timestamp, rate)
+#     else:
+#         print("ex rate not found")
 
 
-
-
+# # test ex update
+# @dp.message(Command("upex"))
+# async def upex(message: types.Message):
+#     await typing(message)
+#     data = datetime.datetime.strptime('2024-02-05 04:44:23.791821', '%Y-%m-%d %H:%M:%S.%f')
+#     timer = {"timestamp": data}
+#     await update_exchange(1, timer)
 
 
 
@@ -392,166 +390,78 @@ async def process_sub_admin_stat(callback_query: types.CallbackQuery):
 
 
 
-
-
+#
+# Admin Restore DB
+#
+# Нажимаю кнопку восстановления, прикрепляю свой файл db бинарный в .sql, он загружается в папку download_db.
+# Далее скрипт останавливает все запросы и очищает память, выставляется глобальный флаг, который не допускает  
+# пользователям взаимодействовать с базой. Тем временем, очищается полностью и даже разметка работающей базы 
+# и полностью переписывается с закаченного файла. Он не удаляется из папки, не думаю что их будет много.
+#
+ 
 class Restor_db(StatesGroup):
     load_db = State()
-    restor_db = State()
+    #restor_db = State()
 
-
-# # Admin Restore DB
+# Push button - restore
 @dp.callback_query(lambda c: c.data == 'restore_db')
 async def process_sub_admin_stat(callback_query: types.CallbackQuery, state: FSMContext):
+    await callback_query.message.answer(text="Прикрепи и отправь нужную копию базы данных для восстановления.", reply_markup=ReplyKeyboardRemove())
+    await state.set_state(Restor_db.load_db) # Next Step
+    await bot.answer_callback_query(callback_query.id) # End typing
 
-    await callback_query.message.answer(text="Прикрепите и отправьте базу данных.", reply_markup=ReplyKeyboardRemove())
-    await state.set_state(Restor_db.load_db)
-    await bot.answer_callback_query(callback_query.id)
-
-
-# @dp.message(Restor_db.load_db)
-# async def student_name(message: Message, state: FSMContext):
-#     data = await state.update_data(load_db=message.document.file_path)
-#     await bot.download(data, './download/file.sql')
-
+# Next step - download db and restore
 @dp.message(Restor_db.load_db)
 async def student_name(message: Message, state: FSMContext):
     global work_in_progress
     work_in_progress = True # Блокировка обращений к базе данных всех пользователей
 
-    # await bot.session.close()
-    # await dp.storage.close()
+
+    if not isinstance(message.document, types.Document):
+        await message.answer("Вы передали не документ.")
+        return
+
+    file_extension = message.document.file_name.split('.')[-1]
+    allowed_extensions = ['sql']
+
+    if file_extension not in allowed_extensions:
+        await message.answer("Вы передали файл не sql расширения.")
+        return    
+
+
+    # Name file
+    date_time = datetime.datetime.utcnow() # Current date and time
+    formtime = date_time.strftime("%Y-%m-%d-%H-%M")
+    file_name = f"uploaded-db-{formtime}.sql"
+
     # await asyncio.sleep(0.3)
 
+    file_path = f"./download_db/{file_name}"
+    await bot.download(message.document, file_path) # То что прикрепили и отправили, скачивается в папку с новым именем
 
-    # file_path = './download/file.sql'
-    # data = await state.update_data(load_db=file_path)
-    # print(data['load_db'])
-    await bot.download(message.document, './download/file.sql')
+    await bot.session.close()
+    await dp.storage.close()
 
-    await message.answer(text=" А теперь еще че то", reply_markup=ReplyKeyboardRemove())
-    work_in_progress = False
-    await state.set_state(Restor_db.restor_db)
+    confirmation = restore_db(file_path) # Восстановелние базы
 
-@dp.message(Restor_db.restor_db)
-async def student_hui(message: Message, state: FSMContext):
-    await state.update_data(restor_db=message.text)
-    print(f"\n2 - OK")
+    work_in_progress = False # Восстановление возможности обращения пользователей к базе
+
+    if confirmation == True:
+        await message.answer("Восстановление базы данных прошло успешно.")
+    else:
+        await message.answer("При восстановлении базы данных, что то пошло не так.")
+
+
     await state.clear()
+    #await state.set_state(Restor_db.restor_db) # Переход к следующему шагу
 
+# @dp.message(Restor_db.restor_db)
+# async def student_hui(message: Message, state: FSMContext):
+#     await state.update_data(restor_db=message.text)
+#     print(f"\n2 - OK")
+#     await state.clear()
 
-
-
-    # async def download_document(message: types.Message):
-    #     global flag
-    #     await bot.download(message.document, './download/file.sql')
-    #     print("download whil don.")
-    #     flag = True
-    #     return 
-
-
-    #@dp.message_handler(content_types=types.ContentTypes.DOCUMENT, state=None)
-    # @dp.message(F.content_type.in_({'document'}), state=MyStates.some_state)
-    # async def handle_document(message: types.Message, state: FSMContext):
-    #     await download_document(message)
-    #     await state.finish()
-
-    # if flag == True:
-    #return
-
-
-
-
-# from aiogram import types
-# from aiogram.dispatcher import FSMContext
-# from aiogram.dispatcher.filters.state import State, StatesGroup
-
-# class MyStates(StatesGroup):
-#     some_state = State()
-
-# @dp.message_handler(content_types=types.ContentTypes.DOCUMENT, state=MyStates.some_state)
-# async def handle_document(message: types.Message, state: FSMContext):
-#     await download_document(message)
-#     await state.finish()
-
-
-
-
-
-        # if not isinstance(message.document, types.Document):
-        #     print("Not document")
-        #     return
-
-        # file_extension = message.document.file_name.split('.')[-1]
-        # allowed_extensions = ['sql', 'txt']
-
-        # if file_extension not in allowed_extensions:
-        #     print("is not sql or txt")
-        #     return    
-
-
-
-
-# @dp.message(types.document.Document)
-# async def handle_docs(message: types.Message):
-#     pass
-#     # Укажите путь для сохранения файла
-#     destination_file = './download/' + message.document.file_name
-
-#     # Скачивание файла
-#     await message.document.download(destination=destination_file)
-
-#     # Отправьте подтверждение пользователю
-#     await message.answer('Файл успешно загружен!')
-
-class MyFilter(Filter):
-    def __init__(self, my_text: str) -> None:
-        self.my_text = my_text
-
-    async def __call__(self, message: Message) -> bool:
-        return message.text == self.my_text
-
-@dp.message(F.text == "hi")
-async def my_handler(message: Message):
-# async def message_test(message):
-    text = message.text
-
-    print("hi pidor")
-    return
-
-
-
-
-
-# # Создаем новый роутер
-# # router = Router(name=__name__)
-# @dp.message(F.content_type.in_({'document'}))
-# async def download_document_short_way(message):
-#     print("document")
-#     if not isinstance(message.document, types.Document):
-#         print("Not document")
-#         return
-
-#     file_extension = message.document.file_name.split('.')[-1]
-#     allowed_extensions = ['sql', 'txt']
-
-#     if file_extension not in allowed_extensions:
-#         print("is not sql or txt")
-#         return    
-
-
-#     await bot.download(message.document, './download/file.sql')
-#     print("download is don.")
-#     return
-
-
-
-
-
-
-
-
-
-
+####
 
 
 
@@ -966,11 +876,74 @@ async def process_sub_settings_my_many(callback_query: types.CallbackQuery):
     await bot.answer_callback_query(callback_query.id)
 ####
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Settings - add_money
 @dp.callback_query(lambda c: c.data == 'add_money')
 async def process_sub_settings_add_money(callback_query: types.CallbackQuery):
-    await sub_add_money(bot, callback_query)
+    #await sub_add_money(bot, callback_query)
+    prices = [LabeledPrice(label='Тестовый продукт', amount=10000)]  # 100 рублей в копейках
+    await bot.send_invoice(
+        callback_query.id,
+        title='Тестовый продукт',
+        description='Описание тестового продукта',
+        provider_token=7676766556757,
+       sgvjerjlgjrsjv;iaoj
+       4
+       
+       
+       если необходимо',
+        photo_height=512,
+        photo_width=512,
+        photo_size=512,
+        prices=prices,
+        start_parameter='time-machine-example',
+        payload='some-invoice-payload-for-our-internal-use'
+    )
+
     await bot.answer_callback_query(callback_query.id)
+
+
+@dp.pre_checkout_query(lambda query: True)
+async def checkout(pre_checkout_query: types.PreCheckoutQuery):
+    await bot.answer_pre_checkout_query(pre_checkout_query.id, ok=True)
+
+# @dp.message(ContentType.SUCCESSFUL_PAYMENT)
+# async def got_payment(message: types.Message):
+#     await message.reply('Спасибо за Вашу покупку!')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Settings - add_money - 100
 @dp.callback_query(lambda c: c.data == 'many_100')
@@ -1109,7 +1082,7 @@ async def process_sub_about(callback_query: types.CallbackQuery):
 
 
 #### OpenAI ####
-second_function_finished = False # Флаг для отслеживания статуса второй функции.
+#second_function_finished = False # Флаг для отслеживания статуса второй функции.
 
 # Typing in OpenAI
 async def first_function(message):
@@ -1118,7 +1091,7 @@ async def first_function(message):
 
 # Answer OpenAI
 async def second_function(message: types.Message):
-    global second_function_finished
+    #global second_function_finished
     id = user_id(message)
     logging.info(f"User {id} - {message.text}")
 
@@ -1228,25 +1201,27 @@ async def second_function(message: types.Message):
     await update_discussion(id, updated_data)
     cache = []
 
-    second_function_finished = True # Turn off typing
+    #second_function_finished = True # Turn off typing
+    return
+
+
+
+async def main_ai(message):
+    # Запускаем вторую функцию и сохраняем Task объект.
+    second_task = asyncio.create_task(second_function(message))
+    
+    # Цикл для периодического запуска первой функции каждые 5 секунд до завершения второй функции.
+    while not second_task.done():
+        await first_function(message)
+        await asyncio.sleep(1.5)  # Ожидаем небольшое время перед следующей проверкой.
+
+
 
 
 # Start Message to OpenAI
 @dp.message(F.content_type.in_({'text', 'sticker'})) # Только текст и зачем то стикеры..
 async def start_main(message):
-    if work_in_progress == True:
-        await worc_in_progress(message)
-        return
-    global second_function_finished
-    # Запускаем вторую функцию в фоновом режиме.
-    asyncio.create_task(second_function(message))
-
-    # Цикл для периодического запуска первой функции каждые 5 секунд.
-    while not second_function_finished:
-        await first_function(message)
-        await asyncio.sleep(0.1)  # Ожидаем 0.1 секунд перед следующим запуском.
-    second_function_finished = False
-######
+    await main_ai(message)
 
 
 

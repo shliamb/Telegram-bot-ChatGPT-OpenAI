@@ -68,7 +68,7 @@ class Settings(Base):
 class Discussion(Base):
     __tablename__ = 'discussion'
     id = Column(sqlalchemy.BigInteger, ForeignKey('users_telegram.id'), primary_key=True)
-    discus = Column(sqlalchemy.String(7000))
+    discus = Column(sqlalchemy.String(10000))
     timestamp = Column(sqlalchemy.DateTime, onupdate=datetime.datetime.utcnow, default=datetime.datetime.utcnow, nullable=False) # Каждый раз обновляется, при изменениях в ячейке
     ###
     userstelegram = relationship("UsersTelegram", back_populates="discussion")
