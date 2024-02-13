@@ -8,6 +8,10 @@ white_list = os.environ.get('WHITE_LIST')
 admin_user_ids = os.environ.get('ADMIN_USER_IDS')
 block = os.environ.get('ALLOWED_TELEGRAM_USER_IDS')
 pass_psgresql = os.environ.get('PASS_POSTGRESQL')
+payments_token = os.environ.get('PAYMENTS_TOKEN')
+receiver_yoomoney = os.environ.get('YOOMONEY')
+token_yoomoney = os.environ.get('TOKEN_YOOMONEY')
+
 
 # В корне есть файл .env.example, при деплое меняем имя на .env тут же станет скрытым. В папке Cntrl + H (Linux),
 # но VisualStudio увидит его. Внутри проставляем свои ключи, но ключ на OpenAI устанавливаем только на сервере вручную. 

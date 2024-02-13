@@ -1,4 +1,4 @@
-from keys import token, api_key, white_list, admin_user_ids, block
+from keys import token, api_key, white_list, admin_user_ids, block, receiver_yoomoney, token_yoomoney#, payments_token
 from about_bot import about_text
 import time
 import sys
@@ -23,7 +23,11 @@ from get_time import get_time
 from calculation import calculation
 from backupdb import backup_db
 from restore_db import restore_db
+from add_money import add_money_by_card
 import task_backup
+from yoomoney import Quickpay
+from yoomoney import Client
+import uuid
 from worker_db import (
     adding_user, get_user_by_id, update_user, add_settings, add_discussion, update_settings,
     get_settings, get_discussion, update_discussion, get_exchange, update_exchange, get_last_30_statistics,
@@ -32,7 +36,7 @@ from worker_db import (
 from keyboards import (
     main_menu, sub_setings, sub_balance, back_to_main, back_to_setings,\
     sub_setings_model, sub_setings_time, sub_setings_creativ, sub_setings_repet, sub_setings_repet_all,\
-    sub_add_money, admin_menu
+    sub_add_money, admin_menu, confirm_summ
 )
 
 
@@ -412,7 +416,8 @@ async def process_sub_admin_stat(callback_query: types.CallbackQuery, state: FSM
 
 # Next step - download db and restore
 @dp.message(Restor_db.load_db)
-async def student_name(message: Message, state: FSMContext):
+#async def student_name(message: Message, state: FSMContext):
+async def load_a_base(message: Message, state: FSMContext):
     global work_in_progress
     work_in_progress = True # Блокировка обращений к базе данных всех пользователей
 
@@ -889,37 +894,35 @@ async def process_sub_settings_my_many(callback_query: types.CallbackQuery):
 
 
 
-
-
 # Settings - add_money
-@dp.callback_query(lambda c: c.data == 'add_money')
-async def process_sub_settings_add_money(callback_query: types.CallbackQuery):
-    #await sub_add_money(bot, callback_query)
-    prices = [LabeledPrice(label='Тестовый продукт', amount=10000)]  # 100 рублей в копейках
-    await bot.send_invoice(
-        callback_query.id,
-        title='Тестовый продукт',
-        description='Описание тестового продукта',
-        provider_token=7676766556757,
-       sgvjerjlgjrsjv;iaoj
-       4
+# @dp.callback_query(lambda c: c.data == 'add_money')
+# async def process_sub_settings_add_money(callback_query: types.CallbackQuery):
+#     #await sub_add_money(bot, callback_query)
+#     prices = [LabeledPrice(label='Тестовый продукт', amount=10000)]  # 100 рублей в копейках
+#     await bot.send_invoice(
+#         callback_query.id,
+#         title='Тестовый продукт',
+#         description='Описание тестового продукта',
+#         provider_token=7676766556757,
+#        sgvjerjlgjrsjv;iaoj
+#        4
        
        
-       если необходимо',
-        photo_height=512,
-        photo_width=512,
-        photo_size=512,
-        prices=prices,
-        start_parameter='time-machine-example',
-        payload='some-invoice-payload-for-our-internal-use'
-    )
+#        если необходимо',
+#         photo_height=512,
+#         photo_width=512,
+#         photo_size=512,
+#         prices=prices,
+#         start_parameter='time-machine-example',
+#         payload='some-invoice-payload-for-our-internal-use'
+#     )
 
-    await bot.answer_callback_query(callback_query.id)
+#     await bot.answer_callback_query(callback_query.id)
 
 
-@dp.pre_checkout_query(lambda query: True)
-async def checkout(pre_checkout_query: types.PreCheckoutQuery):
-    await bot.answer_pre_checkout_query(pre_checkout_query.id, ok=True)
+# @dp.pre_checkout_query(lambda query: True)
+# async def checkout(pre_checkout_query: types.PreCheckoutQuery):
+#     await bot.answer_pre_checkout_query(pre_checkout_query.id, ok=True)
 
 # @dp.message(ContentType.SUCCESSFUL_PAYMENT)
 # async def got_payment(message: types.Message):
@@ -927,6 +930,53 @@ async def checkout(pre_checkout_query: types.PreCheckoutQuery):
 
 
 
+# Settings - add_money
+# @dp.callback_query(lambda c: c.data == 'add_money')
+# async def process_sub_settings_add_money(callback_query: types.CallbackQuery):
+    
+# # prices
+# PRICE = types.LabeledPrice(label="Пополнение баланса на 50 руб", amount=50*100)  # в копейках (руб)  $1=100 центов
+
+
+# # buy
+# @dp.message(Command("buy"))
+# async def admin(message: types.Message):
+#     if payments_token.split(':')[1] == 'TEST':
+#         await bot.send_message(message.chat.id, "Тестовый платеж!!!")
+
+#     await bot.send_invoice(
+#                         message.chat.id,
+#                         title="Пополнение баланса",
+#                         description="Внесение на баланс бота 50 RUB",
+#                         provider_token=payments_token,
+#                         currency="rub",
+#                         photo_url="https://www.aroged.com/wp-content/uploads/2022/06/Telegram-has-a-premium-subscription.jpg",
+#                         photo_width=416,
+#                         photo_height=234,
+#                         photo_size=416,
+#                         is_flexible=False, # True если финальная цена зависит от доставки
+#                         prices=[PRICE],
+#                         start_parameter="one-month-subscription",
+#                         payload="test-invoice-payload")
+
+
+
+# # pre checkout  (must be answered in 10 seconds)
+# @dp.pre_checkout_query(lambda query: True)
+# async def pre_checkout_query(pre_checkout_q: types.PreCheckoutQuery):
+#     await bot.answer_pre_checkout_query(pre_checkout_q.id, ok=True)
+
+
+# # successful payment
+# @dp.message(content_types=ContentType.SUCCESSFUL_PAYMENT)
+# async def successful_payment(message: types.Message):
+#     print("SUCCESSFUL PAYMENT:")
+#     payment_info = message.successful_payment.to_python()
+#     for k, v in payment_info.items():
+#         print(f"{k} = {v}")
+
+#     await bot.send_message(message.chat.id,
+#                            f"Платеж на сумму {message.successful_payment.total_amount // 100} {message.successful_payment.currency} прошел успешно!!!")
 
 
 
@@ -936,24 +986,162 @@ async def checkout(pre_checkout_query: types.PreCheckoutQuery):
 
 
 
+# Settings - add_money  Вызывает список вариантов оплат
+@dp.callback_query(lambda c: c.data == 'add_money')
+async def process_sub_settings_add_money(callback_query: types.CallbackQuery):
+    await sub_add_money(bot, callback_query)
+    await bot.answer_callback_query(callback_query.id)
+
+
+# Start buy RUB by card Yoomoney
+# Settings - pay by card RF
+
+# State
+class Form(StatesGroup):
+    add_summ = State()
+    confirm_summ = State()
+
+
+# Нажал кнопку оплата картой РФ
+@dp.callback_query(lambda c: c.data == 'pay_by_card')
+async def start_invoice(callback_query: types.CallbackQuery, state: FSMContext):
+    await bot.send_message(callback_query.from_user.id, "Введите сумму пополнения в RUB:", reply_markup=ReplyKeyboardRemove()) # !!!!
+    await bot.answer_callback_query(callback_query.id)
+    await state.set_state(Form.add_summ)
+
+
+# Ввожу сумму в RUB
+@dp.message(Form.add_summ, F.content_type.in_({'text'}))
+async def invoice_user(message: Message, state: FSMContext):
+    
+    user_uuid = uuid.uuid4()
+    #user_uuid = 'f3c98917-aa4e-4f1b-86d8-cd79e4886013'
+    
+    percent = 3 # Коммисия Yoomoney
+    receiver = receiver_yoomoney # Мой счет
+    summ = message.text # Введенная сумма пользователем
+    label = user_uuid # Сформерованный для проверки платежа UUiD4
+    id = user_id(message)
+
+    # Сохраняем user_uuid в состоянии
+    await state.update_data(user_uuid=user_uuid, percent=percent, summ=summ, id=id )
+
+    if message.text.isdigit() is not True:
+        await bot.send_message(message.chat.id, f"Введите только сумму цифрами.")
+        return
+
+    if int(message.text) < 50:
+        await bot.send_message(message.chat.id, f"Минимальная сумма 50 RUB.")
+        return
+
+    quickpay = Quickpay(
+                receiver=receiver,
+                quickpay_form="shop",
+                targets="Sponsor this project",
+                paymentType="SB",
+                sum=summ,
+                label=label
+                )
+    # print(quickpay.base_url) # Бессрочная
+    # print(quickpay.redirected_url) # Имеет жизненый цикл - одноразовая
+    await bot.send_message(message.chat.id, f"Для пополнения счета на <b>{summ} RUB</b> банковской картой, перейдите по ссылке:\n\n {quickpay.base_url}", parse_mode="HTML")
+    # Кнопка проверки 
+    await confirm_summ(bot, message) # Появляется кнопка проверить оплату
+    await state.set_state(Form.confirm_summ)
 
 
 
-
-
-
-
-
-
-# Settings - add_money - 100
-@dp.callback_query(lambda c: c.data == 'many_100')
-async def process_sub_settings_add_money_100(callback_query: types.CallbackQuery):
+# При нажатии кнопки проверки оплаты
+@dp.callback_query(Form.confirm_summ, lambda c: c.data == 'confirm_summ_card')
+async def process_sub_confirm_summ_card(callback_query: types.CallbackQuery, state: FSMContext):
     if work_in_progress == True:
         await worc_in_progress(callback_query)
         return
-    id = user_id(callback_query)
-    await callback_query.answer("100")
-    await bot.answer_callback_query(callback_query.id)
+
+    data = await state.get_data()
+    user_uuid = data.get('user_uuid')
+    percent = data.get('percent')
+    summ = data.get('summ')
+    # id = data.get('id')
+   
+    token = token_yoomoney
+    client = Client(token)
+    history = client.operation_history(label=user_uuid)
+    logging.info("List of operations:")
+    logging.info(f"Next page starts with: {history.next_record}")
+
+
+    loadf = []
+
+    for operation in history.operations:
+        loadf.append(operation.label)
+
+        logging.info(f"Operation: {operation.operation_id}")
+        logging.info(f"Status: {operation.status}")
+        logging.info(f"Datetime: {operation.datetime}")
+        logging.info(f"Title: {operation.title}")
+        logging.info(f"Pattern id: {operation.pattern_id}")
+        logging.info(f"Direction: {operation.direction}")
+        logging.info(f"Amount: {operation.amount}")
+        logging.info(f"Label: {operation.label}")
+        logging.info(f"Type: {operation.type}")
+
+    # Если не найдено совпадений
+    if loadf == []:
+        logging.info("Payment was not found")
+        await callback_query.answer("Оплата не найдена, попробуйте позже.")
+        await asyncio.sleep(5)
+        await bot.answer_callback_query(callback_query.id)
+        return
+    
+    # Найдено совпадение   
+    if user_uuid == operation.label:
+        # Отправляем высчитать и закинуть в базу, вернет сумма - коммисия
+        remains_pay =  await add_money_by_card(data)
+        await bot.send_message(callback_query.from_user.id, f"Ваш платеж подтвержден:\nОплачено: {summ} RUB,\nКомиссия Yoomoney: {percent}%,\nЗачисленно: {remains_pay} RUB.")
+        user_uuid = ""
+        loadf = []
+        logging.info("Payment has been made")
+        await bot.answer_callback_query(callback_query.id)
+        await state.clear()
+
+
+
+
+
+# Qiwi
+# token_head
+# 2a9d5d628b668ebe
+
+# token_tail
+# 15436e8da86875de
+
+# https://telegra.ph/Poluchenie-tokenov-token-head-i-token-tail-02-01
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Settings - add_money - 200
 @dp.callback_query(lambda c: c.data == 'many_200')
@@ -1004,6 +1192,10 @@ async def process_sub_settings_add_money_2000(callback_query: types.CallbackQuer
     id = user_id(callback_query)
     await callback_query.answer("2000")
     await bot.answer_callback_query(callback_query.id)
+
+
+
+
 
 
 
@@ -1113,7 +1305,7 @@ async def second_function(message: types.Message):
         return
 
     if str(id) in block:
-        await message.answer("Извините, но вы заблокированы, попробуйте обратиться к @Shliambur.")
+        await message.answer("Извините, но вы заблокированы, попробуйте обратиться к @Shliamb.")
         logging.info(f"The user id:{id} blocked and typing queshen.")
         second_function_finished = True
         return
@@ -1213,7 +1405,7 @@ async def main_ai(message):
     # Цикл для периодического запуска первой функции каждые 5 секунд до завершения второй функции.
     while not second_task.done():
         await first_function(message)
-        await asyncio.sleep(1.5)  # Ожидаем небольшое время перед следующей проверкой.
+        await asyncio.sleep(1)  # Ожидаем небольшое время перед следующей проверкой.
 
 
 
@@ -1236,7 +1428,7 @@ async def backup_loop(): # Запуск таски на бекап
 
 async def main() -> None:
     backup_task = asyncio.create_task(backup_loop())
-    await dp.start_polling(bot)
+    await dp.start_polling(bot, skip_updates=False) # skip_updates=False обрабатывать каждое сообщение с серверов Telegram, важно для принятия платежей
 
 
 

@@ -168,12 +168,11 @@ async def sub_balance(bot, callback_query: types.CallbackQuery):
 async def sub_add_money(bot, callback_query: types.CallbackQuery):
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
-                [InlineKeyboardButton(text="100 RUB", callback_data="many_100")],
-                [InlineKeyboardButton(text="200 RUB", callback_data="many_200")],
-                [InlineKeyboardButton(text="500 RUB", callback_data="many_500")],
-                [InlineKeyboardButton(text="700 RUB", callback_data="many_700")],
-                [InlineKeyboardButton(text="1000 RUB", callback_data="many_1000")],
-                [InlineKeyboardButton(text="2000 RUB", callback_data="many_2000")],
+                [InlineKeyboardButton(text="Оплата картой РФ -3%", callback_data="pay_by_card")],
+                [InlineKeyboardButton(text="Телеграм Walet Pay +3%", callback_data="many_500")],
+                [InlineKeyboardButton(text="Крипта, USDT", callback_data="many_700")],
+                [InlineKeyboardButton(text="Перевод на карту", callback_data="many_1000")],
+                # [InlineKeyboardButton(text="2000 RUB", callback_data="many_2000")],
                 [InlineKeyboardButton(text="Вернуться назад", callback_data="back_to_main")],
         ]
     )
@@ -201,6 +200,17 @@ async def admin_menu(bot, message: types.Message):
     await message.answer("Выберите действие:", reply_markup=keyboard)
 
 
+
+
+#main
+async def confirm_summ(bot, message: types.Message):
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="Проверить и зачислить", callback_data="confirm_summ_card")], 
+
+        ]
+    )
+    await message.answer("После оплаты, проверьте ваш платеж: ", reply_markup=keyboard)
 
 
 
