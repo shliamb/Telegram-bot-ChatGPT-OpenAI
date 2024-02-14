@@ -11,6 +11,7 @@ pass_psgresql = os.environ.get('PASS_POSTGRESQL')
 payments_token = os.environ.get('PAYMENTS_TOKEN')
 receiver_yoomoney = os.environ.get('YOOMONEY')
 token_yoomoney = os.environ.get('TOKEN_YOOMONEY')
+wallet_pay_token = os.environ.get('WALLET_PAY')
 
 
 # В корне есть файл .env.example, при деплое меняем имя на .env тут же станет скрытым. В папке Cntrl + H (Linux),
