@@ -3,9 +3,7 @@ version: '3.8'
 services:
 
   postgres:
-    # build: . Запускает Dockefile
     image: postgres:15.5
-    #image: postgres:latest
     container_name: bot_postgres
     environment:
       POSTGRES_USER: admin
@@ -14,17 +12,18 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      #- postgres_data:/postgres
       - postgres_data:/var/lib/postgresql/data
-    networks:
-      - network
 
-    #restart: always
+  app:
+    build: .
+    container_name: bot
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: my_database
+    depends_on:
+      - postgres
 
 volumes:
   postgres_data:
-
-networks:
-  network:
-    driver: bridge
-

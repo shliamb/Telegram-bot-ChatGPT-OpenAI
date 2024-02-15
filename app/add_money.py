@@ -1,5 +1,6 @@
 from worker_db import get_settings, update_settings
 import logging
+import datetime 
 import asyncio
 
 
@@ -65,3 +66,29 @@ async def add_money_wallet_pay(data):
     logging.info("Money added for user settings")
 
     return new_summ
+
+
+
+
+# Обработка данных при оплате CRIPTO
+async def add_money_cripto(data):
+
+    # Получаем переданые данные из функции
+    currency = data.get('currency')
+    give_me_money = float(data.get('name_summ'))
+    id = data.get('id')
+    time_money = datetime.datetime.utcnow()
+
+
+    # Формируем данные для перезаписи в базу
+    updated_data = {
+        "currency": currency,
+        "give_me_money": give_me_money,
+        "time_money": time_money
+    }
+
+    # Переписываем данные
+    await update_settings(id, updated_data)
+    logging.info("The money has been requested and will be approved after verification")
+
+    return

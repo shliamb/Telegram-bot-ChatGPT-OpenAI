@@ -1,16 +1,17 @@
+import logging
+
+logging.getLogger('aiogram').propagate = False # Блокировка логирование aiogram до его импорта
+logging.basicConfig(level=logging.INFO, filename='log/app.log', filemode='a', format='%(levelname)s - %(asctime)s - %(name)s - %(message)s',) # При деплое активировать логирование в файл
+
 from keys import (
     token, api_key, white_list, admin_user_ids, wallet_pay_token,
     block, receiver_yoomoney, token_yoomoney
                    )
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-
 from about_bot import about_text
 import time
 import sys
 import os
-import logging
 import asyncio
-import random
 from pathlib import Path
 from openai import AsyncOpenAI
 from aiogram import Bot, Dispatcher, types, F, Router
@@ -18,7 +19,7 @@ from aiogram import Bot, Dispatcher, types, F, Router
 from aiogram.utils.markdown import hbold
 from aiogram.filters import CommandStart, Command, Filter
 from aiogram.types import (Message, BotCommand, LabeledPrice, ContentType,
-                            InputFile, Document, PhotoSize, ReplyKeyboardRemove)
+                            InputFile, Document, PhotoSize, ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton)
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.state import State, StatesGroup
@@ -29,7 +30,7 @@ from get_time import get_time
 from calculation import calculation
 from backupdb import backup_db
 from restore_db import restore_db
-from add_money import add_money_by_card, add_money_wallet_pay
+from add_money import add_money_by_card, add_money_wallet_pay, add_money_cripto
 import task_backup
 from yoomoney import Quickpay
 from yoomoney import Client
@@ -51,7 +52,6 @@ from keyboards import (
     sub_setings_model, sub_setings_time, sub_setings_creativ, sub_setings_repet, sub_setings_repet_all,\
     sub_add_money, admin_menu, confirm_summ
 )
-
 
 
 
@@ -152,114 +152,6 @@ async def command_start_handler(message: Message) -> None:
 
 
 
-# test user
-# @dp.message(Command("user"))
-# async def user(message: types.Message):
-#     await typing(message)
-#     id = user_id(message)
-#     user = await get_user_by_id(id)
-
-#     if user:
-#         id = user.id
-#         name = user.name
-#         full_name = user.full_name
-#         first_name = user.first_name
-#         last_name = user.last_name
-#         chat_id = user.chat_id
-#         is_admin = user.is_admin
-#         is_block = user.is_block
-#         is_good = user.is_good
-#         print(id, name, full_name, first_name, last_name, chat_id, is_admin, is_block, is_good)
-#     else:
-#         print("User not found")
-
-
-# test set
-# @dp.message(Command("set"))
-# async def set(message: types.Message):
-#     await typing(message)
-#     id = user_id(message)
-#     user = await get_settings(id)
-
-#     if user:
-#         id = user.id
-#         temp_chat = user.temp_chat
-#         frequency = user.frequency
-#         presence = user.presence
-#         all_count = user.all_count
-#         all_token = user.all_token
-#         the_gap = user.the_gap
-#         set_model = user.set_model
-#         give_me_money = user.give_me_money
-#         money = user.money
-#         all_in_money = user.all_in_money
-#         flag_stik = user.flag_stik
-#         print(id, temp_chat, frequency, presence, flag_stik, all_count, all_token, the_gap,\
-#                set_model, give_me_money, money, all_in_money)
-#     else:
-#         print("Settings not found")
-
-
-# test desc
-# @dp.message(Command("desc"))
-# async def set(message: types.Message):
-#     await typing(message)
-#     id = user_id(message)
-#     data = await get_discussion(id)
-
-#     if data:
-#         id = data.id
-#         discus = data.discus
-#         timestamp = data.timestamp
-#         print(id, discus, timestamp)
-#     else:
-#         print("Descussion not found")
-
-# # Test 30 day statistics for user id
-# @dp.message(Command("30"))
-# async def set(message: types.Message):
-#     await typing(message)
-#     id = user_id(message)
-#     data = await get_last_30_statistics(id)
-#     if data:
-#         for statistic in data:
-#             print(statistic.id, statistic.time, statistic.use_model, statistic.sesion_token,\
-#                    statistic.price_1_tok, statistic.price_sesion_tok, statistic.users_telegram_id )
-#     else:
-#         print("Нет данных для этого пользователя")
-
-
-
-# test ex
-# @dp.message(Command("ex"))
-# async def ex(message: types.Message):
-#     await typing(message)
-#     id = user_id(message)
-#     data = await get_exchange()
-
-#     if data:
-#         id = data.id
-#         timestamp = data.timestamp
-#         rate = data.rate
-#         print(id, timestamp, rate)
-#     else:
-#         print("ex rate not found")
-
-
-# # test ex update
-# @dp.message(Command("upex"))
-# async def upex(message: types.Message):
-#     await typing(message)
-#     data = datetime.datetime.strptime('2024-02-05 04:44:23.791821', '%Y-%m-%d %H:%M:%S.%f')
-#     timer = {"timestamp": data}
-#     await update_exchange(1, timer)
-
-
-
-
-
-
-
 #### WORK MENU ADMIN ####
 # Admin statistic menu /admin
 @dp.message(Command("admin"))
@@ -287,7 +179,7 @@ async def process_sub_admin_stat(callback_query: types.CallbackQuery):
     number = 0
     all_static.append(["№", "Имя", "id", "Полное имя", "Первое имя", "Второе имя", "Админ",\
                         "Заблок", "Колл. вопросов", "Исп. токенов за все время", "Модель по умолч.",\
-                              "Запрос на пополнение", "Баланс", "Внесенно денег за все время", "Статистика ниже ответа",\
+                              "Дата запроса на пополнение","Сумма запроса","Валюта запроса", "Баланс", "Внесенно денег за все время", "Статистика ниже ответа",\
                                   "Время по умолчанию"]) # First a names row
     
     for user, settings in data:
@@ -300,7 +192,9 @@ async def process_sub_admin_stat(callback_query: types.CallbackQuery):
         all_token = settings.all_token
         the_gap = settings.the_gap
         set_model = settings.set_model
+        time_money = settings.time_money
         give_me_money = settings.give_me_money
+        currency = settings.currency
         money = round(settings.money, 2)
         all_in_money = round(settings.all_in_money, 2)
         flag_stik = settings.flag_stik
@@ -315,7 +209,7 @@ async def process_sub_admin_stat(callback_query: types.CallbackQuery):
         is_block = user.is_block
         is_good = user.is_good
         all_static.append([number, name, id, full_name, first_name, last_name, is_admin, is_block, all_count,\
-                            all_token, set_model, give_me_money, money, all_in_money, flag_stik, the_gap]) # added user data
+                            all_token, set_model,time_money, give_me_money, currency, money, all_in_money, flag_stik, the_gap]) # added user data
 
     # Create csv file
     output = StringIO()
@@ -472,15 +366,6 @@ async def load_a_base(message: Message, state: FSMContext):
 
     await state.clear()
     #await state.set_state(Restor_db.restor_db) # Переход к следующему шагу
-
-# @dp.message(Restor_db.restor_db)
-# async def student_hui(message: Message, state: FSMContext):
-#     await state.update_data(restor_db=message.text)
-#     print(f"\n2 - OK")
-#     await state.clear()
-
-####
-
 
 
 
@@ -1118,7 +1003,7 @@ async def invoice_user(message: Message, state: FSMContext):
 
 #  Нажатие кнопки проверки оплаты оплаты Wallet Pay
 @dp.callback_query(Form_Wallet.confirm_walet, lambda c: c.data == 'confirm_summ_wallet')
-async def process_sub_settings_add_money_wallet_pay(callback_query: types.CallbackQuery, state: FSMContext):
+async def process_sub_settings_add_confirm(callback_query: types.CallbackQuery, state: FSMContext):
 
     # Проверка на технические работы
     if work_in_progress == True:
@@ -1158,101 +1043,76 @@ async def process_sub_settings_add_money_wallet_pay(callback_query: types.Callba
 
 
 
+# Pay cripto
+        
+# State
+class Form_transfer(StatesGroup):
+    start_cripto = State()
+    name_cripto = State()
+    summ_cripto = State()
+    confirm_cripto = State()
 
-
-# Qiwi
-# token_head
-# 2a9d5d628b668ebe
-
-# token_tail
-# 15436e8da86875de
-
-# https://telegra.ph/Poluchenie-tokenov-token-head-i-token-tail-02-01
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Settings - add_money - 200
-@dp.callback_query(lambda c: c.data == 'many_200')
-async def process_sub_settings_add_money_200(callback_query: types.CallbackQuery):
+# Нажатие на кнопку оплаты cripto
+@dp.callback_query(lambda c: c.data == 'cripto')
+async def process_add_cripto(callback_query: types.CallbackQuery, state: FSMContext):
+    # Проверка на технические работы
     if work_in_progress == True:
         await worc_in_progress(callback_query)
         return
-    id = user_id(callback_query)
-    await callback_query.answer("200")
-    await bot.answer_callback_query(callback_query.id)
+    #Кнопка подтверждение оплаты cripto
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="🔍 Подтвердить перевод", callback_data="confirm_cripto")], 
 
-# Settings - add_money - 500
-@dp.callback_query(lambda c: c.data == 'many_500')
-async def process_sub_settings_add_money_500(callback_query: types.CallbackQuery):
-    if work_in_progress == True:
-        await worc_in_progress(callback_query)
+        ]
+    )
+    await bot.send_message(callback_query.from_user.id, f"*USDT*: TMsUumKvMScNwxEhLEWjuxR2c1BUQXBPgf\n*Сеть*: TRC20\n\n*BTC*: 1CpxUycn3bEMvH8873FYv8JxUpdiXKArS4\n", reply_markup=keyboard) # !!!!
+    # Закрытие сесси кнопки
+    await bot.answer_callback_query(callback_query.id)
+    # Ожидание следующего шага
+    await state.set_state(Form_transfer.start_cripto)
+
+#  Нажатие кнопки подтверждение оплаты cripto
+@dp.callback_query(Form_transfer.start_cripto)
+async def process_sub_start_cripto(callback_query: types.CallbackQuery, state: FSMContext):
+    await bot.send_message(callback_query.from_user.id, f"Введите название переводимой вами криптовалюты:", reply_markup=ReplyKeyboardRemove()) # !!!!
+    # Закрытие сесси кнопки
+    await bot.answer_callback_query(callback_query.id)
+    # Ожидание следующего шага
+    await state.set_state(Form_transfer.summ_cripto)
+
+#  Ввод валюты
+@dp.message(Form_transfer.summ_cripto, F.content_type.in_({'text'}))
+async def process_sub_name_cripto(message: Message, state: FSMContext):
+    # Проверка что цифры
+    if message.text.isdigit() is True:
+        await bot.send_message(message.chat.id, f"Введите название, а не сумму.")
         return
-    id = user_id(callback_query)
-    await callback_query.answer("500")
-    await bot.answer_callback_query(callback_query.id)
+    # Формирование данных передаваемых на следующий шаг по state
+    await state.update_data(name_cripto=message.text)
+    await bot.send_message(message.chat.id, f"Введите сумму переводимой вами криптовалюты:", reply_markup=ReplyKeyboardRemove())
+    # Ожидание следующего шага
+    await state.set_state(Form_transfer.confirm_cripto)
 
-# Settings - add_money - 700
-@dp.callback_query(lambda c: c.data == 'many_700')
-async def process_sub_settings_add_money_700(callback_query: types.CallbackQuery):
-    if work_in_progress == True:
-        await worc_in_progress(callback_query)
+#  Ввод суммы
+@dp.message(Form_transfer.confirm_cripto, F.content_type.in_({'text'}))
+async def process_sub_summ_cripto(message: Message, state: FSMContext):
+    
+    # Проверка что цифры
+    if message.text.isdigit() is not True:
+        await bot.send_message(message.chat.id, f"Введите сумму, а не сумму.")
         return
-    id = user_id(callback_query)
-    await callback_query.answer("700")
-    await bot.answer_callback_query(callback_query.id)
+    # Подготовка данных
+    id = user_id(message)
+    # С прошлого State
+    data = await state.get_data()
+    currency = data.get('name_cripto')
 
-# Settings - add_money - 1000
-@dp.callback_query(lambda c: c.data == 'many_1000')
-async def process_sub_settings_add_money_1000(callback_query: types.CallbackQuery):
-    if work_in_progress == True:
-        await worc_in_progress(callback_query)
-        return
-    id = user_id(callback_query)
-    await callback_query.answer("1000")
-    await bot.answer_callback_query(callback_query.id)
-
-# Settings - add_money - 2000
-@dp.callback_query(lambda c: c.data == 'many_2000')
-async def process_sub_settings_add_money_2000(callback_query: types.CallbackQuery):
-    if work_in_progress == True:
-        await worc_in_progress(callback_query)
-        return
-    id = user_id(callback_query)
-    await callback_query.answer("2000")
-    await bot.answer_callback_query(callback_query.id)
-
-
-
-
-
-
-
-
-
-
+    data = await state.update_data(name_summ=message.text, id=id, currency=currency)
+    # Функция по добавлению в базу
+    await add_money_cripto(data)
+    await bot.send_message(message.chat.id, f"После проверки оплаты, ваш баланс пополнится.\n\n Пожалуйста, производите таким методом одну оплату, следующую после подтверждения прошлой.\n\n Для ускорения процесса, просьба скинуть подтверждение @Shliamb\n\n Ожидайте пожалуйста.")
+    await state.clear()
 
 
 
@@ -1485,8 +1345,6 @@ async def main() -> None:
 
 # Start and Restart
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, stream=sys.stdout) # При деплое закомментировать
-    # logging.basicConfig(level=logging.INFO, filename='log/app.log', filemode='a', format='%(levelname)s - %(asctime)s - %(name)s - %(message)s',) # При деплое активировать логирование в файл
     retries = 5
     while retries > 0:
         try:

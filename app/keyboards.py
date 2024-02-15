@@ -10,10 +10,10 @@ from aiogram import types
 async def main_menu(bot, message: types.Message):
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="Настройки", callback_data="sub_setings")], 
-            [InlineKeyboardButton(text="Сброс диалога", callback_data="sub_dialog")],
-            [InlineKeyboardButton(text="Финансы", callback_data="sub_balance")], 
-            [InlineKeyboardButton(text="О боте", callback_data="sub_about")],
+            [InlineKeyboardButton(text="⚙️ Настройки", callback_data="sub_setings")], 
+            [InlineKeyboardButton(text="🥡 Сброс диалога", callback_data="sub_dialog")],
+            [InlineKeyboardButton(text="💸 Финансы", callback_data="sub_balance")], 
+            [InlineKeyboardButton(text="🗯 О боте", callback_data="sub_about")],
             [InlineKeyboardButton(text="Закрыть меню X", callback_data="close")]
         ]
     )
@@ -23,10 +23,10 @@ async def main_menu(bot, message: types.Message):
 async def back_to_main(bot, callback_query: types.CallbackQuery):
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="Настройки", callback_data="sub_setings")], 
-            [InlineKeyboardButton(text="Сброс диалога", callback_data="sub_dialog")],
-            [InlineKeyboardButton(text="Финансы", callback_data="sub_balance")], 
-            [InlineKeyboardButton(text="О боте", callback_data="sub_about")],
+            [InlineKeyboardButton(text="⚙️ Настройки", callback_data="sub_setings")], 
+            [InlineKeyboardButton(text=" 🥡Сброс диалога", callback_data="sub_dialog")],
+            [InlineKeyboardButton(text="💸 Финансы", callback_data="sub_balance")], 
+            [InlineKeyboardButton(text="🗯 О боте", callback_data="sub_about")],
             [InlineKeyboardButton(text="Закрыть меню X", callback_data="close")]
         ]
     )
@@ -39,12 +39,12 @@ async def back_to_main(bot, callback_query: types.CallbackQuery):
 async def sub_setings(bot, callback_query: types.CallbackQuery):
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
-                [InlineKeyboardButton(text="Модель ChatGPT", callback_data="model")],
-                [InlineKeyboardButton(text="Время хранения диалога", callback_data="time")],
-                [InlineKeyboardButton(text="Креативность", callback_data="creativ")],
-                [InlineKeyboardButton(text="Повторения в ответе", callback_data="repet")],
-                [InlineKeyboardButton(text="Повторения в ответах", callback_data="repet_all")],
-                [InlineKeyboardButton(text="Вкл/Отл статистику в ответ", callback_data="flag_stik")],
+                [InlineKeyboardButton(text="🤖 Модель ChatGPT", callback_data="model")],
+                [InlineKeyboardButton(text="⏳ Время хранения диалога", callback_data="time")],
+                [InlineKeyboardButton(text="👻 Креативность", callback_data="creativ")],
+                [InlineKeyboardButton(text="🎲 Повторения в ответе", callback_data="repet")],
+                [InlineKeyboardButton(text="🎲 Повторения в ответах", callback_data="repet_all")],
+                [InlineKeyboardButton(text="📴 Вкл/Отл статистику в ответ", callback_data="flag_stik")],
                 [InlineKeyboardButton(text="Вернуться назад", callback_data="back_to_main")],
         ]
     )
@@ -56,12 +56,12 @@ async def sub_setings(bot, callback_query: types.CallbackQuery):
 async def back_to_setings(bot, callback_query: types.CallbackQuery):
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
-                [InlineKeyboardButton(text="Модель", callback_data="model")],
-                [InlineKeyboardButton(text="Время хранения диалога", callback_data="time")],
-                [InlineKeyboardButton(text="Креативность", callback_data="creativ")],
-                [InlineKeyboardButton(text="Повторения в ответе", callback_data="repet")],
-                [InlineKeyboardButton(text="Повторения в прош. ответах", callback_data="repet_all")],
-                [InlineKeyboardButton(text="Вкл/Отл статистику в ответ", callback_data="flag_stik")],
+                [InlineKeyboardButton(text="🤖 Модель", callback_data="model")],
+                [InlineKeyboardButton(text="⏳ Время хранения диалога", callback_data="time")],
+                [InlineKeyboardButton(text="👻 Креативность", callback_data="creativ")],
+                [InlineKeyboardButton(text="🎲 Повторения в ответе", callback_data="repet")],
+                [InlineKeyboardButton(text="🎲 Повторения в прош. ответах", callback_data="repet_all")],
+                [InlineKeyboardButton(text="📴 Вкл/Отл статистику в ответ", callback_data="flag_stik")],
                 [InlineKeyboardButton(text="Вернуться назад", callback_data="back_to_main")],
         ]
     )
@@ -153,9 +153,9 @@ async def sub_setings_repet_all(bot, callback_query: types.CallbackQuery):
 async def sub_balance(bot, callback_query: types.CallbackQuery):
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
-                [InlineKeyboardButton(text="Баланс", callback_data="my_many")],
-                [InlineKeyboardButton(text="Пополнить баланс", callback_data="add_money")],
-                [InlineKeyboardButton(text="Статистика 100 пос.", callback_data="statis_30")],
+                [InlineKeyboardButton(text="🧾 Баланс", callback_data="my_many")],
+                [InlineKeyboardButton(text="🔋 Пополнить баланс", callback_data="add_money")],
+                [InlineKeyboardButton(text="📖 Статистика 100 пос.", callback_data="statis_30")],
                 [InlineKeyboardButton(text="Вернуться назад", callback_data="back_to_main")],
         ]
     )
@@ -170,9 +170,8 @@ async def sub_add_money(bot, callback_query: types.CallbackQuery):
         inline_keyboard=[
                 [InlineKeyboardButton(text="💳 Карта РФ 3%", callback_data="pay_by_card")], 
                 [InlineKeyboardButton(text="👛 WALLET PAY", callback_data="wallet_pay")],
-                [InlineKeyboardButton(text="💵 USDT", callback_data="many_700")],
-                [InlineKeyboardButton(text="💳 Перевод на карту", callback_data="many_1000")],
-                # [InlineKeyboardButton(text="2000 RUB", callback_data="many_2000")],
+                [InlineKeyboardButton(text="💵 Крипта, USDT", callback_data="cripto")],
+                # [InlineKeyboardButton(text="💳 Перевод на карту", callback_data="many_1000")],
                 [InlineKeyboardButton(text="Вернуться назад", callback_data="back_to_main")],
         ]
     )

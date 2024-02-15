@@ -11,7 +11,7 @@ from typing import AsyncGenerator
 #from sqlalchemy.orm import AsyncSession
 
 
-DATABASE_URL = f"postgresql+asyncpg://admin:12345@localhost:5432/my_database"
+DATABASE_URL = f"postgresql+asyncpg://admin:12345@postgres:5432/my_database"
 engine = create_async_engine(DATABASE_URL) # Создание асинхронного движка для работы с базой данных
 Base = declarative_base() # Создание базового класса для объявления моделей
 Column = sqlalchemy.Column
@@ -58,6 +58,8 @@ class Settings(Base):
     all_token = Column(sqlalchemy.Integer, default=0, server_default="0",  nullable=False) # Всего токенов затраченых за все время
     the_gap = Column(sqlalchemy.Float, default=0.05, server_default="0.05", nullable=False) # Выбранное время хранения диалога
     set_model = Column(sqlalchemy.String(50), default="gpt-3.5-turbo-0613", server_default="gpt-3.5-turbo-0613",  nullable=False) # Выбранная модель чата
+    time_money = Column(sqlalchemy.DateTime, onupdate=datetime.datetime.utcnow, nullable=True) # Каждый раз обновляется сама, при изменениях в ячейке
+    currency = Column(sqlalchemy.String(50), nullable=True)
     give_me_money = Column(sqlalchemy.Float, default=0, server_default="0", nullable=False) # З
     money = Column(sqlalchemy.Float, default=100, server_default="100", nullable=False)  # Денег на счету
     all_in_money = Column(sqlalchemy.Float, default=0, server_default="0", nullable=False) # Всего денег внесено за все время

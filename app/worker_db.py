@@ -9,7 +9,7 @@ from models import Base, UsersTelegram, Settings, Discussion, Exchange, Statisti
 from sqlalchemy import select, insert, update, join, func
 
 async def create_async_engine_and_session():
-    engine = create_async_engine(f"postgresql+asyncpg://admin:{pass_psgresql}@localhost:5432/my_database") # echo=True - вывод логирования
+    engine = create_async_engine(f"postgresql+asyncpg://admin:{pass_psgresql}@postgres:5432/my_database") # echo=True - вывод логирования
     async_session = sessionmaker(bind=engine, class_=AsyncSession)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

@@ -1,8 +1,8 @@
 """Initial migration
 
-Revision ID: 0c22671a0711
+Revision ID: a43af680dabd
 Revises: 
-Create Date: 2024-02-07 11:21:41.018630
+Create Date: 2024-02-15 09:48:02.589222
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '0c22671a0711'
+revision: str = 'a43af680dabd'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -51,7 +51,7 @@ def upgrade() -> None:
     op.create_index(op.f('ix_users_telegram_id'), 'users_telegram', ['id'], unique=True)
     op.create_table('discussion',
     sa.Column('id', sa.BigInteger(), nullable=False),
-    sa.Column('discus', sa.String(length=7000), nullable=True),
+    sa.Column('discus', sa.String(length=10000), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=False),
     sa.ForeignKeyConstraint(['id'], ['users_telegram.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -66,6 +66,8 @@ def upgrade() -> None:
     sa.Column('all_token', sa.Integer(), server_default='0', nullable=False),
     sa.Column('the_gap', sa.Float(), server_default='0.05', nullable=False),
     sa.Column('set_model', sa.String(length=50), server_default='gpt-3.5-turbo-0613', nullable=False),
+    sa.Column('time_money', sa.DateTime(), nullable=True),
+    sa.Column('currency', sa.String(length=50), nullable=True),
     sa.Column('give_me_money', sa.Float(), server_default='0', nullable=False),
     sa.Column('money', sa.Float(), server_default='100', nullable=False),
     sa.Column('all_in_money', sa.Float(), server_default='0', nullable=False),

@@ -10,11 +10,11 @@ confirmation = False # На всякий случай подтверждение
 
 def restore_db(file_path):
 
-    terminate_command = f'PGPASSWORD={db_password} psql -h localhost -p 5432 -U {db_username} -d {db_name} -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname=\'{db_name}\';"'
+    terminate_command = f'PGPASSWORD={db_password} psql -h postgres -p 5432 -U {db_username} -d {db_name} -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname=\'{db_name}\';"'
 
-    clear_command = f'PGPASSWORD={db_password} psql -h localhost -p 5432 -U {db_username} -d {db_name} -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"'
+    clear_command = f'PGPASSWORD={db_password} psql -h postgres -p 5432 -U {db_username} -d {db_name} -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"'
 
-    pg_restore_command = f'PGPASSWORD={db_password} pg_restore -h localhost -p 5432 -U {db_username} -d {db_name} {file_path}'
+    pg_restore_command = f'PGPASSWORD={db_password} pg_restore -h postgres -p 5432 -U {db_username} -d {db_name} {file_path}'
     
     try:
         subprocess.run(terminate_command, shell=True) # Формирование команды для завершения активных сеансов

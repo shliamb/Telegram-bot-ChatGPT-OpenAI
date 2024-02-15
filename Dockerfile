@@ -1,25 +1,22 @@
-FROM  python:3.12-slim 
 
+# Используйте базовый образ Python
+FROM python:3.12-slim
+
+# Установите переменную окружения PYTHONUNBUFFERED=1
+ENV PYTHONUNBUFFERED=1
+
+# Установка PostgreSQL
+RUN apt-get update && apt-get install -y postgresql postgresql-contrib
+
+# Установка утилиты pg_dump
+RUN apt-get install -y postgresql-client
+
+COPY requirements.txt /app/requirements.txt
 WORKDIR /app
+RUN pip install -r requirements.txt
 
+# Скопируйте все файлы из текущего каталога в контейнер
 COPY . .
 
-# RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install -r ./requirements.txt
-
-#COPY . .
-
-#CMD [ "python", "./app/run_bot.py" ]
-
-
-# FROM python:3.8-slim
-
-# #WORKDIR /app
-
-# COPY . .
-
-# #RUN pip install --upgrade pip -- only first time
-
-# RUN pip install -r requirements.txt
-
-CMD ["python", "app.py"]
+# Определите команду для запуска вашего приложения
+CMD ["python", "app/run_bot.py"]

@@ -18,7 +18,7 @@ def backup_db():
 
     # Формирование команды для создания резервной копии с помощью pg_dump
     #pg_dump_command = f'PGPASSWORD={db_password} pg_dump -h localhost -p 5432 -U {db_username} -d {db_name} -f {backup_path}{backup_filename}'
-    pg_dump_command = f'PGPASSWORD={db_password} pg_dump -h localhost -p 5432 -U {db_username} -d {db_name} -F c -f {backup_path}{backup_filename}' # В бинарный формат
+    pg_dump_command = f'PGPASSWORD={db_password} pg_dump -h postgres -p 5432 -U {db_username} -d {db_name} -F c -f {backup_path}{backup_filename}' # В бинарный формат
 
 
     try:
