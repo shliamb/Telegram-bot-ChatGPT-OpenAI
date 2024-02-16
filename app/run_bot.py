@@ -8,6 +8,7 @@ from keys import (
     block, receiver_yoomoney, token_yoomoney
                    )
 from about_bot import about_text
+from terms_of_use import terms
 import time
 import sys
 import os
@@ -1172,6 +1173,16 @@ async def process_sub_settings_statis_30(callback_query: types.CallbackQuery):
     await bot.send_document(chat_id=chat_id, document=buffered_input_file)
     await bot.answer_callback_query(callback_query.id)
 ####
+
+
+
+# Settings - terms
+@dp.callback_query(lambda c: c.data == 'terms')
+async def process_sub_terms(callback_query: types.CallbackQuery):
+    await bot.send_message(callback_query.from_user.id, terms, parse_mode="HTML")
+    await bot.answer_callback_query(callback_query.id)
+
+
 
 # Settings - about
 @dp.callback_query(lambda c: c.data == 'sub_about')

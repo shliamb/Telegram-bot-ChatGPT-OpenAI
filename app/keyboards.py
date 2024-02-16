@@ -12,7 +12,8 @@ async def main_menu(bot, message: types.Message):
         inline_keyboard=[
             [InlineKeyboardButton(text="⚙️ Настройки", callback_data="sub_setings")], 
             [InlineKeyboardButton(text="🥡 Сброс диалога", callback_data="sub_dialog")],
-            [InlineKeyboardButton(text="💸 Финансы", callback_data="sub_balance")], 
+            [InlineKeyboardButton(text="💸 Финансы", callback_data="sub_balance")],
+            [InlineKeyboardButton(text="💡 Условия использования", callback_data="terms")],
             [InlineKeyboardButton(text="🗯 О боте", callback_data="sub_about")],
             [InlineKeyboardButton(text="Закрыть меню X", callback_data="close")]
         ]
@@ -25,7 +26,8 @@ async def back_to_main(bot, callback_query: types.CallbackQuery):
         inline_keyboard=[
             [InlineKeyboardButton(text="⚙️ Настройки", callback_data="sub_setings")], 
             [InlineKeyboardButton(text=" 🥡Сброс диалога", callback_data="sub_dialog")],
-            [InlineKeyboardButton(text="💸 Финансы", callback_data="sub_balance")], 
+            [InlineKeyboardButton(text="💸 Финансы", callback_data="sub_balance")],
+            [InlineKeyboardButton(text="💡 Условия использования", callback_data="terms")],
             [InlineKeyboardButton(text="🗯 О боте", callback_data="sub_about")],
             [InlineKeyboardButton(text="Закрыть меню X", callback_data="close")]
         ]
