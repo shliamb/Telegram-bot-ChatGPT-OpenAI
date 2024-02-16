@@ -1188,12 +1188,18 @@ async def process_sub_about(callback_query: types.CallbackQuery):
 #second_function_finished = False # Флаг для отслеживания статуса второй функции.
 
 # Typing in OpenAI
-async def first_function(message):
-    await bot.send_chat_action(message.chat.id, action='typing')
-    await asyncio.sleep(5)
+# async def first_function(message):
+#     await bot.send_chat_action(message.chat.id, action='typing')
+#     await asyncio.sleep(5)
+
+
+# @dp.message(F.content_type.in_({'text', 'sticker'})) # Только текст и зачем то стикеры..
+# async def start_main(message):
 
 # Answer OpenAI
+@dp.message(F.content_type.in_({'text', 'sticker'}))
 async def second_function(message: types.Message):
+    await typing(message)
     #global second_function_finished
     id = user_id(message)
     logging.info(f"User {id} - {message.text}")
@@ -1309,22 +1315,22 @@ async def second_function(message: types.Message):
 
 
 
-async def main_ai(message):
-    # Запускаем вторую функцию и сохраняем Task объект.
-    second_task = asyncio.create_task(second_function(message))
+# async def main_ai(message):
+#     # Запускаем вторую функцию и сохраняем Task объект.
+#     second_task = asyncio.create_task(second_function(message))
     
-    # Цикл для периодического запуска первой функции каждые 5 секунд до завершения второй функции.
-    while not second_task.done():
-        await first_function(message)
-        await asyncio.sleep(1)  # Ожидаем небольшое время перед следующей проверкой.
+#     # Цикл для периодического запуска первой функции каждые 5 секунд до завершения второй функции.
+#     while not second_task.done():
+#         await first_function(message)
+#         await asyncio.sleep(1)  # Ожидаем небольшое время перед следующей проверкой.
 
 
 
 
 # Start Message to OpenAI
-@dp.message(F.content_type.in_({'text', 'sticker'})) # Только текст и зачем то стикеры..
-async def start_main(message):
-    await main_ai(message)
+# @dp.message(F.content_type.in_({'text', 'sticker'})) # Только текст и зачем то стикеры..
+# async def start_main(message):
+#     await main_ai(message)
 
 
 
