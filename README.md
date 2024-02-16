@@ -17,6 +17,11 @@
 
 <img src="https://raw.githubusercontent.com/shliamb/Telegram-bot-ChatGPT-OpenAI/main/img/bot.png" alt="ChatGPT" width="auto" height="auto" align="top">
 
+<img src="https://raw.githubusercontent.com/shliamb/Telegram-bot-ChatGPT-OpenAI/main/img/bot4.png" alt="ChatGPT" width="auto" height="auto" align="top">
+
+<img src="https://raw.githubusercontent.com/shliamb/Telegram-bot-ChatGPT-OpenAI/main/img/bot5.png" alt="ChatGPT" width="auto" height="auto" align="top">
+
+
 Основные технологии и библиотеки:
 1. Aiogram 3.3.0,
 2. Anyio 4.2.0
