@@ -1,17 +1,17 @@
-import schedule
-from backupdb import backup_db
-import logging
+# import schedule
+# from backupdb import backup_db
+# import logging
 
-def my_task():
-    backup_db() # Бэкап базы данных
-    logging.info(f"Task to Backup Data Base is run.")
+# def my_task():
+#     backup_db() # Бэкап базы данных
+#     logging.info(f"Task to Backup Data Base is run.")
 
-schedule.every().day.at("02:05").do(my_task)
-#schedule.every(24).hours.do(my_task)
+# schedule.every().day.at("02:05").do(my_task)
+# #schedule.every(24).hours.do(my_task)
 
 
-if __name__ == "__main__":
-    my_task()
+# if __name__ == "__main__":
+#     my_task()
 
 #
 # Автоматический запуск таски, а она запускает бекап

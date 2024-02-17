@@ -32,7 +32,7 @@ from calculation import calculation
 from backupdb import backup_db
 from restore_db import restore_db
 from add_money import add_money_by_card, add_money_wallet_pay, add_money_cripto
-import task_backup
+#import task_backup
 from yoomoney import Quickpay
 from yoomoney import Client
 
@@ -1349,13 +1349,13 @@ async def second_function(message: types.Message):
 
 
 # Main polling
-async def backup_loop(): # Запуск таски на бекап 
-    while True:
-        task_backup.schedule.run_pending()
-        await asyncio.sleep(1)
+# async def backup_loop(): # Запуск таски на бекап 
+#     while True:
+#         task_backup.schedule.run_pending()
+#         await asyncio.sleep(1)
 
 async def main() -> None:
-    backup_task = asyncio.create_task(backup_loop())
+    #backup_task = asyncio.create_task(backup_loop())
     await dp.start_polling(bot, skip_updates=False) # skip_updates=False обрабатывать каждое сообщение с серверов Telegram, важно для принятия платежей
 
 
