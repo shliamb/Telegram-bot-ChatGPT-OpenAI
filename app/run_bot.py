@@ -219,15 +219,16 @@ async def process_sub_admin_stat(callback_query: types.CallbackQuery):
         writer.writerow(row)
     csv_data = output.getvalue()
     output.close()
+
+
     # csv file to download
-    file = BytesIO(csv_data.encode())
-    # Name file
-    date_time = datetime.datetime.utcnow() # Current date and time
-    formtime = date_time.strftime("%Y-%m-%d-%H-%M")
-    file_name = f"Admin-{formtime}.csv"
-    buffered_input_file = types.input_file.BufferedInputFile(file=file.read(), filename=file_name)
-    await bot.send_document(chat_id=chat_id, document=buffered_input_file)
-    await bot.answer_callback_query(callback_query.id)
+    file_name = f"Admin-{datetime.datetime.utcnow().strftime('%Y-%m-%d-%H-%M')}.csv"
+    buffered_input_file = types.input_file.BufferedInputFile(file=csv_data.encode(), filename=file_name)
+    try:
+        await bot.send_document(chat_id=chat_id, document=buffered_input_file)
+        await bot.answer_callback_query(callback_query.id)
+    except:
+        print(f"Error sending documentb Admin stat")
 
 
 # # Back to main
@@ -1148,14 +1149,15 @@ async def process_sub_settings_statis_30(callback_query: types.CallbackQuery):
     if data:
         for statistic in data:
             namba_id = statistic.id
-            time = statistic.time
+            time_d = statistic.time
             use_model = statistic.use_model
             sesion_token = statistic.sesion_token
             price_1_tok = round(statistic.price_1_tok,8)
             price_sesion_tok = round(statistic.price_sesion_tok, 5)
             # users_telegram_id = statistic.users_telegram_id # Обычные люди при виде id вспомнят РЕНтв)))
-            all_static.append([namba_id, about, time, use_model, sesion_token, price_1_tok, price_sesion_tok]) # added user data
-    
+            all_static.append([namba_id, about, time_d, use_model, sesion_token, price_1_tok, price_sesion_tok]) # added user data
+
+
     # Create csv file
     output = StringIO()
     writer = csv.writer(output)
@@ -1163,16 +1165,29 @@ async def process_sub_settings_statis_30(callback_query: types.CallbackQuery):
         writer.writerow(row)
     csv_data = output.getvalue()
     output.close()
+
+
     # csv file to download
-    file = BytesIO(csv_data.encode())
-    # Name file
-    date_time = datetime.datetime.utcnow() # Current date and time
-    formtime = date_time.strftime("%Y-%m-%d-%H-%M")
-    file_name = f"Stat-{formtime}.csv"
-    buffered_input_file = types.input_file.BufferedInputFile(file=file.read(), filename=file_name)
-    await bot.send_document(chat_id=chat_id, document=buffered_input_file)
-    await bot.answer_callback_query(callback_query.id)
+    # file = BytesIO(csv_data.encode())
+    # # Name file
+    # date_time = datetime.datetime.utcnow() # Current date and time
+    # formtime = date_time.strftime("%Y-%m-%d-%H-%M")
+    # file_name = f"Stat-{formtime}.csv"
+    # buffered_input_file = types.input_file.BufferedInputFile(file=file.read(), filename=file_name)
+    # await bot.send_document(chat_id=chat_id, document=buffered_input_file)
+    # await bot.answer_callback_query(callback_query.id)
+
+
+    # csv file to download
+    file_name = f"Stat-{datetime.datetime.utcnow().strftime('%Y-%m-%d-%H-%M')}.csv"
+    buffered_input_file = types.input_file.BufferedInputFile(file=csv_data.encode(), filename=file_name)
+    try:
+        await bot.send_document(chat_id=chat_id, document=buffered_input_file)
+        await bot.answer_callback_query(callback_query.id)
+    except:
+        print(f"Error sending document Statistic 100 point of Users")
 ####
+
 
 
 
