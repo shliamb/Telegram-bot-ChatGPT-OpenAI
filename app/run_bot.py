@@ -35,13 +35,9 @@ from add_money import add_money_by_card, add_money_wallet_pay, add_money_cripto
 #import task_backup
 from yoomoney import Quickpay
 from yoomoney import Client
-
-
 from WalletPay import AsyncWalletPayAPI
 from WalletPay import WalletPayAPI, WebhookManager
 from WalletPay.types import Event
-
-
 import uuid
 from worker_db import (
     adding_user, get_user_by_id, update_user, add_settings, add_discussion, update_settings,
@@ -1166,18 +1162,6 @@ async def process_sub_settings_statis_30(callback_query: types.CallbackQuery):
     csv_data = output.getvalue()
     output.close()
 
-
-    # csv file to download
-    # file = BytesIO(csv_data.encode())
-    # # Name file
-    # date_time = datetime.datetime.utcnow() # Current date and time
-    # formtime = date_time.strftime("%Y-%m-%d-%H-%M")
-    # file_name = f"Stat-{formtime}.csv"
-    # buffered_input_file = types.input_file.BufferedInputFile(file=file.read(), filename=file_name)
-    # await bot.send_document(chat_id=chat_id, document=buffered_input_file)
-    # await bot.answer_callback_query(callback_query.id)
-
-
     # csv file to download
     file_name = f"Stat-{datetime.datetime.utcnow().strftime('%Y-%m-%d-%H-%M')}.csv"
     buffered_input_file = types.input_file.BufferedInputFile(file=csv_data.encode(), filename=file_name)
@@ -1233,24 +1217,21 @@ async def second_function(message: types.Message):
     if message.text is None or message.text.startswith('/') or not isinstance(message.text, str):
         await message.answer("Извините, сообщение в неподдерживаемом формате.")
         logging.error(f"Error, not correct message from User whose id is {id}")
-        second_function_finished = True
         return
 
-    # if work_in_progress == True:
-    #     await worc_in_progress(message)
-    #     return
+    if work_in_progress == True:
+        await worc_in_progress(message)
+        return
 
     data = await get_settings(id) # Получаем настройки
     if data is None:
         await command_start_handler(message)
         logging.info(f"User {id} is not on DB, added.")
-        second_function_finished = True
         return
 
     if str(id) in block:
         await message.answer("Извините, но вы заблокированы, попробуйте обратиться к @Shliamb.")
         logging.info(f"The user id:{id} blocked and typing queshen.")
-        second_function_finished = True
         return
 
     temp_chat = data.temp_chat
@@ -1268,7 +1249,6 @@ async def second_function(message: types.Message):
     if money < 0 or money == 0:
         await message.answer("Извините, но похоже, у вас нулевой баланс.\n Пополнить - [/setup]")
         logging.info(f"User {id} her money is finish.")
-        second_function_finished = True
         return
 
     cache = []
@@ -1336,7 +1316,6 @@ async def second_function(message: types.Message):
     await update_discussion(id, updated_data)
     cache = []
 
-    #second_function_finished = True # Turn off typing
     return
 
 
@@ -1377,14 +1356,14 @@ async def main() -> None:
 
 # Start and Restart
 if __name__ == "__main__":
-    retries = 5
-    while retries > 0:
-        try:
-            asyncio.run(main())
-            break # Если выполнение успешно - выходим из цикла.
-        except Exception as e:
-            logging.error(f"An error occurred: {e}. Restarting after a delay...")
-            retries -= 1
-            
-            if retries > 0:
-                time.sleep(5)  # Ожидаем перед попыткой перезапуска
+    # retries = 5
+    # while retries > 0:
+    try:
+        asyncio.run(main())
+        #break # Если выполнение успешно - выходим из цикла.
+    except Exception as e:
+        logging.error(f"An error occurred: {e}. Restarting after a delay...")
+        # retries -= 1
+        
+        # if retries > 0:
+        #     time.sleep(5)  # Ожидаем перед попыткой перезапуска
