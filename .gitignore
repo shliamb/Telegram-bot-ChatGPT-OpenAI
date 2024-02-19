@@ -3,3 +3,4 @@ app/.env
 app/__pycache__/
 /myvenv/
 .env
+.env1
