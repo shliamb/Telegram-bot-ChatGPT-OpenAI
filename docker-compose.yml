@@ -3,14 +3,14 @@ version: '3.8'
 services:
 
   postgres:
-    image: postgres:15.5
+    image: postgres:16.1
     container_name: bot_postgres
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: 12345
+      POSTGRES_USER: ${USER_DB}
+      POSTGRES_PASSWORD: ${PASWOR_DB}
       POSTGRES_DB: my_database
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -19,8 +19,8 @@ services:
     container_name: bot
     environment:
       POSTGRES_HOST: postgres
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: 12345
+      POSTGRES_USER: ${USER_DB}
+      POSTGRES_PASSWORD: ${PASWOR_DB}
       POSTGRES_DB: my_database
     depends_on:
       - postgres

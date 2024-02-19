@@ -1,11 +1,11 @@
-from keys import pass_psgresql
+from keys import user_db, paswor_db
 import subprocess
 import datetime
 import logging
 
 # Параметры подключения к базе данных PostgreSQL
-db_username = "admin"
-db_password = pass_psgresql
+db_username = user_db
+db_password = paswor_db
 db_name = "my_database"
 
 backup_path = "./backup_db/"

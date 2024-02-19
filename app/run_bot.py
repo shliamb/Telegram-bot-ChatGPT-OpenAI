@@ -1348,7 +1348,7 @@ async def second_function(message: types.Message):
 #         task_backup.schedule.run_pending()
 #         await asyncio.sleep(1)
 
-async def main() -> None:
+async def main_bot() -> None:
     #backup_task = asyncio.create_task(backup_loop())
     await dp.start_polling(bot, skip_updates=False) # skip_updates=False обрабатывать каждое сообщение с серверов Telegram, важно для принятия платежей
 
@@ -1359,7 +1359,7 @@ if __name__ == "__main__":
     # retries = 5
     # while retries > 0:
     try:
-        asyncio.run(main())
+        asyncio.run(main_bot())
         #break # Если выполнение успешно - выходим из цикла.
     except Exception as e:
         logging.error(f"An error occurred: {e}. Restarting after a delay...")

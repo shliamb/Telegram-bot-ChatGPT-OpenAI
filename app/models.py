@@ -1,4 +1,4 @@
-#from keys import pass_psgresql # {pass_psgresql}
+from keys import user_db, paswor_db
 import datetime
 from sqlalchemy import ForeignKey
 import sqlalchemy
@@ -11,7 +11,7 @@ from typing import AsyncGenerator
 #from sqlalchemy.orm import AsyncSession
 
 
-DATABASE_URL = f"postgresql+asyncpg://admin:12345@postgres:5432/my_database"
+DATABASE_URL = f"postgresql+asyncpg://{user_db}:{paswor_db}@postgres:5432/my_database"
 engine = create_async_engine(DATABASE_URL) # Создание асинхронного движка для работы с базой данных
 Base = declarative_base() # Создание базового класса для объявления моделей
 Column = sqlalchemy.Column
