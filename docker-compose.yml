@@ -3,7 +3,7 @@ version: '3.8'
 services:
 
   postgres:
-    image: postgres:15.5
+    image: postgres:15.6
     container_name: bot_postgres
     environment:
       POSTGRES_USER: ${USER_DB}
