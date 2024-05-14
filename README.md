@@ -2,7 +2,7 @@
 # RU
 
 ## Что это?
-Это простой телеграм бот. Он дает прямой доступ к ChatGPT 3.5, ChatGPT 4 Turbo, ChatGPT 4 и др.
+Это простой телеграм бот. Он дает прямой доступ к ChatGPT 3.5, ChatGPT 4 Turbo, ChatGPT 4, ChatGPT 4o и др.
 
 ## Для кого это?
 Для тех людей, кто вынужден находиться в стране, находящейся под санкциями, а VPN постоянно блокируется и постоянно виснет. Для тех, кто не может себе позволить 20$ в месяц на последнюю версию ChatGPT от OpenAI.
@@ -29,14 +29,13 @@
 4. Openai 1.11.1
 5. SQLAlchemy 2.0.25
 6. WalletPay 1.3.1
-7. YooMoney 0.1.0
 и др.
 
 
 ## Как работает
 - База на PostgreSQL, работает асинхронно, в контейнере докера. Работа с базой через SQLAlchemy. В базе хранятся основные данные и настройки пользователя, счет. Статистика трат, которые клиент может скачать через настройки бота. Так же в базе храниться курс RUB - USD. Он обновляется раз в день через сервер центробанка. Так же в ячейке базы на каждого пользователя сохраняется на выбранный период переписка с ChatGPT для того что бы чат, имел контекст общения. Даную функцию можно удалить или выставить нужное время в настройках бота.
 
-- На данный момент можно пополнить баланс спомощью оплаты картой через Yoomoney, оплатой через WALLET PAY, переводом крипты.
+- На данный момент можно пополнить баланс спомощью оплаты через WALLET PAY, переводом крипты.
 
 - Раз в сутки база данных сохраняется в папку на сервере. 
 
@@ -76,14 +75,13 @@ Main technologies and libraries:
 4. Openai 1.11.1
 5. SQLAlchemy 2.0.25
 6. WalletPay 1.3.1
-7. YooMoney 0.1.0
 , etc.
 
 
 ## How it works
 - The database is based on PostgreSQL, it works asynchronously, in a docker container. Working with the database via SQLAlchemy. The database stores the basic data and user settings, the account. Statistics of expenses that the client can download through the bot settings. The RUB - USD exchange rate is also stored in the database. It is updated once a day via the central bank's server. Also, in the database cell for each user, correspondence with ChatGPT is stored for the selected period in order for the chat to have a communication context. You can delete this function or set the desired time in the bot settings.
 
-- At the moment, you can top up your balance by paying with a card via Yoomoney, paying via WALLET PAY, or transferring crypts.
+- At the moment, you can top up your balance by paying via WALLET PAY, or transferring crypts.
 
 - Once a day, the database is saved to a folder on the server. 
 
