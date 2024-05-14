@@ -75,7 +75,7 @@ async def back_to_setings(bot, callback_query: types.CallbackQuery):
 async def sub_setings_model(bot, callback_query: types.CallbackQuery):
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
-                #[InlineKeyboardButton(text="gpt-4-0613", callback_data="gpt-4-0613")],
+                [InlineKeyboardButton(text="gpt-4o", callback_data="gpt-4o")],
                 [InlineKeyboardButton(text="gpt-4-1106-preview", callback_data="gpt-4-1106-preview")],
                 [InlineKeyboardButton(text="gpt-4-0125-preview", callback_data="gpt-4-0125-preview")],
                 [InlineKeyboardButton(text="gpt-3.5-turbo-0613", callback_data="gpt-3.5-turbo-0613")],
@@ -170,9 +170,9 @@ async def sub_balance(bot, callback_query: types.CallbackQuery):
 async def sub_add_money(bot, callback_query: types.CallbackQuery):
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
-                [InlineKeyboardButton(text="💳 Карта РФ 3%", callback_data="pay_by_card")], 
+                # [InlineKeyboardButton(text="💳 Карта РФ 3%", callback_data="pay_by_card")], 
                 [InlineKeyboardButton(text="👛 WALLET PAY", callback_data="wallet_pay")],
-                [InlineKeyboardButton(text="💵 Крипта, USDT", callback_data="cripto")],
+                # [InlineKeyboardButton(text="💵 Крипта, USDT", callback_data="cripto")],
                 # [InlineKeyboardButton(text="💳 Перевод на карту", callback_data="many_1000")],
                 [InlineKeyboardButton(text="Вернуться назад", callback_data="back_to_main")],
         ]
@@ -189,11 +189,11 @@ async def sub_add_money(bot, callback_query: types.CallbackQuery):
 async def admin_menu(bot, message: types.Message):
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
+            [InlineKeyboardButton(text="Backup DB and Download", callback_data="backup")],
             [InlineKeyboardButton(text="Download statistics", callback_data="admin_stat")], 
             [InlineKeyboardButton(text="Download log", callback_data="admin_get_log")],
             [InlineKeyboardButton(text="Clear log", callback_data="admin_clear_log")], 
-            [InlineKeyboardButton(text="Confirm the payment", callback_data="confirm_pay")],
-            [InlineKeyboardButton(text="Backup DB and Download", callback_data="backup")],
+            # [InlineKeyboardButton(text="Confirm the payment", callback_data="confirm_pay")],
             [InlineKeyboardButton(text="Upload and Restore DB*", callback_data="restore_db")],
             [InlineKeyboardButton(text="Закрыть меню X", callback_data="close_admin")]
         ]
