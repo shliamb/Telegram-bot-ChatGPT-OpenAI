@@ -424,7 +424,7 @@ async def process_sub_settings_modell_gpt_4o(callback_query: types.CallbackQuery
         await worc_in_progress(callback_query)
         return
     id = user_id(callback_query)
-    updated_data = {"set_model": "gpt-4o"}
+    updated_data = {"set_model": "gpt-4o-2024-05-13"}
     await update_settings(id, updated_data)
     await callback_query.answer("Установлена модель - gpt-4o")
     await bot.answer_callback_query(callback_query.id)
