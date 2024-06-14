@@ -170,10 +170,10 @@ async def sub_balance(bot, callback_query: types.CallbackQuery):
 async def sub_add_money(bot, callback_query: types.CallbackQuery):
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
-                # [InlineKeyboardButton(text="💳 Карта РФ 3%", callback_data="pay_by_card")], 
-                [InlineKeyboardButton(text="👛 WALLET PAY", callback_data="wallet_pay")],
+                [InlineKeyboardButton(text="💳 Запрос на пополнение", callback_data="pay_by_card")], 
+                # [InlineKeyboardButton(text="👛 WALLET PAY", callback_data="wallet_pay")],
                 # [InlineKeyboardButton(text="💵 Крипта, USDT", callback_data="cripto")],
-                # [InlineKeyboardButton(text="💳 Перевод на карту", callback_data="many_1000")],
+                # [InlineKeyboardButton(text="💳 Запрос на пополнение", callback_data="many_1000")],
                 [InlineKeyboardButton(text="Вернуться назад", callback_data="back_to_main")],
         ]
     )
@@ -204,14 +204,14 @@ async def admin_menu(bot, message: types.Message):
 
 
 # Проверка оплаты Yoomoney
-async def confirm_summ(bot, message: types.Message):
-    keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="🔍 Проверить и зачислить", callback_data="confirm_summ_card")], 
+# async def confirm_summ(bot, message: types.Message):
+#     keyboard = InlineKeyboardMarkup(
+#         inline_keyboard=[
+#             [InlineKeyboardButton(text="🔍 Проверить и зачислить", callback_data="confirm_summ_card")], 
 
-        ]
-    )
-    await message.answer("После оплаты, проверьте ваш платеж: ", reply_markup=keyboard)
+#         ]
+#     )
+#     await message.answer("После оплаты, проверьте ваш платеж: ", reply_markup=keyboard)
 
 
 

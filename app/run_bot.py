@@ -806,7 +806,7 @@ async def process_sub_settings_add_money(callback_query: types.CallbackQuery):
 # State
 class Form(StatesGroup):
     add_summ = State()
-    confirm_summ = State()
+    # confirm_summ = State()
 
 
 # Нажал кнопку оплата картой РФ
@@ -821,17 +821,17 @@ async def start_invoice(callback_query: types.CallbackQuery, state: FSMContext):
 @dp.message(Form.add_summ, F.content_type.in_({'text'}))
 async def invoice_user(message: Message, state: FSMContext):
     
-    user_uuid = uuid.uuid4()
+    # user_uuid = uuid.uuid4()
     #user_uuid = 'f3c98917-aa4e-4f1b-86d8-cd79e4886013'
     
-    percent = 3 # Коммисия Yoomoney
-    receiver = receiver_yoomoney # Мой счет
+    # percent = 3 # Коммисия Yoomoney
+    # receiver = receiver_yoomoney # Мой счет
     summ = message.text # Введенная сумма пользователем
-    label = user_uuid # Сформерованный для проверки платежа UUiD4
+    # label = user_uuid # Сформерованный для проверки платежа UUiD4
     id = user_id(message)
 
     # Сохраняем  данные в state
-    await state.update_data(user_uuid=user_uuid, percent=percent, summ=summ, id=id )
+    # await state.update_data(summ=summ, id=id )
 
     if message.text.isdigit() is not True:
         await bot.send_message(message.chat.id, f"Введите только сумму цифрами.")
@@ -841,80 +841,87 @@ async def invoice_user(message: Message, state: FSMContext):
         await bot.send_message(message.chat.id, f"Минимальная сумма 50 RUB.")
         return
 
-    quickpay = Quickpay(
-                receiver=receiver,
-                quickpay_form="shop",
-                targets="Sponsor this project",
-                paymentType="SB",
-                sum=summ,
-                label=label
-                )
+    # quickpay = Quickpay(
+    #             # receiver=receiver,
+    #             quickpay_form="shop",
+    #             targets="Sponsor this project",
+    #             paymentType="SB",
+    #             sum=summ,
+    #             # label=label
+    #             )
     # print(quickpay.base_url) # Бессрочная
     # print(quickpay.redirected_url) # Имеет жизненый цикл - одноразовая
     #await bot.send_message(message.chat.id, f"Для пополнения счета на <b>{summ} RUB</b> банковской картой, перейдите по ссылке:\n\n {quickpay.base_url}", parse_mode="HTML")
     # Кнопка проверки 
 
-    keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="👛 Перейти к оплате", url=quickpay.base_url)], 
+    # keyboard = InlineKeyboardMarkup(
+    #     inline_keyboard=[
+    #         [InlineKeyboardButton(text="👛 Перейти к оплате", url=quickpay.base_url)], 
 
-        ]
-    )
-    await bot.send_message(message.chat.id, f"Для пополнения счета на *{summ} RUB* банковской картой через Yoomoney (комиссия 3%), перейдите по ссылке, нажав на кнопку ниже:", reply_markup=keyboard)
-
-
-
-
-    await asyncio.sleep(10)
-    await confirm_summ(bot, message) # Появляется кнопка проверить оплату
-    await state.set_state(Form.confirm_summ)
+    #     ]
+    # )
+    # await bot.send_message(message.chat.id, f"Для пополнения счета на *{summ} RUB* банковской картой через Yoomoney (комиссия 3%), перейдите по ссылке, нажав на кнопку ниже:", reply_markup=keyboard)
 
 
 
-# При нажатии кнопки проверки оплаты
-@dp.callback_query(Form.confirm_summ, lambda c: c.data == 'confirm_summ_card')
-async def process_sub_confirm_summ_card(callback_query: types.CallbackQuery, state: FSMContext):
-    if work_in_progress == True:
-        await worc_in_progress(callback_query)
-        return
 
-    data = await state.get_data()
-    user_uuid = data.get('user_uuid')
-    percent = data.get('percent')
-    summ = data.get('summ')
-    # id = data.get('id')
+    # await asyncio.sleep(10)
+    #await confirm_summ(bot, message) # Появляется кнопка проверить оплату
+    # await state.set_state(Form.confirm_summ)
+
+    admin_id = list(admin_user_ids)[0]
+    await bot.send_message(admin_id, f"Пользователь: {id}, хочет пополнить счет на: {summ} РУБ", parse_mode="HTML") # to admin message
+
+    await bot.send_message(message.chat.id, f"Ваш запрос принят, ожидайте пополнения.")
+
+    await state.clear()
+
+
+
+# # При нажатии кнопки проверки оплаты
+# @dp.callback_query(Form.confirm_summ, lambda c: c.data == 'confirm_summ_card')
+# async def process_sub_confirm_summ_card(callback_query: types.CallbackQuery, state: FSMContext):
+#     if work_in_progress == True:
+#         await worc_in_progress(callback_query)
+#         return
+
+#     data = await state.get_data()
+#     user_uuid = data.get('user_uuid')
+#     percent = data.get('percent')
+#     summ = data.get('summ')
+#     # id = data.get('id')
    
-    token = token_yoomoney
-    client = Client(token)
-    history = client.operation_history(label=user_uuid)
-    logging.info("List of operations:")
-    logging.info(f"Next page starts with: {history.next_record}")
+#     token = token_yoomoney
+#     client = Client(token)
+#     history = client.operation_history(label=user_uuid)
+#     logging.info("List of operations:")
+#     logging.info(f"Next page starts with: {history.next_record}")
 
 
-    loadf = []
+#     loadf = []
 
-    for operation in history.operations:
-        loadf.append(operation.label)
-        logging.info(f"Order has been paid! Operation: {operation.operation_id}, Status: {operation.status}, Datetime: {operation.datetime}, Title: {operation.title}, Pattern id: {operation.pattern_id}, Direction: {operation.direction}, Amount: {operation.amount}, Label: {operation.label}, Type: {operation.type}")
+#     for operation in history.operations:
+#         loadf.append(operation.label)
+#         logging.info(f"Order has been paid! Operation: {operation.operation_id}, Status: {operation.status}, Datetime: {operation.datetime}, Title: {operation.title}, Pattern id: {operation.pattern_id}, Direction: {operation.direction}, Amount: {operation.amount}, Label: {operation.label}, Type: {operation.type}")
 
-    # Если не найдено совпадений
-    if loadf == []:
-        logging.info("Payment was not found")
-        await bot.send_message(callback_query.from_user.id, "Оплата не найдена, попробуйте позже.")
-        await asyncio.sleep(5)
-        await bot.answer_callback_query(callback_query.id)
-        return
+#     # Если не найдено совпадений
+#     if loadf == []:
+#         logging.info("Payment was not found")
+#         await bot.send_message(callback_query.from_user.id, "Оплата не найдена, попробуйте позже.")
+#         await asyncio.sleep(5)
+#         await bot.answer_callback_query(callback_query.id)
+#         return
     
-    # Найдено совпадение   
-    if user_uuid == operation.label:
-        # Отправляем высчитать и закинуть в базу, вернет сумма - коммисия
-        remains_pay =  await add_money_by_card(data)
-        await bot.send_message(callback_query.from_user.id, f"Ваш платеж подтвержден:\nОплачено: {summ} RUB,\nКомиссия Yoomoney: {percent}%,\nЗачисленно: {remains_pay} RUB.")
-        user_uuid = ""
-        loadf = []
-        logging.info("Payment has been made")
-        await bot.answer_callback_query(callback_query.id)
-        await state.clear()
+#     # Найдено совпадение   
+#     if user_uuid == operation.label:
+#         # Отправляем высчитать и закинуть в базу, вернет сумма - коммисия
+#         remains_pay =  await add_money_by_card(data)
+#         await bot.send_message(callback_query.from_user.id, f"Ваш платеж подтвержден:\nОплачено: {summ} RUB,\nКомиссия Yoomoney: {percent}%,\nЗачисленно: {remains_pay} RUB.")
+#         user_uuid = ""
+#         loadf = []
+#         logging.info("Payment has been made")
+#         await bot.answer_callback_query(callback_query.id)
+#         await state.clear()
 ####
 
 
