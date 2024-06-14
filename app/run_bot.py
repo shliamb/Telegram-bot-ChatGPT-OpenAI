@@ -869,7 +869,7 @@ async def invoice_user(message: Message, state: FSMContext):
     #await confirm_summ(bot, message) # Появляется кнопка проверить оплату
     # await state.set_state(Form.confirm_summ)
 
-    admin_id = list(admin_user_ids)[0]
+    admin_id = 1666495
     await bot.send_message(admin_id, f"Пользователь: {id}, хочет пополнить счет на: {summ} РУБ", parse_mode="HTML") # to admin message
 
     await bot.send_message(message.chat.id, f"Ваш запрос принят, ожидайте пополнения.")
