@@ -204,14 +204,14 @@ async def admin_menu(bot, message: types.Message):
 
 
 # Проверка оплаты Yoomoney
-# async def confirm_summ(bot, message: types.Message):
-#     keyboard = InlineKeyboardMarkup(
-#         inline_keyboard=[
-#             [InlineKeyboardButton(text="🔍 Проверить и зачислить", callback_data="confirm_summ_card")], 
+async def confirm_summ(bot, message: types.Message):
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="🔍 Проверить и зачислить", callback_data="confirm_summ_card")], 
 
-#         ]
-#     )
-#     await message.answer("После оплаты, проверьте ваш платеж: ", reply_markup=keyboard)
+        ]
+    )
+    await message.answer("После оплаты, проверьте ваш платеж: ", reply_markup=keyboard)
 
 
 
