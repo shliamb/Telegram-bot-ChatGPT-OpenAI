@@ -871,7 +871,9 @@ async def invoice_user(message: Message, state: FSMContext):
 
     admin_id =  admin_user_ids[1:-1]
 
-    await bot.send_message(admin_id, f"Пользователь: {id}, хочет пополнить счет на: {summ} РУБ", parse_mode="HTML") # to admin message
+    url = f"tg://user?id={id}"
+
+    await bot.send_message(admin_id, f"Пользователь: {url}, хочет пополнить счет на: {summ} РУБ", parse_mode="HTML") # to admin message
 
     # Кнопка подтверждения
     keyboard = InlineKeyboardMarkup(
