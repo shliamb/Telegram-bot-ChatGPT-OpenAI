@@ -821,17 +821,9 @@ async def start_invoice(callback_query: types.CallbackQuery, state: FSMContext):
 @dp.message(Form.add_summ, F.content_type.in_({'text'}))
 async def invoice_user(message: Message, state: FSMContext):
     
-    # user_uuid = uuid.uuid4()
-    #user_uuid = 'f3c98917-aa4e-4f1b-86d8-cd79e4886013'
-    
-    # percent = 3 # Коммисия Yoomoney
-    # receiver = receiver_yoomoney # Мой счет
     summ = message.text # Введенная сумма пользователем
     # label = user_uuid # Сформерованный для проверки платежа UUiD4
     id = user_id(message)
-
-    # Сохраняем  данные в state
-    # await state.update_data(summ=summ, id=id )
 
     if message.text.isdigit() is not True:
         await bot.send_message(message.chat.id, f"Введите только сумму цифрами.")
@@ -841,33 +833,6 @@ async def invoice_user(message: Message, state: FSMContext):
         await bot.send_message(message.chat.id, f"Минимальная сумма 50 RUB.")
         return
 
-    # quickpay = Quickpay(
-    #             # receiver=receiver,
-    #             quickpay_form="shop",
-    #             targets="Sponsor this project",
-    #             paymentType="SB",
-    #             sum=summ,
-    #             # label=label
-    #             )
-    # print(quickpay.base_url) # Бессрочная
-    # print(quickpay.redirected_url) # Имеет жизненый цикл - одноразовая
-    #await bot.send_message(message.chat.id, f"Для пополнения счета на <b>{summ} RUB</b> банковской картой, перейдите по ссылке:\n\n {quickpay.base_url}", parse_mode="HTML")
-    # Кнопка проверки 
-
-    # keyboard = InlineKeyboardMarkup(
-    #     inline_keyboard=[
-    #         [InlineKeyboardButton(text="👛 Перейти к оплате", url=quickpay.base_url)], 
-
-    #     ]
-    # )
-    # await bot.send_message(message.chat.id, f"Для пополнения счета на *{summ} RUB* банковской картой через Yoomoney (комиссия 3%), перейдите по ссылке, нажав на кнопку ниже:", reply_markup=keyboard)
-
-
-
-
-    # await asyncio.sleep(10)
-    #await confirm_summ(bot, message) # Появляется кнопка проверить оплату
-    # await state.set_state(Form.confirm_summ)
 
     admin_id =  admin_user_ids[1:-1]
 
@@ -889,8 +854,6 @@ async def invoice_user(message: Message, state: FSMContext):
     # При нажатии кнопки проверки оплаты
     @dp.callback_query(lambda c: c.data == 'confirm_summ_user')
     async def process_add_money(callback_query: types.CallbackQuery):
-        # await sub_add_money(bot, callback_query)
-        # admin_id =  admin_user_ids[1:-1]
 
         data = await get_settings(id)
         new_money = data.money + float(summ)
@@ -899,7 +862,7 @@ async def invoice_user(message: Message, state: FSMContext):
         conf = await update_settings(id, updated_data)
 
         if conf is True:
-            await bot.send_message(admin_id, f"Счет клиента попполнен на {new_money}.")
+            await bot.send_message(admin_id, f"Счет клиента попполнен, общий -  {new_money}.")
             await bot.send_message(message.chat.id, f"Ваш счет пополнен на {summ}.")
         else:
             await bot.send_message(admin_id, f"Ошибка пополнения счета.")
