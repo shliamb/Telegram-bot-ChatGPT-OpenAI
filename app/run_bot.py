@@ -893,7 +893,7 @@ async def invoice_user(message: Message, state: FSMContext):
         # admin_id =  admin_user_ids[1:-1]
 
         data = await get_settings(id)
-        new_money = data.money + summ
+        new_money = data.money + float(summ)
 
 
 
