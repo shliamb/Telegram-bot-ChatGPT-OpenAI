@@ -893,10 +893,12 @@ async def invoice_user(message: Message, state: FSMContext):
         # admin_id =  admin_user_ids[1:-1]
 
         data = await get_settings(id)
+        new_money = data.money + summ
 
 
 
-        await bot.send_message(admin_id, "Счет клиента попполнен.")
+
+        await bot.send_message(admin_id, f"Счет клиента попполнен b hfdty {new_money}.")
         await bot.answer_callback_query(callback_query.id)
 
 
