@@ -886,6 +886,20 @@ async def invoice_user(message: Message, state: FSMContext):
 
 
 
+    # При нажатии кнопки проверки оплаты
+    @dp.callback_query(lambda c: c.data == 'confirm_summ_user')
+    async def process_add_money(callback_query: types.CallbackQuery):
+        # await sub_add_money(bot, callback_query)
+        # admin_id =  admin_user_ids[1:-1]
+
+        data = await get_settings(id)
+
+
+
+        await bot.send_message(admin_id, "Счет клиента попполнен.")
+        await bot.answer_callback_query(callback_query.id)
+
+
 
 
     await bot.send_message(message.chat.id, f"Ваш запрос принят, ожидайте пополнения.")
@@ -893,13 +907,18 @@ async def invoice_user(message: Message, state: FSMContext):
     await state.clear()
 
 
-# При нажатии кнопки проверки оплаты
-@dp.callback_query(lambda c: c.data == 'confirm_summ_user')
-async def process_add_money(callback_query: types.CallbackQuery):
-    # await sub_add_money(bot, callback_query)
-    admin_id =  admin_user_ids[1:-1]
-    await bot.send_message(admin_id, "Опппа")
-    await bot.answer_callback_query(callback_query.id)
+# # При нажатии кнопки проверки оплаты
+# @dp.callback_query(lambda c: c.data == 'confirm_summ_user')
+# async def process_add_money(callback_query: types.CallbackQuery):
+#     # await sub_add_money(bot, callback_query)
+#     admin_id =  admin_user_ids[1:-1]
+
+#     data = await get_settings(id)
+
+
+
+#     await bot.send_message(admin_id, "Счет клиента попполнен.")
+#     await bot.answer_callback_query(callback_query.id)
 
 
 
