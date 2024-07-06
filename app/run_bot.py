@@ -873,7 +873,7 @@ async def invoice_user(message: Message, state: FSMContext):
 
     url = f"tg://user?id={id}"
 
-    await bot.send_message(admin_id, f"Пользователь: {url}, хочет пополнить счет на: {summ} РУБ", parse_mode="HTML") # to admin message
+    await bot.send_message(admin_id, f"Пользователь: <a href='{url}'>{id}</a>, хочет пополнить счет на: {summ} РУБ", parse_mode="HTML") # to admin message
 
     # Кнопка подтверждения
     keyboard = InlineKeyboardMarkup(
@@ -891,6 +891,18 @@ async def invoice_user(message: Message, state: FSMContext):
     await bot.send_message(message.chat.id, f"Ваш запрос принят, ожидайте пополнения.")
 
     await state.clear()
+
+
+# При нажатии кнопки проверки оплаты
+@dp.callback_query(lambda c: c.data == 'confirm_summ_user')
+async def process_add_money(callback_query: types.CallbackQuery):
+    # await sub_add_money(bot, callback_query)
+    admin_id =  admin_user_ids[1:-1]
+    await bot.send_message(admin_id, "Опппа")
+    await bot.answer_callback_query(callback_query.id)
+
+
+
 
 
 
