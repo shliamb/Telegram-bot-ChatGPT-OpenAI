@@ -849,7 +849,7 @@ async def invoice_user(message: Message, state: FSMContext):
     await state.update_data(summ=summ, id=id, admin_id=admin_id, mes_id=mes_id)
 
 
-    await state.set_state(Form.confirm_cripto)
+    await state.set_state(Form.confirm_summ)
 
 
 @dp.callback_query(Form.confirm_summ, lambda c: c.data == 'confirm_summ_user')
