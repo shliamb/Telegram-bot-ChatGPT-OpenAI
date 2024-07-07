@@ -24,6 +24,8 @@ from aiogram.types import (Message, BotCommand, LabeledPrice, ContentType,
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.state import State, StatesGroup
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+
 import csv
 import datetime
 from io import StringIO, BytesIO
@@ -835,62 +837,74 @@ async def invoice_user(message: Message, state: FSMContext):
 
     admin_id =  admin_user_ids[1:-1]
     url = f"tg://user?id={id}"
-    await bot.send_message(admin_id, f"Пользователь: <a href='{url}'>{id}</a>, хочет пополнить счет на: {summ} РУБ", parse_mode="HTML") # to admin message
 
-    keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="👛 Подтвердить", callback_data="confirm_summ_user")], 
 
-        ]
-    )
+
+
+    keyboard = ReplyKeyboardMarkup(
+        resize_keyboard=True,
+        one_time_keyboard=True
+    ).add(KeyboardButton("👛 Подтвердить"))
+
+    #await message.answer("Нажмите кнопку ниже:", reply_markup=keyboard)
+
+    # await bot.send_message(admin_id, f"Пользователь: <a href='{url}'>{id}</a>, хочет пополнить счет на: {summ} РУБ", parse_mode="HTML") # to admin message
+
+    # keyboard = InlineKeyboardMarkup(
+    #     inline_keyboard=[
+    #         [InlineKeyboardButton(text="👛 Подтвердить", callback_data="confirm_summ_user")], 
+
+    #     ]
+    # )
     await bot.send_message(admin_id, f"Пополнить счет на {summ}:", reply_markup=keyboard)
     await bot.send_message(message.chat.id, f"Ваш запрос принят, ожидайте пополнения.")
 
-    await state.update_data(summ=summ, id=id, admin_id=admin_id, mes_id=mes_id)
-    await state.set_state(Form.confirm_summ)
-
+    # await state.update_data(summ=summ, id=id, admin_id=admin_id, mes_id=mes_id)
+    # await state.set_state(Form.confirm_summ)
+    await state.clear()
 
 
 
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! suka
-@dp.callback_query(lambda c: c.data == 'confirm_summ_user')
-async def process_add_moneyy(callback_query: types.CallbackQuery, state: FSMContext):
 
-    admin_id =  admin_user_ids[1:-1]
-    #id = user_id(callback_query)
-    #State
-    data = await state.get_data()
-    id = data.get('id')
-    # summ = data.get('summ')
-    summ = int(data['summ'])
-    #admin_id = data.get('admin_id')
-    mes_id = data.get('mes_id')
+# @dp.message_handler(Form.confirm_summ, lambda c: c.data == 'confirm_summ_user')
+# # @dp.callback_query(Form.confirm_summ, lambda c: c.data == 'confirm_summ_user')
+# async def process_add_moneyy(callback_query: types.CallbackQuery, state: FSMContext):
 
-    await bot.send_message(admin_id, f"id: {id}, summ: {summ}, admin_id: {admin_id}, mes_id: {mes_id}")
+#     admin_id =  admin_user_ids[1:-1]
+#     #id = user_id(callback_query)
+#     #State
+#     data = await state.get_data()
+#     id = data.get('id')
+#     summ = data.get('summ')
+#     #admin_id = data.get('admin_id')
+#     mes_id = data.get('mes_id')
 
-    # data_set = await get_settings(id)
-    # new_money = data_set.money + float(summ)
+#     await bot.send_message(admin_id, f"id: {id}, summ: {summ}, admin_id: {admin_id}, mes_id: {mes_id}")
 
-    # updated_data = {"money": new_money}
-    # conf = await update_settings(id, updated_data)
+#     # data_set = await get_settings(id)
+#     # new_money = data_set.money + float(summ)
 
-    # if conf is True:
-    #     await bot.send_message(admin_id, f"Счет клиента пополнен, общий -  {new_money}.")
-    #     await bot.send_message(mes_id, f"Ваш счет пополнен на {summ}.")
-    #     await bot.answer_callback_query(callback_query.id)
-    #     await state.clear()
-    #     return
-    # else:
-    #     await bot.send_message(admin_id, f"Ошибка пополнения счета.")
-    #     await bot.answer_callback_query(callback_query.id)
-    #     await state.clear()
-    #     return
+#     # updated_data = {"money": new_money}
+#     # conf = await update_settings(id, updated_data)
 
-    # await bot.send_message(callback_query.from_user.id, "Опппа")
-    # #await bot.send_message(callback_query.from_user.id, "Привет")
+#     # if conf is True:
+#     #     await bot.send_message(admin_id, f"Счет клиента пополнен, общий -  {new_money}.")
+#     #     await bot.send_message(mes_id, f"Ваш счет пополнен на {summ}.")
+#     #     await bot.answer_callback_query(callback_query.id)
+#     #     await state.clear()
+#     #     return
+#     # else:
+#     #     await bot.send_message(admin_id, f"Ошибка пополнения счета.")
+#     #     await bot.answer_callback_query(callback_query.id)
+#     #     await state.clear()
+#     #     return
 
-    await bot.answer_callback_query(callback_query.id)
-    await state.clear()
+#     # await bot.send_message(callback_query.from_user.id, "Опппа")
+#     # #await bot.send_message(callback_query.from_user.id, "Привет")
+
+#     await bot.answer_callback_query(callback_query.id)
+#     await state.clear()
 
 
 
