@@ -849,6 +849,9 @@ async def invoice_user(message: Message, state: FSMContext):
     await state.update_data(summ=summ, id=id, admin_id=admin_id, mes_id=mes_id)
     await state.set_state(Form.confirm_summ)
 
+
+
+
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! suka
 @dp.callback_query(lambda c: c.data == 'confirm_summ_user')
 async def process_add_moneyy(callback_query: types.CallbackQuery, state: FSMContext):
@@ -858,7 +861,8 @@ async def process_add_moneyy(callback_query: types.CallbackQuery, state: FSMCont
     #State
     data = await state.get_data()
     id = data.get('id')
-    summ = data.get('summ')
+    # summ = data.get('summ')
+    summ = int(data['summ'])
     #admin_id = data.get('admin_id')
     mes_id = data.get('mes_id')
 
