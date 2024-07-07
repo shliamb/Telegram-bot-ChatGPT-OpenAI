@@ -812,7 +812,8 @@ class Form(StatesGroup):
 
 
 # Нажал кнопку оплата картой РФ
-@dp.callback_query(lambda c: c.data == 'pay_by_card')
+#@dp.callback_query(lambda c: c.data == 'pay_by_card')
+@dp.callback_query(F.data == 'pay_by_card')
 async def start_invoice(callback_query: types.CallbackQuery, state: FSMContext):
     await bot.send_message(callback_query.from_user.id, "Введите сумму пополнения в RUB:", reply_markup=ReplyKeyboardRemove()) # !!!!
     await bot.answer_callback_query(callback_query.id)
@@ -835,88 +836,128 @@ async def invoice_user(message: Message, state: FSMContext):
         await bot.send_message(message.chat.id, f"Минимальная сумма 50 RUB.")
         return
 
+
+
     admin_id =  admin_user_ids[1:-1]
     url = f"tg://user?id={id}"
 
 
 
-
-    kb = [
-        [
-            # types.KeyboardButton(text="С пюрешкой", callback_data='count1'),
-            types.KeyboardButton(text="Подтвердить", callback_data='count1')
-        ],
-    ]
-    keyboard = types.ReplyKeyboardMarkup(
-        keyboard=kb,
-        resize_keyboard=True,
-        input_field_placeholder="Выберите способ подачи"
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="Подтвердить")], # text="👛 Подтвердить" url="confirm_summ_user"
+        ]
     )
-
     await bot.send_message(admin_id, f"Пользователь: <a href='{url}'>{id}</a>, хочет пополнить счет на: {summ} РУБ", parse_mode="HTML", reply_markup=keyboard)
-
-
-
-    # keyboard = ReplyKeyboardMarkup(
-    #     resize_keyboard=True,
-    #     one_time_keyboard=True
-    # ).add(KeyboardButton("👛 Подтвердить"))
-
-    #await message.answer("Нажмите кнопку ниже:", reply_markup=keyboard)
-
-    # await bot.send_message(admin_id, f"Пользователь: <a href='{url}'>{id}</a>, хочет пополнить счет на: {summ} РУБ", parse_mode="HTML") # to admin message
-
-    # keyboard = InlineKeyboardMarkup(
-    #     inline_keyboard=[
-    #         [InlineKeyboardButton(text="👛 Подтвердить", callback_data="confirm_summ_user")], 
-
-    #     ]
-    # )
-    # await bot.send_message(admin_id, f"Пополнить счет на {summ}:", reply_markup=keyboard)
     await bot.send_message(message.chat.id, f"Ваш запрос принят, ожидайте пополнения.")
 
-    #await state.update_data(summ=summ, id=id, admin_id=admin_id, mes_id=mes_id)
+
+    await state.update_data(summ=summ, id=id, admin_id=admin_id, mes_id=mes_id)
+    #await callback.answer()
     await state.set_state(Form.confirm_summ)
-    await state.clear()
+
+
+
+# Обработчик коллбэка подтверждения
+#@dp.message(Form.confirm_summ)
+@dp.message(Form.add_summ, F.content_type.in_({'Подтвердить'}))
+async def calculate(message: Message, state: FSMContext):
+    print("0000000000000000")
+    state_data = await state.get_data()
+    summ = state_data["summ"]
+
+    try:
+        if summ == 50:
+            print("jjjj")
+
+
+        await message.answer("fff")
+        await state.clear()
+
+    except ValueError:
+        pass
+
+
+    print(summ)
+    await state.clear()                    
+
+
+# @dp.callback_query(F.data == 'confirm_summ_user') #, Form.confirm_summ
+# async def process_confirm_summ(callback_query, state: FSMContext):
+#     # Извлекаем id пользователя из callback_data
+#     admin_id =  admin_user_ids[1:-1]
+#     #id = user_id(message.id)
+#     print(admin_id)
+#     await bot.answer_callback_query(callback_query.id)
+#     await bot.send_message(callback_query.from_user.id, "Сумма подтверждена!")
+#     await state.clear()
+
+
+
+# @dp.message(Form.confirm_summ)
+# async def token_inputed(message: Message, state: FSMContext):
+#     admin_id =  admin_user_ids[1:-1]
+#     id = user_id(message.id)
+#     #State
+#     data = await state.get_data()
+#     # id = data.get('id')
+#     summ = data.get('summ')
+#     # #admin_id = data.get('admin_id')
+#     # mes_id = data.get('mes_id')
+
+#     await bot.send_message(admin_id, f"id: {id}, summ: {summ}")
+
+        # ничего не делаем
+
+    #await call.answer()
+    #await bot.answer_callback_query(call.id)
+
+
+
+    # admin_id =  admin_user_ids[1:-1]
+    # id = user_id(message.id)
+    # #State
+    # data = await state.get_data()
+    # # id = data.get('id')
+    # summ = data.get('summ')
+    # # #admin_id = data.get('admin_id')
+    # # mes_id = data.get('mes_id')
+
+    # await bot.send_message(admin_id, f"id: {id}, summ: {summ}")
 
 
 
 
-
-@dp.callback_query(lambda call: True)
-async def fdfdffddd(callback_query: types.CallbackQuery):
-    #bot.answer_callback_query(callback_query_id=call.id)
-    await bot.send_message(admin_id, f"111111111111")
-
-    admin_id =  admin_user_ids[1:-1]
-
-    if callback_query.data == 'count1':
-        await bot.send_message(admin_id, f"22222222222")
+    # await bot.send_message(message.id.from_user.id, "Сумма подтверждена!")
+    # await state.clear()
+    # qst_id = int(call.data.replace('confirm_summ_user', ''))
+    # async with ChatActionSender(bot=bot, chat_id=call.from_user.id, action="typing"):
+    #     info = await pg_db.select_data('questions', {'where_conditions': [{'id': qst_id}]})
+    #     await call.message.answer(info.get('answer'), reply_markup=main_kb(call.from_user.id))
 
 
-# @dp.message(Form.confirm_summ, lambda message: message.text == "Подтвердить")
-# async def confirm_summ_user(message: types.Message, state: FSMContext):
-#     # Ваша функция здесь
-#     await message.answer("Сумма подтверждена!")
 
-
+    # await state.update_data(summ=summ, id=id, admin_id=admin_id, mes_id=mes_id)
+    # #await state.set_state(Form.confirm_summ)
+    # await state.clear()
 
 
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! suka
 
-# @dp.message_handler(Form.confirm_summ, lambda c: c.data == 'confirm_summ_user')
-# # @dp.callback_query(Form.confirm_summ, lambda c: c.data == 'confirm_summ_user')
-# async def process_add_moneyy(callback_query: types.CallbackQuery, state: FSMContext):
+# @dp.callback_query(Form.confirm_summ, lambda c: c.data == 'confirm_summ_user')
+# async def process_add_moneyy(callback_query, state: FSMContext):
+#     await bot.send_message(callback_query.from_user.id, "Button has been pressed!")
 
-    # admin_id =  admin_user_ids[1:-1]
-    # #id = user_id(callback_query)
-    # #State
-    # data = await state.get_data()
-    # id = data.get('id')
-    # summ = data.get('summ')
-    # #admin_id = data.get('admin_id')
-    # mes_id = data.get('mes_id')
+#     admin_id =  admin_user_ids[1:-1]
+#     id = user_id(callback_query)
+#     #State
+#     data = await state.get_data()
+#     # id = data.get('id')
+#     summ = data.get('summ')
+#     # #admin_id = data.get('admin_id')
+#     # mes_id = data.get('mes_id')
 
+#     await bot.send_message(admin_id, f"id: {id}, summ: {summ}")
     # await bot.send_message(admin_id, f"id: {id}, summ: {summ}, admin_id: {admin_id}, mes_id: {mes_id}")
 
 #     # data_set = await get_settings(id)
@@ -940,7 +981,7 @@ async def fdfdffddd(callback_query: types.CallbackQuery):
 #     # await bot.send_message(callback_query.from_user.id, "Опппа")
 #     # #await bot.send_message(callback_query.from_user.id, "Привет")
 
-#     await bot.answer_callback_query(callback_query.id)
+    # await bot.answer_callback_query(callback_query.id)
     # await state.clear()
 
 
