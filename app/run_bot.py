@@ -806,7 +806,7 @@ async def process_sub_settings_add_money(callback_query: types.CallbackQuery):
 # State
 class Form(StatesGroup):
     add_summ = State()
-    # confirm_summ = State()
+    confirm_summ = State()
 
 
 # Нажал кнопку оплата картой РФ
@@ -817,12 +817,12 @@ async def start_invoice(callback_query: types.CallbackQuery, state: FSMContext):
     await state.set_state(Form.add_summ)
 
 
-# Ввожу сумму в RUB
+# ПОПОЛНЕНИЕ БАЛАНСА ПОЛУАВТОМАТИЧЕСКИ
 @dp.message(Form.add_summ, F.content_type.in_({'text'}))
 async def invoice_user(message: Message, state: FSMContext):
     
-    summ = message.text # Введенная сумма пользователем
-    # label = user_uuid # Сформерованный для проверки платежа UUiD4
+    mes_id = message.chat.id
+    summ = message.text
     id = user_id(message)
 
     if message.text.isdigit() is not True:
@@ -837,7 +837,6 @@ async def invoice_user(message: Message, state: FSMContext):
     url = f"tg://user?id={id}"
     await bot.send_message(admin_id, f"Пользователь: <a href='{url}'>{id}</a>, хочет пополнить счет на: {summ} РУБ", parse_mode="HTML") # to admin message
 
-    # Кнопка подтверждения
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
             [InlineKeyboardButton(text="👛 Подтвердить", callback_data="confirm_summ_user")], 
@@ -845,28 +844,43 @@ async def invoice_user(message: Message, state: FSMContext):
         ]
     )
     await bot.send_message(admin_id, f"Пополнить счет на {summ}:", reply_markup=keyboard)
-
-    @dp.callback_query(lambda c: c.data == 'confirm_summ_user')
-    async def process_add_money(callback_query: types.CallbackQuery):
-
-        data = await get_settings(id)
-        new_money = data.money + float(summ)
-
-        updated_data = {"money": new_money}
-        conf = await update_settings(id, updated_data)
-
-        if conf is True:
-            await bot.send_message(admin_id, f"Счет клиента попполнен, общий -  {new_money}.")
-            await bot.send_message(message.chat.id, f"Ваш счет пополнен на {summ}.")
-            await bot.answer_callback_query(callback_query.id)
-            return
-        else:
-            await bot.send_message(admin_id, f"Ошибка пополнения счета.")
-            await bot.answer_callback_query(callback_query.id)
-            return
-
     await bot.send_message(message.chat.id, f"Ваш запрос принят, ожидайте пополнения.")
-    await state.clear()
+
+    await state.update_data(summ=summ, id=id, admin_id=admin_id, mes_id=mes_id)
+
+
+    await state.set_state(Form_transfer.confirm_cripto)
+
+
+@dp.callback_query(Form.confirm_summ, lambda c: c.data == 'confirm_summ_user')
+async def process_add_money(callback_query: types.CallbackQuery, state: FSMContext):
+
+    #State
+    data = await state.get_data()
+    id = data.get('id')
+    summ = data.get('summ')
+    admin_id = data.get('admin_id')
+    mes_id = data.get('mes_id')
+
+    data = await get_settings(id)
+    new_money = data.money + float(summ)
+
+    updated_data = {"money": new_money}
+    conf = await update_settings(id, updated_data)
+
+    if conf is True:
+        await bot.send_message(admin_id, f"Счет клиента попполнен, общий -  {new_money}.")
+        await bot.send_message(mes_id, f"Ваш счет пополнен на {summ}.")
+        await bot.answer_callback_query(callback_query.id)
+        await state.clear()
+        return
+    else:
+        await bot.send_message(admin_id, f"Ошибка пополнения счета.")
+        await bot.answer_callback_query(callback_query.id)
+        await state.clear()
+        return
+
+
 
 
 # # При нажатии кнопки проверки оплаты
