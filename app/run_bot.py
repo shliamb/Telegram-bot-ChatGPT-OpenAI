@@ -846,7 +846,7 @@ async def invoice_user(message: Message, state: FSMContext):
     await bot.send_message(admin_id, f"Пополнить счет на {summ}:", reply_markup=keyboard)
     await bot.send_message(message.chat.id, f"Ваш запрос принят, ожидайте пополнения.")
 
-    await state.update_data(summ=summ, id=id, admin_id=admin_id, mes_id=mes_id)
+    #await state.update_data(summ=summ, id=id, admin_id=admin_id, mes_id=mes_id)
 
     await state.set_state(Form.confirm_summ)
 
