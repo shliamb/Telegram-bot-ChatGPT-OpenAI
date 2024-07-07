@@ -829,7 +829,7 @@ async def invoice_user(message: Message, state: FSMContext):
         await bot.send_message(message.chat.id, f"Введите только сумму цифрами.")
         return
 
-    if int(message.text) < 50:
+    if float(message.text) < 50:
         await bot.send_message(message.chat.id, f"Минимальная сумма 50 RUB.")
         return
 
