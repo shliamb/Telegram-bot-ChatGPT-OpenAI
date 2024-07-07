@@ -843,8 +843,8 @@ async def invoice_user(message: Message, state: FSMContext):
 
     kb = [
         [
-            # types.KeyboardButton(text="С пюрешкой"),
-            types.KeyboardButton(text="Подтвердить")
+            # types.KeyboardButton(text="С пюрешкой", callback_data='count1'),
+            types.KeyboardButton(text="Подтвердить", callback_data='count1')
         ],
     ]
     keyboard = types.ReplyKeyboardMarkup(
@@ -877,15 +877,27 @@ async def invoice_user(message: Message, state: FSMContext):
 
     #await state.update_data(summ=summ, id=id, admin_id=admin_id, mes_id=mes_id)
     await state.set_state(Form.confirm_summ)
-    #await state.clear()
+    await state.clear()
 
 
 
 
-@dp.message(Form.confirm_summ, lambda message: message.text == "Подтвердить")
-async def confirm_summ_user(message: types.Message, state: FSMContext):
-    # Ваша функция здесь
-    await message.answer("Сумма подтверждена!")
+
+@dp.callback_query(lambda call: True)
+async def fdfdffddd(callback_query: types.CallbackQuery):
+    #bot.answer_callback_query(callback_query_id=call.id)
+    await bot.send_message(admin_id, f"111111111111")
+
+    admin_id =  admin_user_ids[1:-1]
+
+    if callback_query.data == 'count1':
+        await bot.send_message(admin_id, f"22222222222")
+
+
+# @dp.message(Form.confirm_summ, lambda message: message.text == "Подтвердить")
+# async def confirm_summ_user(message: types.Message, state: FSMContext):
+#     # Ваша функция здесь
+#     await message.answer("Сумма подтверждена!")
 
 
 
@@ -896,16 +908,16 @@ async def confirm_summ_user(message: types.Message, state: FSMContext):
 # # @dp.callback_query(Form.confirm_summ, lambda c: c.data == 'confirm_summ_user')
 # async def process_add_moneyy(callback_query: types.CallbackQuery, state: FSMContext):
 
-    admin_id =  admin_user_ids[1:-1]
-    #id = user_id(callback_query)
-    #State
-    data = await state.get_data()
-    id = data.get('id')
-    summ = data.get('summ')
-    #admin_id = data.get('admin_id')
-    mes_id = data.get('mes_id')
+    # admin_id =  admin_user_ids[1:-1]
+    # #id = user_id(callback_query)
+    # #State
+    # data = await state.get_data()
+    # id = data.get('id')
+    # summ = data.get('summ')
+    # #admin_id = data.get('admin_id')
+    # mes_id = data.get('mes_id')
 
-    await bot.send_message(admin_id, f"id: {id}, summ: {summ}, admin_id: {admin_id}, mes_id: {mes_id}")
+    # await bot.send_message(admin_id, f"id: {id}, summ: {summ}, admin_id: {admin_id}, mes_id: {mes_id}")
 
 #     # data_set = await get_settings(id)
 #     # new_money = data_set.money + float(summ)
@@ -929,7 +941,7 @@ async def confirm_summ_user(message: types.Message, state: FSMContext):
 #     # #await bot.send_message(callback_query.from_user.id, "Привет")
 
 #     await bot.answer_callback_query(callback_query.id)
-    await state.clear()
+    # await state.clear()
 
 
 
