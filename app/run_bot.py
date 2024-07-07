@@ -811,7 +811,7 @@ async def process_sub_settings_add_money(callback_query: types.CallbackQuery):
 # State
 class Form_my_pay(StatesGroup):
     add_summ = State()
-    confirm_summ = State()
+    confirm_summt = State()
 
 
 @dp.callback_query(lambda c: c.data == 'pay_by_card')
@@ -832,7 +832,7 @@ async def invoice_user_1(message: Message, state: FSMContext):
     url = f"tg://user?id={id}"
 
     # Формирование данных передаваемых на следующий шаг по state
-    await state.update_data(id=id)#, summ=summ, admin_id=admin_id, mes_id=mes_id)
+    await state.update_data(summ=summ, admin_id=admin_id, mes_id=mes_id, id=id)
 
     # Проверка на число
     if message.text.isdigit() is not True:
@@ -853,28 +853,41 @@ async def invoice_user_1(message: Message, state: FSMContext):
     await bot.send_message(message.chat.id, f"Ваш запрос принят, ожидайте пополнения.")
 
     # Ожидание следующего шага
-    await state.set_state(Form_my_pay.confirm_summ)
-
-
-
-@dp.message(Form_my_pay.add_summ, F.content_type.in_({'text'}))
-async def invoice_user_1(message: Message, state: FSMContext):
-    pass
+    await state.set_state(Form_my_pay.confirm_summt)
 
 
 
 
 # Обработчик коллбэка подтверждения
-@dp.callback_query(Form_my_pay.confirm_summ, lambda c: c.data == 'confirm_summ_user') # Form_my_pay.confirm_summ,
+@dp.callback_query(Form_my_pay.confirm_summt, lambda c: c.data == 'confirm_summ_user') # Form_my_pay.confirm_summ,
 async def confirm_my_py(callback_query: types.CallbackQuery, state: FSMContext):
     
     # Получение данных из state
-    admin_id =  admin_user_ids[1:-1]
     state_data = await state.get_data()
     id = state_data.get('id')
-    print(admin_id)
-    await bot.answer_callback_query(callback_query.id)
-    await state.clear()
+    summ = state_data.get('summ')
+    admin_id = state_data.get('admin_id')
+    mes_id = state_data.get('mes_id')
+
+
+    data_set = await get_settings(id)
+    new_money = data_set.money + float(summ)
+
+    updated_data = {"money": new_money}
+    conf = await update_settings(id, updated_data)
+
+    if conf is True:
+        await bot.send_message(admin_id, f"Счет клиента пополнен, общий -  {new_money}.")
+        await bot.send_message(mes_id, f"Ваш счет пополнен на {summ}.")
+        await bot.answer_callback_query(callback_query.id)
+        await state.clear()
+        return
+    else:
+        await bot.send_message(admin_id, f"Ошибка пополнения счета.")
+        await bot.answer_callback_query(callback_query.id)
+        await state.clear()
+        return
+
                  
 
 
