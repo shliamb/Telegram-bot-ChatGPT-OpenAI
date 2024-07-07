@@ -802,32 +802,39 @@ async def process_sub_settings_add_money(callback_query: types.CallbackQuery):
     await bot.answer_callback_query(callback_query.id)
 
 
-# Start buy RUB by card Yoomoney
-# Settings - pay by card RF
 
+
+
+
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # State
-class Form(StatesGroup):
+class Form_my_pay(StatesGroup):
     add_summ = State()
     confirm_summ = State()
 
 
-# Нажал кнопку оплата картой РФ
-#@dp.callback_query(lambda c: c.data == 'pay_by_card')
-@dp.callback_query(F.data == 'pay_by_card')
+@dp.callback_query(lambda c: c.data == 'pay_by_card')
 async def start_invoice(callback_query: types.CallbackQuery, state: FSMContext):
     await bot.send_message(callback_query.from_user.id, "Введите сумму пополнения в RUB:", reply_markup=ReplyKeyboardRemove()) # !!!!
-    await bot.answer_callback_query(callback_query.id)
-    await state.set_state(Form.add_summ)
+    await bot.answer_callback_query(callback_query.id) # Закрытие сесси кнопки
+    await state.set_state(Form_my_pay.add_summ) # Ожидание следующего шага
 
 
-# ПОПОЛНЕНИЕ БАЛАНСА ПОЛУАВТОМАТИЧЕСКИ
-@dp.message(Form.add_summ, F.content_type.in_({'text'}))
-async def invoice_user(message: Message, state: FSMContext):
+@dp.message(Form_my_pay.add_summ, F.content_type.in_({'text'}))
+async def invoice_user_1(message: Message, state: FSMContext):
     
+    # Сбор данных:
     mes_id = message.chat.id
     summ = message.text
     id = user_id(message)
+    admin_id =  admin_user_ids[1:-1]
+    url = f"tg://user?id={id}"
 
+    # Формирование данных передаваемых на следующий шаг по state
+    await state.update_data(id=id)#, summ=summ, admin_id=admin_id, mes_id=mes_id)
+
+    # Проверка на число
     if message.text.isdigit() is not True:
         await bot.send_message(message.chat.id, f"Введите только сумму цифрами.")
         return
@@ -836,50 +843,39 @@ async def invoice_user(message: Message, state: FSMContext):
         await bot.send_message(message.chat.id, f"Минимальная сумма 50 RUB.")
         return
 
-
-
-    admin_id =  admin_user_ids[1:-1]
-    url = f"tg://user?id={id}"
-
-
-
+    # Кнопка подтверждения
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="Подтвердить")], # text="👛 Подтвердить" url="confirm_summ_user"
+            [InlineKeyboardButton(text="👛 Подтвердить", callback_data="confirm_summ_user")], 
         ]
     )
     await bot.send_message(admin_id, f"Пользователь: <a href='{url}'>{id}</a>, хочет пополнить счет на: {summ} РУБ", parse_mode="HTML", reply_markup=keyboard)
     await bot.send_message(message.chat.id, f"Ваш запрос принят, ожидайте пополнения.")
 
+    # Ожидание следующего шага
+    await state.set_state(Form_my_pay.confirm_summ)
 
-    await state.update_data(summ=summ, id=id, admin_id=admin_id, mes_id=mes_id)
-    #await callback.answer()
-    await state.set_state(Form.confirm_summ)
+
+
+@dp.message(Form_my_pay.add_summ, F.content_type.in_({'text'}))
+async def invoice_user_1(message: Message, state: FSMContext):
+    pass
+
 
 
 
 # Обработчик коллбэка подтверждения
-#@dp.message(Form.confirm_summ)
-@dp.message(Form.add_summ, F.content_type.in_({'Подтвердить'}))
-async def calculate(message: Message, state: FSMContext):
-    print("0000000000000000")
+@dp.callback_query(Form_my_pay.confirm_summ, lambda c: c.data == 'confirm_summ_user') # Form_my_pay.confirm_summ,
+async def confirm_my_py(callback_query: types.CallbackQuery, state: FSMContext):
+    
+    # Получение данных из state
+    admin_id =  admin_user_ids[1:-1]
     state_data = await state.get_data()
-    summ = state_data["summ"]
-
-    try:
-        if summ == 50:
-            print("jjjj")
-
-
-        await message.answer("fff")
-        await state.clear()
-
-    except ValueError:
-        pass
-
-
-    print(summ)
-    await state.clear()                    
+    id = state_data.get('id')
+    print(admin_id)
+    await bot.answer_callback_query(callback_query.id)
+    await state.clear()
+                 
 
 
 # @dp.callback_query(F.data == 'confirm_summ_user') #, Form.confirm_summ
