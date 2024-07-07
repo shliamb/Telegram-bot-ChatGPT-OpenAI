@@ -849,7 +849,7 @@ async def invoice_user(message: Message, state: FSMContext):
     await state.update_data(summ=summ, id=id, admin_id=admin_id, mes_id=mes_id)
 
 
-    await state.set_state(Form_transfer.confirm_cripto)
+    await state.set_state(Form.confirm_cripto)
 
 
 @dp.callback_query(Form.confirm_summ, lambda c: c.data == 'confirm_summ_user')
@@ -869,7 +869,7 @@ async def process_add_money(callback_query: types.CallbackQuery, state: FSMConte
     conf = await update_settings(id, updated_data)
 
     if conf is True:
-        await bot.send_message(admin_id, f"Счет клиента попполнен, общий -  {new_money}.")
+        await bot.send_message(admin_id, f"Счет клиента пополнен, общий -  {new_money}.")
         await bot.send_message(mes_id, f"Ваш счет пополнен на {summ}.")
         await bot.answer_callback_query(callback_query.id)
         await state.clear()
