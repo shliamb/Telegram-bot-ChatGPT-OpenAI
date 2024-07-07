@@ -853,8 +853,11 @@ async def invoice_user(message: Message, state: FSMContext):
 
 
 
-@dp.callback_query(Form.confirm_summ, lambda c: c.data == 'confirm_summ_user')
-async def process_add_moneyy(callback_query: types.CallbackQuery, state: FSMContext):
+# @dp.callback_query(Form.confirm_summ, lambda c: c.data == 'confirm_summ_user')
+# async def process_add_moneyy(callback_query: types.CallbackQuery, state: FSMContext):
+
+@dp.callback_query(lambda c: c.data == 'confirm_summ_user', state=Form.confirm_summ)
+async def first_step(callback_query: types.CallbackQuery, state: FSMContext):
 
     #id = user_id(callback_query)
     #State
