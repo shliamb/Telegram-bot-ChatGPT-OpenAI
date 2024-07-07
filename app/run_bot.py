@@ -841,10 +841,26 @@ async def invoice_user(message: Message, state: FSMContext):
 
 
 
-    keyboard = ReplyKeyboardMarkup(
+    kb = [
+        [
+            # types.KeyboardButton(text="С пюрешкой"),
+            types.KeyboardButton(text="Подтвердить")
+        ],
+    ]
+    keyboard = types.ReplyKeyboardMarkup(
+        keyboard=kb,
         resize_keyboard=True,
-        one_time_keyboard=True
-    ).add(KeyboardButton("👛 Подтвердить"))
+        input_field_placeholder="Выберите способ подачи"
+    )
+
+    await bot.send_message(admin_id, f"Пользователь: <a href='{url}'>{id}</a>, хочет пополнить счет на: {summ} РУБ", parse_mode="HTML", reply_markup=keyboard)
+
+
+
+    # keyboard = ReplyKeyboardMarkup(
+    #     resize_keyboard=True,
+    #     one_time_keyboard=True
+    # ).add(KeyboardButton("👛 Подтвердить"))
 
     #await message.answer("Нажмите кнопку ниже:", reply_markup=keyboard)
 
@@ -856,12 +872,21 @@ async def invoice_user(message: Message, state: FSMContext):
 
     #     ]
     # )
-    await bot.send_message(admin_id, f"Пополнить счет на {summ}:", reply_markup=keyboard)
+    # await bot.send_message(admin_id, f"Пополнить счет на {summ}:", reply_markup=keyboard)
     await bot.send_message(message.chat.id, f"Ваш запрос принят, ожидайте пополнения.")
 
-    # await state.update_data(summ=summ, id=id, admin_id=admin_id, mes_id=mes_id)
-    # await state.set_state(Form.confirm_summ)
-    await state.clear()
+    #await state.update_data(summ=summ, id=id, admin_id=admin_id, mes_id=mes_id)
+    await state.set_state(Form.confirm_summ)
+    #await state.clear()
+
+
+
+
+@dp.message(Form.confirm_summ, lambda message: message.text == "Подтвердить")
+async def confirm_summ_user(message: types.Message, state: FSMContext):
+    # Ваша функция здесь
+    await message.answer("Сумма подтверждена!")
+
 
 
 
@@ -871,16 +896,16 @@ async def invoice_user(message: Message, state: FSMContext):
 # # @dp.callback_query(Form.confirm_summ, lambda c: c.data == 'confirm_summ_user')
 # async def process_add_moneyy(callback_query: types.CallbackQuery, state: FSMContext):
 
-#     admin_id =  admin_user_ids[1:-1]
-#     #id = user_id(callback_query)
-#     #State
-#     data = await state.get_data()
-#     id = data.get('id')
-#     summ = data.get('summ')
-#     #admin_id = data.get('admin_id')
-#     mes_id = data.get('mes_id')
+    admin_id =  admin_user_ids[1:-1]
+    #id = user_id(callback_query)
+    #State
+    data = await state.get_data()
+    id = data.get('id')
+    summ = data.get('summ')
+    #admin_id = data.get('admin_id')
+    mes_id = data.get('mes_id')
 
-#     await bot.send_message(admin_id, f"id: {id}, summ: {summ}, admin_id: {admin_id}, mes_id: {mes_id}")
+    await bot.send_message(admin_id, f"id: {id}, summ: {summ}, admin_id: {admin_id}, mes_id: {mes_id}")
 
 #     # data_set = await get_settings(id)
 #     # new_money = data_set.money + float(summ)
@@ -904,7 +929,8 @@ async def invoice_user(message: Message, state: FSMContext):
 #     # #await bot.send_message(callback_query.from_user.id, "Привет")
 
 #     await bot.answer_callback_query(callback_query.id)
-#     await state.clear()
+    await state.clear()
+
 
 
 
