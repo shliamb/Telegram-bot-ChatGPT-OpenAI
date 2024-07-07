@@ -862,8 +862,8 @@ async def process_add_money(callback_query: types.CallbackQuery, state: FSMConte
     admin_id = data.get('admin_id')
     mes_id = data.get('mes_id')
 
-    data = await get_settings(id)
-    new_money = data.money + float(summ)
+    data_set = await get_settings(id)
+    new_money = data_set.money + float(summ)
 
     updated_data = {"money": new_money}
     conf = await update_settings(id, updated_data)
