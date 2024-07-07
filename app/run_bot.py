@@ -855,11 +855,11 @@ async def invoice_user(message: Message, state: FSMContext):
 async def process_add_money(callback_query: types.CallbackQuery, state: FSMContext):
 
     #State
-    data = await state.get_data()
-    id = data.get('id')
-    summ = data.get('summ')
-    admin_id = data.get('admin_id')
-    mes_id = data.get('mes_id')
+    # data = await state.get_data()
+    # id = data.get('id')
+    # summ = data.get('summ')
+    # admin_id = data.get('admin_id')
+    # mes_id = data.get('mes_id')
 
 
     #data_set = await get_settings(id)
@@ -880,7 +880,8 @@ async def process_add_money(callback_query: types.CallbackQuery, state: FSMConte
     #     await state.clear()
     #     return
 
-    await bot.send_message(admin_id, f"id: {id}, summ: {summ}, admin_id: {admin_id}, mes_id: {mes_id}")#, data_set: {data_set.money}")
+    await bot.send_message("Привет")
+    # await bot.send_message(admin_id, f"id: {id}, summ: {summ}, admin_id: {admin_id}, mes_id: {mes_id}")#, data_set: {data_set.money}")
     await bot.answer_callback_query(callback_query.id)
     await state.clear()
 
