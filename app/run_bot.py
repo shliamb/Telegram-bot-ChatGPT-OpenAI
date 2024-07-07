@@ -862,24 +862,25 @@ async def process_add_moneyy(callback_query: types.CallbackQuery, state: FSMCont
     admin_id = data.get('admin_id')
     mes_id = data.get('mes_id')
 
+    await bot.send_message(admin_id, f"id: {id}, summ: {summ}, admin_id: {admin_id}, mes_id: {mes_id}")#, data_set: {data_set.money}")
 
-    data_set = await get_settings(id)
-    new_money = data_set.money + float(summ)
+    # data_set = await get_settings(id)
+    # new_money = data_set.money + float(summ)
 
-    updated_data = {"money": new_money}
-    conf = await update_settings(id, updated_data)
+    # updated_data = {"money": new_money}
+    # conf = await update_settings(id, updated_data)
 
-    if conf is True:
-        await bot.send_message(admin_id, f"Счет клиента пополнен, общий -  {new_money}.")
-        await bot.send_message(mes_id, f"Ваш счет пополнен на {summ}.")
-        await bot.answer_callback_query(callback_query.id)
-        await state.clear()
-        return
-    else:
-        await bot.send_message(admin_id, f"Ошибка пополнения счета.")
-        await bot.answer_callback_query(callback_query.id)
-        await state.clear()
-        return
+    # if conf is True:
+    #     await bot.send_message(admin_id, f"Счет клиента пополнен, общий -  {new_money}.")
+    #     await bot.send_message(mes_id, f"Ваш счет пополнен на {summ}.")
+    #     await bot.answer_callback_query(callback_query.id)
+    #     await state.clear()
+    #     return
+    # else:
+    #     await bot.send_message(admin_id, f"Ошибка пополнения счета.")
+    #     await bot.answer_callback_query(callback_query.id)
+    #     await state.clear()
+    #     return
 
     # await bot.send_message(callback_query.from_user.id, "Опппа")
     # #await bot.send_message(callback_query.from_user.id, "Привет")
