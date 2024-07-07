@@ -807,8 +807,8 @@ async def process_sub_settings_add_money(callback_query: types.CallbackQuery):
 
 
 
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# State
+#### СНОВНАЯ ФОРМА ОПЛАТЫ ####
+# Set State
 class Form_my_pay(StatesGroup):
     add_summ = State()
     confirm_summt = State()
@@ -836,7 +836,7 @@ async def invoice_user_1(message: Message, state: FSMContext):
 
     # Проверка на число
     if message.text.isdigit() is not True:
-        await bot.send_message(message.chat.id, f"Введите только сумму цифрами.")
+        await bot.send_message(message.chat.id, f"Введите только сумму цифрами в RUB.")
         return
 
     if float(summ) < 50:
@@ -856,8 +856,6 @@ async def invoice_user_1(message: Message, state: FSMContext):
     await state.set_state(Form_my_pay.confirm_summt)
 
 
-
-
 # Обработчик коллбэка подтверждения
 @dp.callback_query(Form_my_pay.confirm_summt, lambda c: c.data == 'confirm_summ_user') # Form_my_pay.confirm_summ,
 async def confirm_my_py(callback_query: types.CallbackQuery, state: FSMContext):
@@ -869,6 +867,7 @@ async def confirm_my_py(callback_query: types.CallbackQuery, state: FSMContext):
     admin_id = state_data.get('admin_id')
     mes_id = state_data.get('mes_id')
 
+    print(f"id: {id}, summ: {summ}, admin_id: {admin_id}, mes_id: {mes_id}")
 
     data_set = await get_settings(id)
     new_money = data_set.money + float(summ)
@@ -878,7 +877,7 @@ async def confirm_my_py(callback_query: types.CallbackQuery, state: FSMContext):
 
     if conf is True:
         await bot.send_message(admin_id, f"Счет клиента пополнен, общий -  {new_money}.")
-        await bot.send_message(mes_id, f"Ваш счет пополнен на {summ}.")
+        await bot.send_message(mes_id, f"Ваш счет пополнен на {summ} RUB.")
         await bot.answer_callback_query(callback_query.id)
         await state.clear()
         return
@@ -891,175 +890,7 @@ async def confirm_my_py(callback_query: types.CallbackQuery, state: FSMContext):
                  
 
 
-# @dp.callback_query(F.data == 'confirm_summ_user') #, Form.confirm_summ
-# async def process_confirm_summ(callback_query, state: FSMContext):
-#     # Извлекаем id пользователя из callback_data
-#     admin_id =  admin_user_ids[1:-1]
-#     #id = user_id(message.id)
-#     print(admin_id)
-#     await bot.answer_callback_query(callback_query.id)
-#     await bot.send_message(callback_query.from_user.id, "Сумма подтверждена!")
-#     await state.clear()
 
-
-
-# @dp.message(Form.confirm_summ)
-# async def token_inputed(message: Message, state: FSMContext):
-#     admin_id =  admin_user_ids[1:-1]
-#     id = user_id(message.id)
-#     #State
-#     data = await state.get_data()
-#     # id = data.get('id')
-#     summ = data.get('summ')
-#     # #admin_id = data.get('admin_id')
-#     # mes_id = data.get('mes_id')
-
-#     await bot.send_message(admin_id, f"id: {id}, summ: {summ}")
-
-        # ничего не делаем
-
-    #await call.answer()
-    #await bot.answer_callback_query(call.id)
-
-
-
-    # admin_id =  admin_user_ids[1:-1]
-    # id = user_id(message.id)
-    # #State
-    # data = await state.get_data()
-    # # id = data.get('id')
-    # summ = data.get('summ')
-    # # #admin_id = data.get('admin_id')
-    # # mes_id = data.get('mes_id')
-
-    # await bot.send_message(admin_id, f"id: {id}, summ: {summ}")
-
-
-
-
-    # await bot.send_message(message.id.from_user.id, "Сумма подтверждена!")
-    # await state.clear()
-    # qst_id = int(call.data.replace('confirm_summ_user', ''))
-    # async with ChatActionSender(bot=bot, chat_id=call.from_user.id, action="typing"):
-    #     info = await pg_db.select_data('questions', {'where_conditions': [{'id': qst_id}]})
-    #     await call.message.answer(info.get('answer'), reply_markup=main_kb(call.from_user.id))
-
-
-
-    # await state.update_data(summ=summ, id=id, admin_id=admin_id, mes_id=mes_id)
-    # #await state.set_state(Form.confirm_summ)
-    # await state.clear()
-
-
-#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! suka
-
-# @dp.callback_query(Form.confirm_summ, lambda c: c.data == 'confirm_summ_user')
-# async def process_add_moneyy(callback_query, state: FSMContext):
-#     await bot.send_message(callback_query.from_user.id, "Button has been pressed!")
-
-#     admin_id =  admin_user_ids[1:-1]
-#     id = user_id(callback_query)
-#     #State
-#     data = await state.get_data()
-#     # id = data.get('id')
-#     summ = data.get('summ')
-#     # #admin_id = data.get('admin_id')
-#     # mes_id = data.get('mes_id')
-
-#     await bot.send_message(admin_id, f"id: {id}, summ: {summ}")
-    # await bot.send_message(admin_id, f"id: {id}, summ: {summ}, admin_id: {admin_id}, mes_id: {mes_id}")
-
-#     # data_set = await get_settings(id)
-#     # new_money = data_set.money + float(summ)
-
-#     # updated_data = {"money": new_money}
-#     # conf = await update_settings(id, updated_data)
-
-#     # if conf is True:
-#     #     await bot.send_message(admin_id, f"Счет клиента пополнен, общий -  {new_money}.")
-#     #     await bot.send_message(mes_id, f"Ваш счет пополнен на {summ}.")
-#     #     await bot.answer_callback_query(callback_query.id)
-#     #     await state.clear()
-#     #     return
-#     # else:
-#     #     await bot.send_message(admin_id, f"Ошибка пополнения счета.")
-#     #     await bot.answer_callback_query(callback_query.id)
-#     #     await state.clear()
-#     #     return
-
-#     # await bot.send_message(callback_query.from_user.id, "Опппа")
-#     # #await bot.send_message(callback_query.from_user.id, "Привет")
-
-    # await bot.answer_callback_query(callback_query.id)
-    # await state.clear()
-
-
-
-
-
-# # При нажатии кнопки проверки оплаты
-# @dp.callback_query(lambda c: c.data == 'confirm_summ_user')
-# async def process_add_money(callback_query: types.CallbackQuery):
-#     # await sub_add_money(bot, callback_query)
-#     admin_id =  admin_user_ids[1:-1]
-
-#     data = await get_settings(id)
-
-
-
-#     await bot.send_message(admin_id, "Счет клиента попполнен.")
-#     await bot.answer_callback_query(callback_query.id)
-
-
-
-
-
-
-# # При нажатии кнопки проверки оплаты
-# @dp.callback_query(Form.confirm_summ, lambda c: c.data == 'confirm_summ_card')
-# async def process_sub_confirm_summ_card(callback_query: types.CallbackQuery, state: FSMContext):
-#     if work_in_progress == True:
-#         await worc_in_progress(callback_query)
-#         return
-
-#     data = await state.get_data()
-#     user_uuid = data.get('user_uuid')
-#     percent = data.get('percent')
-#     summ = data.get('summ')
-#     # id = data.get('id')
-   
-#     token = token_yoomoney
-#     client = Client(token)
-#     history = client.operation_history(label=user_uuid)
-#     logging.info("List of operations:")
-#     logging.info(f"Next page starts with: {history.next_record}")
-
-
-#     loadf = []
-
-#     for operation in history.operations:
-#         loadf.append(operation.label)
-#         logging.info(f"Order has been paid! Operation: {operation.operation_id}, Status: {operation.status}, Datetime: {operation.datetime}, Title: {operation.title}, Pattern id: {operation.pattern_id}, Direction: {operation.direction}, Amount: {operation.amount}, Label: {operation.label}, Type: {operation.type}")
-
-#     # Если не найдено совпадений
-#     if loadf == []:
-#         logging.info("Payment was not found")
-#         await bot.send_message(callback_query.from_user.id, "Оплата не найдена, попробуйте позже.")
-#         await asyncio.sleep(5)
-#         await bot.answer_callback_query(callback_query.id)
-#         return
-    
-#     # Найдено совпадение   
-#     if user_uuid == operation.label:
-#         # Отправляем высчитать и закинуть в базу, вернет сумма - коммисия
-#         remains_pay =  await add_money_by_card(data)
-#         await bot.send_message(callback_query.from_user.id, f"Ваш платеж подтвержден:\nОплачено: {summ} RUB,\nКомиссия Yoomoney: {percent}%,\nЗачисленно: {remains_pay} RUB.")
-#         user_uuid = ""
-#         loadf = []
-#         logging.info("Payment has been made")
-#         await bot.answer_callback_query(callback_query.id)
-#         await state.clear()
-####
 
 
 
