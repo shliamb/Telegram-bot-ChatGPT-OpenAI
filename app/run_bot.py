@@ -847,23 +847,20 @@ async def invoice_user(message: Message, state: FSMContext):
     await bot.send_message(message.chat.id, f"Ваш запрос принят, ожидайте пополнения.")
 
     #await state.update_data(summ=summ, id=id, admin_id=admin_id, mes_id=mes_id)
+    await state.update_data(summ=summ)
 
-    #await state.set_state(Form.confirm_summ)
-    await state.clear()
-
-
-# @dp.callback_query(Form.confirm_summ, lambda c: c.data == 'confirm_summ_user')
-# async def process_add_money(callback_query: types.CallbackQuery, state: FSMContext):
+    await state.set_state(Form.confirm_summ)
 
 
-@dp.callback_query(lambda c: c.data == 'confirm_summ_user')
-async def process_add_money(callback_query: types.CallbackQuery):
+
+@dp.callback_query(Form.confirm_summ, lambda c: c.data == 'confirm_summ_user')
+async def process_add_moneyy(callback_query: types.CallbackQuery, state: FSMContext):
 
     #id = user_id(callback_query)
     #State
-    # data = await state.get_data()
+    data = await state.get_data()
     # id = data.get('id')
-    # summ = data.get('summ')
+    summ = data.get('summ')
     # admin_id = data.get('admin_id')
     # mes_id = data.get('mes_id')
 
@@ -888,12 +885,12 @@ async def process_add_money(callback_query: types.CallbackQuery):
 
     #await bot.send_message("Привет")
     #await bot.answer("привет")
-    print("гортово")
+    print(f"гортово {summ}")
     await bot.send_message(callback_query.from_user.id, "Опппа")
     #await bot.send_message(callback_query.from_user.id, "Привет")
     # await bot.send_message(admin_id, f"id: {id}, summ: {summ}, admin_id: {admin_id}, mes_id: {mes_id}")#, data_set: {data_set.money}")
     await bot.answer_callback_query(callback_query.id)
-    #await state.clear()
+    await state.clear()
 
 
 
