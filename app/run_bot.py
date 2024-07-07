@@ -830,7 +830,7 @@ async def invoice_user_1(message: Message, state: FSMContext):
     id = user_id(message)
     admin_id =  admin_user_ids[1:-1]
     url = f"tg://user?id={id}"
-    
+
     print(f"id: {id}, summ: {summ}, admin_id: {admin_id}, mes_id: {mes_id}")
 
     # Формирование данных передаваемых на следующий шаг по state
@@ -861,15 +861,23 @@ async def invoice_user_1(message: Message, state: FSMContext):
 # Обработчик коллбэка подтверждения
 @dp.callback_query(Form_my_pay.confirm_summt, lambda c: c.data == 'confirm_summ_user') # Form_my_pay.confirm_summ,
 async def confirm_my_py(callback_query: types.CallbackQuery, state: FSMContext):
-    
+    print("is confirm coint")
     # Получение данных из state
     state_data = await state.get_data()
-    id = state_data.get('id')
-    summ = state_data.get('summ')
-    admin_id = state_data.get('admin_id')
-    mes_id = state_data.get('mes_id')
 
-    print(f"id: {id}, summ: {summ}, admin_id: {admin_id}, mes_id: {mes_id}")
+    id = state_data.get('id')
+    print(f"id: {id}")
+
+    summ = state_data.get('summ')
+    print(f"summ: {summ}")
+
+    admin_id = state_data.get('admin_id')
+    print(f"admin_id: {admin_id}")
+
+    mes_id = state_data.get('mes_id')
+    print(f"mes_id: {mes_id}")
+
+    # print(f"id: {id}, summ: {summ}, admin_id: {admin_id}, mes_id: {mes_id}")
 
     data_set = await get_settings(id)
     new_money = data_set.money + float(summ)
@@ -888,8 +896,7 @@ async def confirm_my_py(callback_query: types.CallbackQuery, state: FSMContext):
         await bot.answer_callback_query(callback_query.id)
         await state.clear()
         return
-
-                 
+   
 
 
 
