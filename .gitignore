@@ -2,4 +2,5 @@ app/.env
 app/__pycache__/
 /venv/
 /test.py
+app/test.py
 .env

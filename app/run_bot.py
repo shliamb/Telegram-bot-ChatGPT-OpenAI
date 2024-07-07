@@ -884,9 +884,9 @@ async def process_add_money(callback_query: types.CallbackQuery, state: FSMConte
     #await bot.send_message("Привет")
     #await bot.answer("привет")
     print("гортово")
-    await bot.send_message(callback_query.from_user.id, "Привет")
+    #await bot.send_message(callback_query.from_user.id, "Привет")
     # await bot.send_message(admin_id, f"id: {id}, summ: {summ}, admin_id: {admin_id}, mes_id: {mes_id}")#, data_set: {data_set.money}")
-    #await bot.answer_callback_query(callback_query.id)
+    await bot.answer_callback_query(callback_query.id)
     await state.clear()
 
 
