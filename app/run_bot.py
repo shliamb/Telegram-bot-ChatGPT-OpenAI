@@ -830,6 +830,8 @@ async def invoice_user_1(message: Message, state: FSMContext):
     id = user_id(message)
     admin_id =  admin_user_ids[1:-1]
     url = f"tg://user?id={id}"
+    
+    print(f"id: {id}, summ: {summ}, admin_id: {admin_id}, mes_id: {mes_id}")
 
     # Формирование данных передаваемых на следующий шаг по state
     await state.update_data(summ=summ, admin_id=admin_id, mes_id=mes_id, id=id)
