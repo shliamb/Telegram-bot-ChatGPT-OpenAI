@@ -859,13 +859,11 @@ async def invoice_user(message: Message, state: FSMContext):
             await bot.send_message(admin_id, f"Счет клиента попполнен, общий -  {new_money}.")
             await bot.send_message(message.chat.id, f"Ваш счет пополнен на {summ}.")
             await bot.answer_callback_query(callback_query.id)
-            await state.clear()
+            return
         else:
             await bot.send_message(admin_id, f"Ошибка пополнения счета.")
             await bot.answer_callback_query(callback_query.id)
-            await state.clear()
-
-
+            return
 
     await bot.send_message(message.chat.id, f"Ваш запрос принят, ожидайте пополнения.")
     await state.clear()
