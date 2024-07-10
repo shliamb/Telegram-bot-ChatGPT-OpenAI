@@ -4,8 +4,8 @@ logging.getLogger('aiogram').propagate = False # Блокировка логир
 logging.basicConfig(level=logging.INFO, filename='log/app.log', filemode='a', format='%(levelname)s - %(asctime)s - %(name)s - %(message)s',) # При деплое активировать логирование в файл
 
 from keys import (
-    token, api_key, white_list, admin_user_ids, wallet_pay_token,
-    block, receiver_yoomoney, token_yoomoney
+    token, api_key, white_list, admin_user_ids,
+    block#, receiver_yoomoney, token_yoomoney, wallet_pay_token
                    )
 from about_bot import about_text
 from terms_of_use import terms
@@ -35,12 +35,12 @@ from backupdb import backup_db
 from restore_db import restore_db
 from add_money import add_money_by_card, add_money_wallet_pay, add_money_cripto
 #import task_backup
-from yoomoney import Quickpay
-from yoomoney import Client
-from WalletPay import AsyncWalletPayAPI
-from WalletPay import WalletPayAPI, WebhookManager
-from WalletPay.types import Event
-import uuid
+#from yoomoney import Quickpay
+# from yoomoney import Client
+# from WalletPay import AsyncWalletPayAPI
+# from WalletPay import WalletPayAPI, WebhookManager
+# from WalletPay.types import Event
+# import uuid
 from worker_db import (
     adding_user, get_user_by_id, update_user, add_settings, add_discussion, update_settings,
     get_settings, get_discussion, update_discussion, get_exchange, update_exchange, get_last_30_statistics,
@@ -811,9 +811,11 @@ async def process_sub_settings_add_money(callback_query: types.CallbackQuery):
 # Set State
 class Form_my_pay(StatesGroup):
     add_summ = State()
-    confirm_summt = State()
+    #confirm_summt = State()
 
 
+
+# Запуск цепочки
 @dp.callback_query(lambda c: c.data == 'pay_by_card')
 async def start_invoice(callback_query: types.CallbackQuery, state: FSMContext):
     await bot.send_message(callback_query.from_user.id, "Введите сумму пополнения в RUB:", reply_markup=ReplyKeyboardRemove()) # !!!!
@@ -821,20 +823,16 @@ async def start_invoice(callback_query: types.CallbackQuery, state: FSMContext):
     await state.set_state(Form_my_pay.add_summ) # Ожидание следующего шага
 
 
+
+# Ожидание получения суммы пополнения
 @dp.message(Form_my_pay.add_summ, F.content_type.in_({'text'}))
 async def invoice_user_1(message: Message, state: FSMContext):
-    
-    # Сбор данных:
+
     mes_id = message.chat.id
     summ = message.text
     id = user_id(message)
-    admin_id =  admin_user_ids[1:-1]
+    admin_id = admin_user_ids[1:-1]
     url = f"tg://user?id={id}"
-
-    print(f"id: {id}, summ: {summ}, admin_id: {admin_id}, mes_id: {mes_id}")
-
-    # Формирование данных передаваемых на следующий шаг по state
-    await state.update_data(summ=summ, admin_id=admin_id, mes_id=mes_id, id=id)
 
     # Проверка на число
     if message.text.isdigit() is not True:
@@ -845,39 +843,41 @@ async def invoice_user_1(message: Message, state: FSMContext):
         await bot.send_message(message.chat.id, f"Минимальная сумма 50 RUB.")
         return
 
+    # запускаю функцию и передаю данные для подтверждения админом.
+    await confirm_my_pyz(id, summ, admin_id, mes_id, url)
+
+    # Закрытие Stats
+    await state.clear()
+
+
+
+# Вызов у админа кнопки подтверждения
+async def confirm_my_pyz(id, summ, admin_id, mes_id, url):
     # Кнопка подтверждения
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="👛 Подтвердить", callback_data="confirm_summ_user")], 
+            [InlineKeyboardButton(text="👛 Подтвердить", callback_data=f"confirm_summ_user_d:{id}:{summ}:{admin_id}:{mes_id}")], 
         ]
     )
     await bot.send_message(admin_id, f"Пользователь: <a href='{url}'>{id}</a>, хочет пополнить счет на: {summ} РУБ", parse_mode="HTML", reply_markup=keyboard)
-    await bot.send_message(message.chat.id, f"Ваш запрос принят, ожидайте пополнения.")
-
-    # Ожидание следующего шага
-    await state.set_state(Form_my_pay.confirm_summt)
+    await bot.send_message(mes_id, f"Ваш запрос принят, ожидайте пополнения.")
+    return
 
 
-# Обработчик коллбэка подтверждения
-@dp.callback_query(Form_my_pay.confirm_summt, lambda c: c.data == 'confirm_summ_user') # Form_my_pay.confirm_summ,
-async def confirm_my_py(callback_query: types.CallbackQuery, state: FSMContext):
-    print("is confirm coint")
-    # Получение данных из state
-    state_data = await state.get_data()
 
-    id = state_data.get('id')
-    print(f"id: {id}")
 
-    summ = state_data.get('summ')
-    print(f"summ: {summ}")
-
-    admin_id = state_data.get('admin_id')
-    print(f"admin_id: {admin_id}")
-
-    mes_id = state_data.get('mes_id')
-    print(f"mes_id: {mes_id}")
-
-    # print(f"id: {id}, summ: {summ}, admin_id: {admin_id}, mes_id: {mes_id}")
+# Обработчик подтверждения
+@dp.callback_query(lambda c: c.data and c.data.startswith('confirm_summ_user_d'))
+async def confirm_callback_handler_d(callback_query: types.CallbackQuery):
+    data = callback_query.data.split(':')
+    if len(data) == 5:
+        id = data[1]
+        summ = data[2]
+        admin_id = data[3]
+        mes_id = data[4]
+    else:
+        await bot.answer_callback_query(callback_query.id, text="Ошибка в данных запроса.", show_alert=True)
+        return
 
     data_set = await get_settings(id)
     new_money = data_set.money + float(summ)
@@ -886,17 +886,19 @@ async def confirm_my_py(callback_query: types.CallbackQuery, state: FSMContext):
     conf = await update_settings(id, updated_data)
 
     if conf is True:
-        await bot.send_message(admin_id, f"Счет клиента пополнен, общий -  {new_money}.")
+        await bot.send_message(admin_id, f"Счет клиента {id} пополнен, общий -  {new_money}.")
         await bot.send_message(mes_id, f"Ваш счет пополнен на {summ} RUB.")
         await bot.answer_callback_query(callback_query.id)
-        await state.clear()
         return
     else:
         await bot.send_message(admin_id, f"Ошибка пополнения счета.")
         await bot.answer_callback_query(callback_query.id)
-        await state.clear()
         return
-   
+
+
+
+
+
 
 
 
@@ -911,128 +913,128 @@ async def confirm_my_py(callback_query: types.CallbackQuery, state: FSMContext):
 # Pay WALLET PAY
         
 # State
-class Form_Wallet(StatesGroup):
-    add_wallet = State()
-    confirm_walet = State()
+# class Form_Wallet(StatesGroup):
+#     add_wallet = State()
+#     confirm_walet = State()
 
-# Initialize the async API client
-api_walet = AsyncWalletPayAPI(api_key=wallet_pay_token)
+# # Initialize the async API client
+# api_walet = AsyncWalletPayAPI(api_key=wallet_pay_token)
 
-# Нажатие на кнопку оплаты Wallet Pay
-@dp.callback_query(lambda c: c.data == 'wallet_pay')
-async def process_sub_settings_add_money_wallet_pay(callback_query: types.CallbackQuery, state: FSMContext):
+# # Нажатие на кнопку оплаты Wallet Pay
+# @dp.callback_query(lambda c: c.data == 'wallet_pay')
+# async def process_sub_settings_add_money_wallet_pay(callback_query: types.CallbackQuery, state: FSMContext):
 
-    # Проверка на технические работы
-    if work_in_progress == True:
-        await worc_in_progress(callback_query)
-        return
+#     # Проверка на технические работы
+#     if work_in_progress == True:
+#         await worc_in_progress(callback_query)
+#         return
 
-    await bot.send_message(callback_query.from_user.id, "Введите сумму пополнения в RUB:", reply_markup=ReplyKeyboardRemove()) # !!!!
+#     await bot.send_message(callback_query.from_user.id, "Введите сумму пополнения в RUB:", reply_markup=ReplyKeyboardRemove()) # !!!!
     
-    # Закрытие сесси кнопки
-    await bot.answer_callback_query(callback_query.id)
+#     # Закрытие сесси кнопки
+#     await bot.answer_callback_query(callback_query.id)
 
-    # Ожидание следующего шага
-    await state.set_state(Form_Wallet.add_wallet)
-
-
-# Ввожу сумму в RUB
-@dp.message(Form_Wallet.add_wallet, F.content_type.in_({'text'}))
-async def invoice_user(message: Message, state: FSMContext):
-    # Проверка что цифры
-    if message.text.isdigit() is not True:
-        await bot.send_message(message.chat.id, f"Введите только сумму цифрами.")
-        return
-
-    # Сбор данных
-    id = user_id(message)
-    wallet_uuid = str(uuid.uuid4())
-    description_wallet_pay = "Пополнение баланса"
-    summ = message.text
-    currency = "RUB"
-    time_sesion = 60 * 60 * 1 # Час
-
-    # Create an order
-    order = await api_walet.create_order(
-        amount=summ,
-        currency_code = currency,
-        description = description_wallet_pay,
-        external_id = wallet_uuid, # ID счета на оплату в вашем боте
-        timeout_seconds = time_sesion, # время действия счета в секундах
-        customer_telegram_user_id = id # ID аккаунта Telegram покупателя
-    )
-
-    # Формирование данных передаваемых на следующий шаг по state
-    await state.update_data(currency=currency, wallet_uuid=wallet_uuid, summ=summ, id=id, order=order )
+#     # Ожидание следующего шага
+#     await state.set_state(Form_Wallet.add_wallet)
 
 
-    # Формирование ссылки кнопки на оплату
-    payLink = f"https://t.me/wallet/start?startapp=wpay_order-orderId__{order.id}&startApp=wpay_order-orderId__{order.id}"
+# # Ввожу сумму в RUB
+# @dp.message(Form_Wallet.add_wallet, F.content_type.in_({'text'}))
+# async def invoice_user(message: Message, state: FSMContext):
+#     # Проверка что цифры
+#     if message.text.isdigit() is not True:
+#         await bot.send_message(message.chat.id, f"Введите только сумму цифрами.")
+#         return
 
-    # Кнопка оплаты
-    keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="👛 Pay via Wallet", url=payLink)], 
+#     # Сбор данных
+#     id = user_id(message)
+#     wallet_uuid = str(uuid.uuid4())
+#     description_wallet_pay = "Пополнение баланса"
+#     summ = message.text
+#     currency = "RUB"
+#     time_sesion = 60 * 60 * 1 # Час
 
-        ]
-    )
-    await bot.send_message(message.chat.id, f"Пополнить счет на {summ} {currency} через WALLET PAY:", reply_markup=keyboard)
+#     # Create an order
+#     order = await api_walet.create_order(
+#         amount=summ,
+#         currency_code = currency,
+#         description = description_wallet_pay,
+#         external_id = wallet_uuid, # ID счета на оплату в вашем боте
+#         timeout_seconds = time_sesion, # время действия счета в секундах
+#         customer_telegram_user_id = id # ID аккаунта Telegram покупателя
+#     )
 
-    await asyncio.sleep(10)
-
-    # # Кнопка проверки оплаты Wallet Pay
-    keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="🔍 Проверить и зачислить", callback_data="confirm_summ_wallet")], 
-
-        ]
-    )
-    await message.answer("После оплаты, подтвердите ваш платеж: ", reply_markup=keyboard)
-
-    # Ожидание следующего шага
-    await state.set_state(Form_Wallet.confirm_walet)
+#     # Формирование данных передаваемых на следующий шаг по state
+#     await state.update_data(currency=currency, wallet_uuid=wallet_uuid, summ=summ, id=id, order=order )
 
 
+#     # Формирование ссылки кнопки на оплату
+#     payLink = f"https://t.me/wallet/start?startapp=wpay_order-orderId__{order.id}&startApp=wpay_order-orderId__{order.id}"
+
+#     # Кнопка оплаты
+#     keyboard = InlineKeyboardMarkup(
+#         inline_keyboard=[
+#             [InlineKeyboardButton(text="👛 Pay via Wallet", url=payLink)], 
+
+#         ]
+#     )
+#     await bot.send_message(message.chat.id, f"Пополнить счет на {summ} {currency} через WALLET PAY:", reply_markup=keyboard)
+
+#     await asyncio.sleep(10)
+
+#     # # Кнопка проверки оплаты Wallet Pay
+#     keyboard = InlineKeyboardMarkup(
+#         inline_keyboard=[
+#             [InlineKeyboardButton(text="🔍 Проверить и зачислить", callback_data="confirm_summ_wallet")], 
+
+#         ]
+#     )
+#     await message.answer("После оплаты, подтвердите ваш платеж: ", reply_markup=keyboard)
+
+#     # Ожидание следующего шага
+#     await state.set_state(Form_Wallet.confirm_walet)
 
 
-#  Нажатие кнопки проверки оплаты оплаты Wallet Pay
-@dp.callback_query(Form_Wallet.confirm_walet, lambda c: c.data == 'confirm_summ_wallet')
-async def process_sub_settings_add_confirm(callback_query: types.CallbackQuery, state: FSMContext):
 
-    # Проверка на технические работы
-    if work_in_progress == True:
-        await worc_in_progress(callback_query)
-        return
 
-    # Получение данных из state
-    data = await state.get_data()
-    order = data.get('order')
-    currency = data.get('currency')
-    wallet_uuid = data.get('wallet_uuid')
-    summ = data.get('summ')
-    id = data.get('id')
+# #  Нажатие кнопки проверки оплаты оплаты Wallet Pay
+# @dp.callback_query(Form_Wallet.confirm_walet, lambda c: c.data == 'confirm_summ_wallet')
+# async def process_sub_settings_add_confirm(callback_query: types.CallbackQuery, state: FSMContext):
+
+#     # Проверка на технические работы
+#     if work_in_progress == True:
+#         await worc_in_progress(callback_query)
+#         return
+
+#     # Получение данных из state
+#     data = await state.get_data()
+#     order = data.get('order')
+#     currency = data.get('currency')
+#     wallet_uuid = data.get('wallet_uuid')
+#     summ = data.get('summ')
+#     id = data.get('id')
     
-    #Get order list
-    #orders = await api_walet.get_order_list(offset=0, count=10)
-    # Get order amount  Получить сумму заказа
-    # amount = await api_walet.get_order_amount()
-     # Get order preview
-    order_preview = await api_walet.get_order_preview(order_id=order.id)
+#     #Get order list
+#     #orders = await api_walet.get_order_list(offset=0, count=10)
+#     # Get order amount  Получить сумму заказа
+#     # amount = await api_walet.get_order_amount()
+#      # Get order preview
+#     order_preview = await api_walet.get_order_preview(order_id=order.id)
 
 
-    # Check if the order is paid
-    if order_preview.status == "PAID":
-        await add_money_wallet_pay(data)
-        await bot.send_message(callback_query.from_user.id, f"Ваш платеж подтвержден:\nОплачено: *{summ} {currency}*,\nКомиссия на нас,\nЗачисленно: *{summ} {currency}*.")
-        logging.info(f"Order has been paid! user.id: {id}, order.id: {order.id}, order.status: {order.status}, order.number: {order.number}, wallet_uuid: {wallet_uuid}, summ: {summ}, currency: {currency}")
-        await bot.answer_callback_query(callback_query.id)
-        await state.clear()
-        return
-    else:
-        await bot.send_message(callback_query.from_user.id, "Оплата не найдена, попробуйте позже.")
-        logging.info("Order is not paid yet")
-        await asyncio.sleep(5)
-        await bot.answer_callback_query(callback_query.id)
+#     # Check if the order is paid
+#     if order_preview.status == "PAID":
+#         await add_money_wallet_pay(data)
+#         await bot.send_message(callback_query.from_user.id, f"Ваш платеж подтвержден:\nОплачено: *{summ} {currency}*,\nКомиссия на нас,\nЗачисленно: *{summ} {currency}*.")
+#         logging.info(f"Order has been paid! user.id: {id}, order.id: {order.id}, order.status: {order.status}, order.number: {order.number}, wallet_uuid: {wallet_uuid}, summ: {summ}, currency: {currency}")
+#         await bot.answer_callback_query(callback_query.id)
+#         await state.clear()
+#         return
+#     else:
+#         await bot.send_message(callback_query.from_user.id, "Оплата не найдена, попробуйте позже.")
+#         logging.info("Order is not paid yet")
+#         await asyncio.sleep(5)
+#         await bot.answer_callback_query(callback_query.id)
 
 
 
