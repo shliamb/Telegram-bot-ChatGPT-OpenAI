@@ -10,12 +10,12 @@ from aiogram import types
 async def main_menu(bot, message: types.Message):
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="⚙️ Настройки", callback_data="sub_setings")], 
-            [InlineKeyboardButton(text="🥡 Сброс диалога", callback_data="sub_dialog")],
-            [InlineKeyboardButton(text="💸 Финансы", callback_data="sub_balance")],
-            [InlineKeyboardButton(text="💡 Условия использования", callback_data="terms")],
-            [InlineKeyboardButton(text="🗯 О боте", callback_data="sub_about")],
-            [InlineKeyboardButton(text="Закрыть меню X", callback_data="close")]
+            [InlineKeyboardButton(text="⚙️ Настройки | Settings", callback_data="sub_setings")], 
+            [InlineKeyboardButton(text="🥡 Сброс диалога | Reset", callback_data="sub_dialog")],
+            [InlineKeyboardButton(text="💸 Финансы | Finance", callback_data="sub_balance")],
+            [InlineKeyboardButton(text="💡 Условия использования | Terms of use", callback_data="terms")],
+            [InlineKeyboardButton(text="🗯 О боте | About the bot", callback_data="sub_about")],
+            [InlineKeyboardButton(text="Закрыть меню | Close X", callback_data="close")]
         ]
     )
     await message.answer("Выберите действие:", reply_markup=keyboard)
@@ -24,12 +24,12 @@ async def main_menu(bot, message: types.Message):
 async def back_to_main(bot, callback_query: types.CallbackQuery):
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="⚙️ Настройки", callback_data="sub_setings")], 
-            [InlineKeyboardButton(text=" 🥡Сброс диалога", callback_data="sub_dialog")],
-            [InlineKeyboardButton(text="💸 Финансы", callback_data="sub_balance")],
-            [InlineKeyboardButton(text="💡 Условия использования", callback_data="terms")],
-            [InlineKeyboardButton(text="🗯 О боте", callback_data="sub_about")],
-            [InlineKeyboardButton(text="Закрыть меню X", callback_data="close")]
+            [InlineKeyboardButton(text="⚙️ Настройки | Settings", callback_data="sub_setings")], 
+            [InlineKeyboardButton(text=" 🥡 Сброс диалога | Reset", callback_data="sub_dialog")],
+            [InlineKeyboardButton(text="💸 Финансы | Finance", callback_data="sub_balance")],
+            [InlineKeyboardButton(text="💡 Условия использования | Terms of use", callback_data="terms")],
+            [InlineKeyboardButton(text="🗯 О боте | About the bot", callback_data="sub_about")],
+            [InlineKeyboardButton(text="Закрыть меню | Close X", callback_data="close")]
         ]
     )
     await bot.edit_message_reply_markup(chat_id=callback_query.message.chat.id,
@@ -41,9 +41,9 @@ async def back_to_main(bot, callback_query: types.CallbackQuery):
 async def sub_setings(bot, callback_query: types.CallbackQuery):
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
-                [InlineKeyboardButton(text="🤖 Модель ChatGPT", callback_data="model")],
-                [InlineKeyboardButton(text="⏳ Время хранения диалога", callback_data="time")],
-                [InlineKeyboardButton(text="👻 Креативность", callback_data="creativ")],
+                [InlineKeyboardButton(text="🤖 Модель ChatGPT | The ChatGPT model", callback_data="model")],
+                [InlineKeyboardButton(text="⏳ Время хранения диалога | Dialog storage time", callback_data="time")],
+                [InlineKeyboardButton(text="👻 Креативность | Creativity", callback_data="creativ")],
                 [InlineKeyboardButton(text="🎲 Повторения в ответе", callback_data="repet")],
                 [InlineKeyboardButton(text="🎲 Повторения в ответах", callback_data="repet_all")],
                 [InlineKeyboardButton(text="📴 Вкл/Отл статистику в ответ", callback_data="flag_stik")],
@@ -58,11 +58,11 @@ async def sub_setings(bot, callback_query: types.CallbackQuery):
 async def back_to_setings(bot, callback_query: types.CallbackQuery):
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
-                [InlineKeyboardButton(text="🤖 Модель", callback_data="model")],
-                [InlineKeyboardButton(text="⏳ Время хранения диалога", callback_data="time")],
-                [InlineKeyboardButton(text="👻 Креативность", callback_data="creativ")],
+                [InlineKeyboardButton(text="🤖 Модель ChatGPT | The ChatGPT model", callback_data="model")],
+                [InlineKeyboardButton(text="⏳ Время хранения диалога | Dialog storage time", callback_data="time")],
+                [InlineKeyboardButton(text="👻 Креативность | Creativity", callback_data="creativ")],
                 [InlineKeyboardButton(text="🎲 Повторения в ответе", callback_data="repet")],
-                [InlineKeyboardButton(text="🎲 Повторения в прош. ответах", callback_data="repet_all")],
+                [InlineKeyboardButton(text="🎲 Повторения в ответах", callback_data="repet_all")],
                 [InlineKeyboardButton(text="📴 Вкл/Отл статистику в ответ", callback_data="flag_stik")],
                 [InlineKeyboardButton(text="Вернуться назад", callback_data="back_to_main")],
         ]
@@ -142,7 +142,7 @@ async def sub_setings_repet_all(bot, callback_query: types.CallbackQuery):
                 [InlineKeyboardButton(text=f"50%", callback_data="repet_all_5")],
                 [InlineKeyboardButton(text=f"70%", callback_data="repet_all_7")],
                 [InlineKeyboardButton(text="Повторения в ответах 100%", callback_data="repet_all_1")],
-                [InlineKeyboardButton(text="Вернуться назад", callback_data="back_to_setings")],
+                [InlineKeyboardButton(text="Вернуться назад | Go back", callback_data="back_to_setings")],
         ]
     )
     await bot.edit_message_reply_markup(chat_id=callback_query.message.chat.id,
@@ -155,10 +155,10 @@ async def sub_setings_repet_all(bot, callback_query: types.CallbackQuery):
 async def sub_balance(bot, callback_query: types.CallbackQuery):
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
-                [InlineKeyboardButton(text="🧾 Баланс", callback_data="my_many")],
-                [InlineKeyboardButton(text="🔋 Пополнить баланс", callback_data="add_money")],
-                [InlineKeyboardButton(text="📖 Статистика 100 пос.", callback_data="statis_30")],
-                [InlineKeyboardButton(text="Вернуться назад", callback_data="back_to_main")],
+                [InlineKeyboardButton(text="🧾 Баланс | Balance", callback_data="my_many")],
+                [InlineKeyboardButton(text="🔋 Пополнить баланс | Top up your balance", callback_data="add_money")],
+                [InlineKeyboardButton(text="📖 Статистика 100 пос. | Statistics of 100 villages", callback_data="statis_30")],
+                [InlineKeyboardButton(text="Вернуться назад | Go back", callback_data="back_to_main")],
         ]
     )
     await bot.edit_message_reply_markup(chat_id=callback_query.message.chat.id,
@@ -170,11 +170,11 @@ async def sub_balance(bot, callback_query: types.CallbackQuery):
 async def sub_add_money(bot, callback_query: types.CallbackQuery):
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
-                [InlineKeyboardButton(text="💳 Запрос на пополнение", callback_data="pay_by_card")], 
+                [InlineKeyboardButton(text="💳 Запрос на пополнение | Request for replenishment", callback_data="pay_by_card")], 
                 # [InlineKeyboardButton(text="👛 WALLET PAY", callback_data="wallet_pay")],
                 # [InlineKeyboardButton(text="💵 Крипта, USDT", callback_data="cripto")],
                 # [InlineKeyboardButton(text="💳 Запрос на пополнение", callback_data="many_1000")],
-                [InlineKeyboardButton(text="Вернуться назад", callback_data="back_to_main")],
+                [InlineKeyboardButton(text="Вернуться назад | Go back", callback_data="back_to_main")],
         ]
     )
     await bot.edit_message_reply_markup(chat_id=callback_query.message.chat.id,

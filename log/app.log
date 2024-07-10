@@ -20,3 +20,13 @@ INFO - 2024-07-07 23:25:43,671 - root - User 6674458591 - 50
 INFO - 2024-07-08 02:07:36,693 - root - User 6674458591 - 55
 INFO - 2024-07-10 14:39:38,007 - root - User 6674458591 - /count
 ERROR - 2024-07-10 14:39:38,136 - root - Error, not correct message from User whose id is 6674458591
+INFO - 2024-07-10 23:04:59,700 - root - User 1666495 - /model
+ERROR - 2024-07-10 23:04:59,810 - root - Error, not correct message from User whose id is 1666495
+INFO - 2024-07-10 23:05:24,677 - root - User 1666495 - /model
+ERROR - 2024-07-10 23:05:24,784 - root - Error, not correct message from User whose id is 1666495
+INFO - 2024-07-10 23:05:29,566 - root - User 1666495 - /model
+ERROR - 2024-07-10 23:05:29,650 - root - Error, not correct message from User whose id is 1666495
+INFO - 2024-07-10 23:06:06,197 - root - User 1666495 - /count
+ERROR - 2024-07-10 23:06:06,304 - root - Error, not correct message from User whose id is 1666495
+INFO - 2024-07-10 23:16:44,633 - root - User 1666495 - /model
+ERROR - 2024-07-10 23:16:44,721 - root - Error, not correct message from User whose id is 1666495

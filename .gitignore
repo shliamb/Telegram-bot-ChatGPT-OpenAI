@@ -4,4 +4,4 @@ app/__pycache__/
 /test.py
 app/test.py
 .env
-/log/
+log/app.log

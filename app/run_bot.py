@@ -66,7 +66,7 @@ bot = Bot(token, parse_mode="markdown") # Initialize Bot instance with a default
 global work_in_progress
 work_in_progress = False
 async def worc_in_progress(goo):
-    await goo.answer("Извините, ведутся технические работы, попробуйте через 1 минуту.")
+    await goo.answer("Извините, ведутся технические работы, попробуйте через 1 минуту.\nSorry, technical work is underway, try it in 1 minute.")
     logging.info(f"Tech maintenance in progress, sorry.")
 
 # Get User_ID
@@ -92,8 +92,9 @@ async def command_start_handler(message: Message) -> None:
 
     # Меню
     bot_commands = [
-        BotCommand(command="/menu", description="Главное меню"),
-        # BotCommand(command="/help", description="Help"),
+        BotCommand(command="/menu", description="Главное меню | Main Menu"),
+        # BotCommand(command="/sub_dialog", description="Сброс диалога | Resetting the dialog"),
+        # BotCommand(command="/model", description="Выбрать модель GPT | Choose a GPT model"),
     ]
     await bot.set_my_commands(bot_commands)
 
@@ -147,7 +148,7 @@ async def command_start_handler(message: Message) -> None:
         else:
             logging.error(f"A 1000 RUB has not added, he id is:{id}.")
 
-    await message.answer(f"Привет {about}! Я *ChatGPT*. Мне можно сразу задать вопрос или настроить - /setup.")
+    await message.answer(f"Привет {about}! Я *ChatGPT*. Мне можно сразу задать вопрос или настроить - /setup. Там же можно выбрать последнюю модель ChatGPT.\nHello {about}! I am *ChatGPT*. You can ask me a question right away or set up - /setup. You can also select the latest ChatGPT model there.")
 
 
 
@@ -418,6 +419,14 @@ async def process_back_to_settings(callback_query: types.CallbackQuery):
 async def process_sub_settings_modell(callback_query: types.CallbackQuery):
     await sub_setings_model(bot, callback_query)
     await bot.answer_callback_query(callback_query.id)
+
+# @dp.message(Command("model"))
+# async def model_command_r(message: types.Message):
+#     await bot.send_chat_action(message.chat.id, action='typing')
+#     print("model")
+#     await process_sub_settings_modell(callback_query.message.chat.id)
+
+
 
 # Settings - model - gpt-4o
 @dp.callback_query(lambda c: c.data == 'gpt-4o')
@@ -758,6 +767,13 @@ async def process_sub_settings_flag_stik(callback_query: types.CallbackQuery):
 
 
 # Settings - reset dialog
+
+
+# Обработчик для callback query
+# @dp.message(Command("sub_dialog"))
+# async def process_sub_dialog_eer(message: types.Message):
+#     await message.reply("Команда /sub_dialog получена")
+
 @dp.callback_query(lambda c: c.data == 'sub_dialog')
 async def process_sub_dialog(callback_query: types.CallbackQuery):
     if work_in_progress == True:
@@ -768,6 +784,7 @@ async def process_sub_dialog(callback_query: types.CallbackQuery):
     await update_discussion(id, updated_data)
     await callback_query.answer("Ваш диалог с ChatGPT сброшен.")
     await bot.answer_callback_query(callback_query.id)
+
 ####
 
 # Settings - finansi
@@ -807,6 +824,11 @@ async def process_sub_settings_add_money(callback_query: types.CallbackQuery):
 
 
 
+
+
+
+
+
 #### СНОВНАЯ ФОРМА ОПЛАТЫ ####
 # Set State
 class Form_my_pay(StatesGroup):
@@ -818,7 +840,7 @@ class Form_my_pay(StatesGroup):
 # Запуск цепочки
 @dp.callback_query(lambda c: c.data == 'pay_by_card')
 async def start_invoice(callback_query: types.CallbackQuery, state: FSMContext):
-    await bot.send_message(callback_query.from_user.id, "Введите сумму пополнения в RUB:", reply_markup=ReplyKeyboardRemove()) # !!!!
+    await bot.send_message(callback_query.from_user.id, "Введите сумму пополнения в RUB:\nEnter the deposit amount in RUB:", reply_markup=ReplyKeyboardRemove()) # !!!!
     await bot.answer_callback_query(callback_query.id) # Закрытие сесси кнопки
     await state.set_state(Form_my_pay.add_summ) # Ожидание следующего шага
 
@@ -836,11 +858,11 @@ async def invoice_user_1(message: Message, state: FSMContext):
 
     # Проверка на число
     if message.text.isdigit() is not True:
-        await bot.send_message(message.chat.id, f"Введите только сумму цифрами в RUB.")
+        await bot.send_message(message.chat.id, f"Введите только сумму цифрами в RUB.\nEnter only the amount in numbers in RUB.")
         return
 
     if float(summ) < 50:
-        await bot.send_message(message.chat.id, f"Минимальная сумма 50 RUB.")
+        await bot.send_message(message.chat.id, f"Минимальная сумма 50 RUB.\nThe minimum amount is 50 RUB.")
         return
 
     # запускаю функцию и передаю данные для подтверждения админом.
@@ -860,7 +882,7 @@ async def confirm_my_pyz(id, summ, admin_id, mes_id, url):
         ]
     )
     await bot.send_message(admin_id, f"Пользователь: <a href='{url}'>{id}</a>, хочет пополнить счет на: {summ} РУБ", parse_mode="HTML", reply_markup=keyboard)
-    await bot.send_message(mes_id, f"Ваш запрос принят, ожидайте пополнения.")
+    await bot.send_message(mes_id, f"Запрос принят, ожидайте.\nThe request has been accepted, wait.")
     return
 
 
@@ -875,9 +897,6 @@ async def confirm_callback_handler_d(callback_query: types.CallbackQuery):
         summ = float(data[2])
         admin_id = int(data[3])
         mes_id = int(data[4])
-        await bot.send_message(admin_id, f"id: {id}, summ: {summ}, admin_id: {admin_id}, mes_id: {mes_id}.")
-        await bot.send_message(admin_id, f"id: {type(id)}, summ: {type(summ)}, admin_id: {type(admin_id)}, mes_id: {type(mes_id)}.")
-
     else:
         await bot.answer_callback_query(callback_query.id, text="Ошибка в данных запроса.", show_alert=True)
         return
@@ -889,17 +908,15 @@ async def confirm_callback_handler_d(callback_query: types.CallbackQuery):
     conf = await update_settings(id, updated_data)
 
     if conf is True:
-        await bot.send_message(admin_id, f"Счет клиента {id} пополнен, общий -  {new_money}.")
-        await bot.send_message(mes_id, f"Ваш счет пополнен на {summ} RUB.")
+        await bot.send_message(admin_id, f"Счет клиента {id} пополнен, общий:  {new_money} RUB.")
+        await bot.send_message(mes_id, f"Ваш счет пополнен на {summ} RUB\nYour account has been topped up with {summ} RUB.")
         await bot.answer_callback_query(callback_query.id)
         return
     else:
         await bot.send_message(admin_id, f"Ошибка пополнения счета.")
         await bot.answer_callback_query(callback_query.id)
         return
-
-    await bot.answer_callback_query(callback_query.id)
-
+####
 
 
 
@@ -913,7 +930,7 @@ async def confirm_callback_handler_d(callback_query: types.CallbackQuery):
 
 
 
-# Pay WALLET PAY
+# Pay WALLET PAY - че то меня отключили, теперь какие то звезды
         
 # State
 # class Form_Wallet(StatesGroup):
@@ -1216,7 +1233,7 @@ async def second_function(message: types.Message):
     logging.info(f"User {id} - {message.text}")
 
     if message.text is None or message.text.startswith('/') or not isinstance(message.text, str):
-        await message.answer("Извините, сообщение в неподдерживаемом формате.")
+        await message.answer("Извините, сообщение в неподдерживаемом формате.\nSorry, the message is in an unsupported format.")
         logging.error(f"Error, not correct message from User whose id is {id}")
         return
 
@@ -1231,7 +1248,7 @@ async def second_function(message: types.Message):
         return
 
     if str(id) in block:
-        await message.answer("Извините, но вы заблокированы, попробуйте обратиться к @Shliamb.")
+        await message.answer("Извините, но вы заблокированы, попробуйте обратиться к @Shliamb.\nSorry, but you are blocked, try contacting @Shliamb.")
         logging.info(f"The user id:{id} blocked and typing queshen.")
         return
 
@@ -1248,7 +1265,7 @@ async def second_function(message: types.Message):
     flag_stik = data.flag_stik
 
     if money < 0 or money == 0:
-        await message.answer("Извините, но похоже, у вас нулевой баланс.\n Пополнить - [/setup]")
+        await message.answer("Извините, но похоже, у вас нулевой баланс. Пополнить - [/setup]\nSorry, but it looks like you have a zero balance. Top up - [/setup]")
         logging.info(f"User {id} her money is finish.")
         return
 
