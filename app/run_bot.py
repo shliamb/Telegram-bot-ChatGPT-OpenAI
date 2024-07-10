@@ -871,10 +871,13 @@ async def confirm_my_pyz(id, summ, admin_id, mes_id, url):
 async def confirm_callback_handler_d(callback_query: types.CallbackQuery):
     data = callback_query.data.split(':')
     if len(data) == 5:
-        id = data[1]
-        summ = data[2]
-        admin_id = data[3]
-        mes_id = data[4]
+        id = int(data[1])
+        summ = float(data[2])
+        admin_id = int(data[3])
+        mes_id = int(data[4])
+        await bot.send_message(admin_id, f"id: {id}, summ: {summ}, admin_id: {admin_id}, mes_id: {mes_id}.")
+        await bot.send_message(admin_id, f"id: {type(id)}, summ: {type(summ)}, admin_id: {type(admin_id)}, mes_id: {type(mes_id)}.")
+
     else:
         await bot.answer_callback_query(callback_query.id, text="Ошибка в данных запроса.", show_alert=True)
         return
@@ -895,7 +898,7 @@ async def confirm_callback_handler_d(callback_query: types.CallbackQuery):
         await bot.answer_callback_query(callback_query.id)
         return
 
-
+    await bot.answer_callback_query(callback_query.id)
 
 
 
