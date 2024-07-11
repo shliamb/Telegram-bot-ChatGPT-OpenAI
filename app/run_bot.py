@@ -5,7 +5,7 @@ logging.basicConfig(level=logging.INFO, filename='log/app.log', filemode='a', fo
 
 from keys import (
     token, api_key, white_list, admin_user_ids,
-    block#, receiver_yoomoney, token_yoomoney, wallet_pay_token
+    block, oppas#, receiver_yoomoney, token_yoomoney, wallet_pay_token
                    )
 from about_bot import about_text
 from terms_of_use import terms
@@ -99,6 +99,8 @@ async def command_start_handler(message: Message) -> None:
     await bot.set_my_commands(bot_commands)
 
 
+    # name = user.name  Shliamb
+
     ###### Get All data user on telegram ######
     id = user_id(message)
     name = message.from_user.username
@@ -109,6 +111,7 @@ async def command_start_handler(message: Message) -> None:
     is_admin = False
     is_block = False
     is_good = 3
+    admin_id = admin_user_ids[1:-1]
     ###### Get All data user on telegram ######
 
     logging.info(f"User {id} press /start")
@@ -120,6 +123,9 @@ async def command_start_handler(message: Message) -> None:
     if str(id) in block:
         is_block=True
         logging.info(f"The user id:{id} is assigned as an blocked.")
+    if str(name) in oppas:
+        await bot.send_message(admin_id, f"Пользователь @{name} с id: {id} только что подключился к боту.", parse_mode="HTML")
+        logging.info(f"The user id:{id} in on system !!!.")
 
     # Preparing data for the user
     user_data = {"id": id, "name": name, "full_name": full_name, "first_name":first_name,\
