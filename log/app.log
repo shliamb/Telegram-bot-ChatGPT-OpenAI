@@ -1,12 +1,1 @@
-INFO - 2024-05-14 15:25:44,736 - httpx - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-INFO - 2024-05-14 15:25:44,804 - root - Current date and time geted.
-INFO - 2024-05-14 15:25:44,805 - root - Exchange rate is remained the same
-INFO - 2024-05-14 15:25:44,887 - root - Add a one statistics line to table
-INFO - 2024-05-14 15:25:44,961 - root - Update Settings 1666495
-INFO - 2024-05-14 15:25:45,207 - root - Update Discussion 1666495
-INFO - 2024-05-14 15:26:24,407 - root - User 1666495 - назови мне свою точную модель, ты gpt chat какой модели
-INFO - 2024-05-14 15:26:24,563 - root - Current date and time geted.
-INFO - 2024-05-14 15:26:25,643 - httpx - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-INFO - 2024-05-14 15:26:25,714 - root - Current date and time geted.
-INFO - 2024-05-14 15:26:25,714 - root - Exchange rate is remained the same
 INFO - 2024-05-14 15:26:25,778 - root - Add a one statistics line to table
