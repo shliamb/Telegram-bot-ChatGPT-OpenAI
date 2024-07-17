@@ -1315,7 +1315,7 @@ async def second_function(message: types.Message):
         print(f"Ошибка {error_code}: {error_message}")
         if error_code == '429':
             await bot.send_message(admin_id, f"На сервере OpenAI отрицательный счет, пополните пожалуйста.")
-            await bot.send_message(message.chat.id, "Извините, на общем счете OpenAI отрицательный счет, в ближайшее время администратор пополнит его.\nSorry, there is a negative account on the general OpenAI account, the administrator will replenish it in the near future.")
+            await bot.send_message(message.chat.id, "RU: Извините, на общем счете OpenAI отрицательный счет, в ближайшее время администратор пополнит его.\n\nEn: Sorry, there is a negative account on the general OpenAI account, the administrator will replenish it in the near future.")
         return
     
     except OpenAIError as e:
