@@ -1303,10 +1303,18 @@ async def second_function(message: types.Message):
         presence_penalty=presence
     )
 
-    print("1")
-    status_code = answer.code
-    print(status_code, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
-    print(f"{answer}\n")
+
+
+    import re
+
+
+    error_code = re.search(r"'code': '(\w+)'", answer).group(1)
+    print(error_code)
+
+    # print("1")
+    # status_code = answer.code
+    # print(status_code, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
+    # print(f"{answer}\n")
     return
 
 
