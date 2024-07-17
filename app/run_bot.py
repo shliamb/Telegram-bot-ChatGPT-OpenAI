@@ -1305,7 +1305,7 @@ async def second_function(message: types.Message):
             presence_penalty=presence
         )
 
-    except openai.error.OpenAIError as e:
+    except client.error.OpenAIError as e:
         error_message = e.error.get('message', 'No message provided')
         error_code = e.error.get('code', 'No code provided')
         print(f"Ошибка {error_code}: {error_message}")
