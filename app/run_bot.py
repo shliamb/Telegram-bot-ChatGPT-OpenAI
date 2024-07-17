@@ -14,8 +14,7 @@ import sys
 import os
 import asyncio
 from pathlib import Path
-from openai import AsyncOpenAI
-from openai.error import RateLimitError, OpenAIError
+from openai import AsyncOpenAI, RateLimitError, OpenAIError
 from aiogram import Bot, Dispatcher, types, F, Router
 # from aiogram.enums import ParseMode
 from aiogram.utils.markdown import hbold
