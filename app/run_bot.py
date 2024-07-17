@@ -1295,27 +1295,25 @@ async def second_function(message: types.Message):
     cache.append(f"{message.text}\n")
     format_session_data = ' '.join(cache)
 
-    answer = await client.chat.completions.create(
-        messages=[{"role": "user", "content": format_session_data}],
-        model=set_model,
-        temperature=temp_chat,
-        frequency_penalty=frequency,
-        presence_penalty=presence
-    )
+
+    try:
+        answer = await client.chat.completions.create(
+            messages=[{"role": "user", "content": format_session_data}],
+            model=set_model,
+            temperature=temp_chat,
+            frequency_penalty=frequency,
+            presence_penalty=presence
+        )
+
+    except openai.error.OpenAIError as e:
+        error_message = e.error.get('message', 'No message provided')
+        error_code = e.error.get('code', 'No code provided')
+        print(f"Ошибка {error_code}: {error_message}")
+        return
 
 
 
-    import re
 
-
-    error_code = re.search(r"'code': '(\w+)'", answer).group(1)
-    print(error_code)
-
-    # print("1")
-    # status_code = answer.code
-    # print(status_code, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
-    # print(f"{answer}\n")
-    return
 
 
 
