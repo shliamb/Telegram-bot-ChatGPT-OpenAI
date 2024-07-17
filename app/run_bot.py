@@ -1304,12 +1304,10 @@ async def second_function(message: types.Message):
     )
 
     print("1")
-
-    if answer:
-        status_code = answer.code
-        print(status_code, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
-        print(f"{answer}\n")
-        return
+    status_code = answer.code
+    print(status_code, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
+    print(f"{answer}\n")
+    return
 
 
 
