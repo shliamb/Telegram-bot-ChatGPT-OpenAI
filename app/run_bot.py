@@ -14,7 +14,7 @@ import sys
 import os
 import asyncio
 from pathlib import Path
-from openai import AsyncOpenAI
+from openai import AsyncOpenAI, OpenAIError
 from aiogram import Bot, Dispatcher, types, F, Router
 # from aiogram.enums import ParseMode
 from aiogram.utils.markdown import hbold
@@ -1305,7 +1305,7 @@ async def second_function(message: types.Message):
             presence_penalty=presence
         )
 
-    except client.error.OpenAIError as e:
+    except OpenAIError as e:
         error_message = e.error.get('message', 'No message provided')
         error_code = e.error.get('code', 'No code provided')
         print(f"Ошибка {error_code}: {error_message}")
