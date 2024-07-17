@@ -1302,11 +1302,16 @@ async def second_function(message: types.Message):
         frequency_penalty=frequency,
         presence_penalty=presence
     )
-    status_code = answer['code']
-    print(status_code, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
+    print(f"{answer}\n")
 
 
-    # if answer is not None:
+    if answer is not None:
+        status_code = answer.code
+        print(status_code, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
+
+
+
 
 
     if answer is not None:
