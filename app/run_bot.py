@@ -11,6 +11,7 @@ from about_bot import about_text
 from terms_of_use import terms
 import time
 import sys
+import re
 import os
 import asyncio
 from pathlib import Path
@@ -1296,9 +1297,6 @@ async def second_function(message: types.Message):
     format_session_data = ' '.join(cache)
 
 
-
-    import re
-
     try:
         answer = await client.chat.completions.create(
             messages=[{"role": "user", "content": format_session_data}],
@@ -1309,14 +1307,15 @@ async def second_function(message: types.Message):
         )
 
 
-
-
     except RateLimitError as e:
-        # Обработка ошибки превышения лимита
+        admin_id = admin_user_ids[1:-1]
         error_message = str(e)
         error_code_match = re.search(r"Error code: (\d+)", error_message)
         error_code = error_code_match.group(1) if error_code_match else "No code provided"
         print(f"Ошибка {error_code}: {error_message}")
+        if error_code == '429':
+            await bot.send_message(admin_id, f"На сервере OpenAI отрицательный счет, пополните пожалуйста.")
+            await bot.send_message(message.chat.id, "Извините, на общем счете OpenAI отрицательный счет, в ближайшее время администратор пополнит его.\nSorry, there is a negative account on the general OpenAI account, the administrator will replenish it in the near future.")
         return
     
     except OpenAIError as e:
@@ -1324,22 +1323,6 @@ async def second_function(message: types.Message):
         error_message = str(e)
         print(f"Произошла ошибка: {error_message}")
         return
-
-    # except RateLimitError as e:
-    #     # Обработка ошибки превышения лимита
-    #     print("RateLimitError произошла")
-    #     print(f"Ошибка: {e}")
-    #     return
-    # except OpenAIError as e:
-    #     # Обработка других ошибок OpenAI
-    #     print("Произошла ошибка OpenAI")
-    #     print(f"Ошибка: {e}")
-    #     return
-
-
-
-
-
 
 
 
