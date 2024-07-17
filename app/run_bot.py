@@ -1303,12 +1303,13 @@ async def second_function(message: types.Message):
         presence_penalty=presence
     )
 
-    print(f"{answer}\n")
+    print("1")
 
-
-    if answer is not None:
+    if answer:
         status_code = answer.code
         print(status_code, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
+        print(f"{answer}\n")
+        return
 
 
 
