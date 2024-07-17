@@ -1296,6 +1296,9 @@ async def second_function(message: types.Message):
     format_session_data = ' '.join(cache)
 
 
+
+    import re
+
     try:
         answer = await client.chat.completions.create(
             messages=[{"role": "user", "content": format_session_data}],
@@ -1305,22 +1308,33 @@ async def second_function(message: types.Message):
             presence_penalty=presence
         )
 
-    # except OpenAIError as e:
-    #     error_message = e.error.get('message', 'No message provided')
-    #     error_code = e.error.get('code', 'No code provided')
-    #     print(f"Ошибка {error_code}: {error_message}")
-    #     return
+
+
 
     except RateLimitError as e:
         # Обработка ошибки превышения лимита
-        print("RateLimitError произошла")
-        print(f"Ошибка: {e}")
+        error_message = str(e)
+        error_code_match = re.search(r"Error code: (\d+)", error_message)
+        error_code = error_code_match.group(1) if error_code_match else "No code provided"
+        print(f"Ошибка {error_code}: {error_message}")
         return
+    
     except OpenAIError as e:
         # Обработка других ошибок OpenAI
-        print("Произошла ошибка OpenAI")
-        print(f"Ошибка: {e}")
+        error_message = str(e)
+        print(f"Произошла ошибка: {error_message}")
         return
+
+    # except RateLimitError as e:
+    #     # Обработка ошибки превышения лимита
+    #     print("RateLimitError произошла")
+    #     print(f"Ошибка: {e}")
+    #     return
+    # except OpenAIError as e:
+    #     # Обработка других ошибок OpenAI
+    #     print("Произошла ошибка OpenAI")
+    #     print(f"Ошибка: {e}")
+    #     return
 
 
 
