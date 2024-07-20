@@ -12,7 +12,6 @@ about_text = ( f"\
 <b>Цены:</b>\n\
 gpt-3.5-turbo-0613        0.006$  1000  tok\n\
 gpt-3.5-turbo-0125        0.004$  1000  tok\n\
-gpt-3.5-turbo-instruct    0.005$  1000  tok\n\
 gpt-4-0613                0.18$   1000  tok\n\
 gpt-4-1106-preview        0.08$   1000  tok\n\
 gpt-4-0125-preview        0.08$   1000  tok\n\

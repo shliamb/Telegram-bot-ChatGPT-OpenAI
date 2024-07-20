@@ -81,7 +81,6 @@ async def sub_setings_model(bot, callback_query: types.CallbackQuery):
                 [InlineKeyboardButton(text="gpt-4-0125-preview", callback_data="gpt-4-0125-preview")],
                 [InlineKeyboardButton(text="gpt-3.5-turbo-0613", callback_data="gpt-3.5-turbo-0613")],
                 [InlineKeyboardButton(text="gpt-3.5-turbo-0125", callback_data="gpt-3.5-turbo-0125")],
-                [InlineKeyboardButton(text="gpt-3.5-turbo-instruct", callback_data="gpt-3.5-turbo-instruct")],
                 [InlineKeyboardButton(text="Вернуться назад", callback_data="back_to_setings")],
         ]
     )
