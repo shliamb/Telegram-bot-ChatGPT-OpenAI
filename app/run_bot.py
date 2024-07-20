@@ -435,6 +435,22 @@ async def process_sub_settings_modell(callback_query: types.CallbackQuery):
 
 
 
+
+
+
+
+# Settings - model - gpt-4o-mini
+@dp.callback_query(lambda c: c.data == 'gpt-4o-mini')
+async def process_sub_settings_modell_gpt_4o_mini(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
+    id = user_id(callback_query)
+    updated_data = {"set_model": "gpt-4o-mini-2024-07-18"}
+    await update_settings(id, updated_data)
+    await callback_query.answer("Установлена модель - gpt-4o-mini")
+    await bot.answer_callback_query(callback_query.id)
+
 # Settings - model - gpt-4o
 @dp.callback_query(lambda c: c.data == 'gpt-4o')
 async def process_sub_settings_modell_gpt_4o(callback_query: types.CallbackQuery):
@@ -486,6 +502,30 @@ async def process_sub_settings_modell_0125(callback_query: types.CallbackQuery):
     await update_settings(id, updated_data)
     await callback_query.answer("Установлена модель - gpt-3.5-turbo-0613")
     await bot.answer_callback_query(callback_query.id)
+
+# Settings - model - gpt-3.5-turbo-0125
+@dp.callback_query(lambda c: c.data == 'gpt-3.5-turbo-0125')
+async def process_sub_settings_modell_gpt_3_5_turbo_0125(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
+    id = user_id(callback_query)
+    updated_data = {"set_model": "gpt-3.5-turbo-0125"}
+    await update_settings(id, updated_data)
+    await callback_query.answer("Установлена модель - gpt-3.5-turbo-0125")
+    await bot.answer_callback_query(callback_query.id)  
+
+# Settings - model - gpt-3.5-turbo-instruct
+@dp.callback_query(lambda c: c.data == 'gpt-3.5-turbo-instruct')
+async def process_sub_settings_modell_gpt_3_5_turbo_instruct(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
+    id = user_id(callback_query)
+    updated_data = {"set_model": "gpt-3.5-turbo-instruct"}
+    await update_settings(id, updated_data)
+    await callback_query.answer("Установлена модель - gpt-3.5-turbo-instruct")
+    await bot.answer_callback_query(callback_query.id)  
 ####
 
 # Settings - time

@@ -4,14 +4,17 @@ from statistics import save_ctatistics
 
 # Прайс моделей и цен на них за 1000 токенов
 
-price = {                         # if 1$ - 90.23:
-    'gpt-3.5-turbo-0613': 0.006,   # 0.54 руб 
-    'gpt-4-0613': 0.18,            # 16.24 руб
-    'gpt-4-1106-preview': 0.08,    # 7.22 руб 
-    'gpt-4-32k': 0.36,             # 32.48 руб но к ней нет доступа !!!
-    'gpt-4-0125-preview': 0.08,    # 7.22 руб      GPT-4 Turbo
-    'gpt-4o-2024-05-13': 0.04,                # 7.22 руб      GPT-4o супер новая
-    # 'gpt-4o-2024-05-13': 0.04,
+price = {                              # if 1$ - 100 RUB:
+    'gpt-3.5-turbo-0613': 0.006,       # 0.54 RUB  
+    'gpt-4-0613': 0.18,                # 16.24 RUB
+    'gpt-4-1106-preview': 0.08,        # 7.22 RUB 
+    'gpt-4-32k': 0.36,                 # 32.48 RUB     но к ней нет доступа !!!
+    'gpt-4-0125-preview': 0.08,        # 7.22 RUB      GPT-4 Turbo
+    'gpt-4o-2024-05-13': 0.04,         # 4 RUB         GPT-4o
+
+    'gpt-4o-mini-2024-07-18': 0.0015,  # 0.15 RUB      GPT-4o-mini супер новая
+    'gpt-3.5-turbo-0125': 0.004,       # 0.4 RUB       16K context window and is optimized for dialog
+    'gpt-3.5-turbo-instruct': 0.005,   # 0.5 RUB       model supports a 4K context window
     }
 
 
@@ -63,7 +66,7 @@ if __name__ == "__main__":
     asyncio.run(calculation())
 
 
-# 1Febr2024 OpenAI:
+# 1Jul2024 OpenAI:
 
 # Model                         Input               Output
 
@@ -76,3 +79,9 @@ if __name__ == "__main__":
 
 # gpt-3.5-turbo-1106	        $0.0010 / 1K tokens	$0.0020 / 1K tokens
 # gpt-3.5-turbo-instruct	    $0.0015 / 1K tokens	$0.0020 / 1K tokens
+
+# gpt-4o-2024-05-13             $0.02
+
+# gpt-4o-mini-2024-07-18        $0.00075
+# gpt-3.5-turbo-0125            $0.002
+# gpt-3.5-turbo-instruct        $0.0025 
