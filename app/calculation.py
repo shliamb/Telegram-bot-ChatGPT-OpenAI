@@ -11,7 +11,6 @@ price = {                              # if 1$ - 100 RUB:
     'gpt-4-32k': 0.36,                 # 32.48 RUB     но к ней нет доступа !!!
     'gpt-4-0125-preview': 0.08,        # 7.22 RUB      GPT-4 Turbo
     'gpt-4o-2024-05-13': 0.04,         # 4 RUB         GPT-4o
-
     'gpt-4o-mini-2024-07-18': 0.0015,  # 0.15 RUB      GPT-4o-mini супер новая
     'gpt-3.5-turbo-0125': 0.004,       # 0.4 RUB       16K context window and is optimized for dialog
     'gpt-3.5-turbo-instruct': 0.005,   # 0.5 RUB       model supports a 4K context window  не пашет чет...
