@@ -18,7 +18,7 @@ gpt-4-0125-preview  -  0.08$\n\
 Если у вас возникли вопросы или проблемы, то напишите мне - @Shliamb.\
 \n\
 \n\
-Git моего инди-проекта - https://github.com/shliamb/Telegram-bot-ChatGPT-OpenAI\
+Git моего инди-проекта - https://github.com/shliamb/Telegram-bot-ChatGPT-OpenAI   \
 \n\
 \n\
 \n\
@@ -39,12 +39,4 @@ gpt-4-0125-preview  -  0.08$\n\
 If you have any questions or problems, please write to me - @Shliamb.\
 \n\
 \n\
-Git of my indie project - https://github.com/shliamb/Telegram-bot-ChatGPT-OpenAI")          
-              
-              
-              
-              
-              
-              
-              
-              ")
+Git of my indie project - https://github.com/shliamb/Telegram-bot-ChatGPT-OpenAI")
