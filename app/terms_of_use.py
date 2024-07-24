@@ -1,6 +1,5 @@
 
 terms = ( f"\
-RU:\n\
 <b>Условия использования:</b>\n\n\
 1. Пользование ботом ChatGPT означает ваше согласие с этими условиями использования.\n\n\
 2. ChatGPT предназначен только для развлекательных и информационных целей. Не используйте его для осуществления финансовых транзакций или передачи конфиденциальной информации.\n\n\
@@ -15,10 +14,8 @@ RU:\n\
 <b>Контакты поддержки:</b>\n\n\
 Если у вас возникли вопросы, проблемы или предложения, пожалуйста, обратитесь ко мне:\n\n\
 Телеграмм: @Shliamb\n\
+\n\        
 \n\
-\n\   
-\n\
-ENG:\n\
 <b>Terms of use:</b>\n\n\
 1. Using the ChatGPT bot means that you agree to these terms of use.\n\n\
 2. ChatGPT is intended for entertainment and informational purposes only. Do not use it to make financial transactions or transfer confidential information.\n\n\
