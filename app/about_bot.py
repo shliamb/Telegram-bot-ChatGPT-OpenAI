@@ -19,14 +19,12 @@ gpt-4-0125-preview  -  0.08$\n\
 \n\
 \n\
 Git моего инди-проекта - https://github.com/shliamb/Telegram-bot-ChatGPT-OpenAI \
+\n\
+\n\
+<b>ENG:🤙🏼 Hi!</b>\n\n\
+The Chatbot bot uses the official Openapi API without changes.\n\n There is a small amount on the balance to check the ChatGPT, but you can always
+top it up.\n\
 ")
-# \n\
-# \n\
-# \n\
-# \n\
-# <b>ENG:🤙🏼 Hi!</b>\n\n\
-# The Chatbot bot uses the official Openapi API without changes.\n\n There is a small amount on the balance to check the ChatGPT, but you can always
-# top it up.\n\
 # \n\
 # <b>Prices for 1k tokens (input + output):</b>\n\
 # gpt-4o-mini - 0.0015$ (I recommend it!)\n\
