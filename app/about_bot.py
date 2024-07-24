@@ -2,7 +2,7 @@
 
 
 about_text = ( f"\
-<b>RU: 🤙🏼 Привет!</b>\n\n\
+<b>RU: 🤙🏼 Привет!</b>\n\
 Бот ChatGPT использует официальное API OpenAI без изменений.\n\n На балансе есть небольшая сумма для проверки ChatGPT, но вы всегда можете\
  пополнить его.\n\
 \n\
@@ -22,7 +22,7 @@ Git моего инди-проекта - https://github.com/shliamb/Telegram-bot
 \n\
 \n\
 \n\
-<b>ENG: 🤙🏼 Hi!</b>\n\n\
+<b>ENG: 🤙🏼 Hi!</b>\n\
 The Chatbot bot uses the official Openapi API without changes.\n\n There is a small amount on the balance to check the ChatGPT, but you can always
 top it up.\n\
 \n\
