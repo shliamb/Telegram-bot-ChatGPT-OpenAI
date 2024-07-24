@@ -22,7 +22,7 @@ Git моего инди-проекта - https://github.com/shliamb/Telegram-bot
 \n\
 \n\
 <b>ENG:🤙🏼 Hi!</b>\n\n\
-The Chatbot bot uses the official Openapi API without changes.\n\n There is a small amount on the balance to check the ChatGPT, but you can always
+The Chatbot bot uses the official Openapi API without changes.\n\n There is a small amount on the balance to check the ChatGPT, but you can always\
 top it up.\n\
 ")
 # \n\
