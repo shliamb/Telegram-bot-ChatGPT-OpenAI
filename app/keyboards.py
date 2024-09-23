@@ -13,7 +13,7 @@ async def main_menu(bot, message: types.Message):
             [InlineKeyboardButton(text="⚙️ Настройки | Settings", callback_data="sub_setings")], 
             [InlineKeyboardButton(text="🥡 Сброс диалога | Reset", callback_data="sub_dialog")],
             [InlineKeyboardButton(text="💸 Финансы | Finance", callback_data="sub_balance")],
-            [InlineKeyboardButton(text="💡 Условия использования | Terms of use", callback_data="terms")],
+            # [InlineKeyboardButton(text="💡 Условия использования | Terms of use", callback_data="terms")],
             [InlineKeyboardButton(text="🗯 О боте | About the bot", callback_data="sub_about")],
             [InlineKeyboardButton(text="Закрыть меню | Close X", callback_data="close")]
         ]
@@ -27,7 +27,7 @@ async def back_to_main(bot, callback_query: types.CallbackQuery):
             [InlineKeyboardButton(text="⚙️ Настройки | Settings", callback_data="sub_setings")], 
             [InlineKeyboardButton(text=" 🥡 Сброс диалога | Reset", callback_data="sub_dialog")],
             [InlineKeyboardButton(text="💸 Финансы | Finance", callback_data="sub_balance")],
-            [InlineKeyboardButton(text="💡 Условия использования | Terms of use", callback_data="terms")],
+            # [InlineKeyboardButton(text="💡 Условия использования | Terms of use", callback_data="terms")],
             [InlineKeyboardButton(text="🗯 О боте | About the bot", callback_data="sub_about")],
             [InlineKeyboardButton(text="Закрыть меню | Close X", callback_data="close")]
         ]
@@ -43,9 +43,9 @@ async def sub_setings(bot, callback_query: types.CallbackQuery):
         inline_keyboard=[
                 [InlineKeyboardButton(text="🤖 Модель ChatGPT | The ChatGPT model", callback_data="model")],
                 [InlineKeyboardButton(text="⏳ Время хранения диалога | Dialog storage time", callback_data="time")],
-                [InlineKeyboardButton(text="👻 Креативность | Creativity", callback_data="creativ")],
-                [InlineKeyboardButton(text="🎲 Повторения в ответе", callback_data="repet")],
-                [InlineKeyboardButton(text="🎲 Повторения в ответах", callback_data="repet_all")],
+                #[InlineKeyboardButton(text="👻 Креативность | Creativity", callback_data="creativ")],
+                #[InlineKeyboardButton(text="🎲 Повторения в ответе", callback_data="repet")],
+                #[InlineKeyboardButton(text="🎲 Повторения в ответах", callback_data="repet_all")],
                 [InlineKeyboardButton(text="📴 Вкл/Отл статистику в ответ", callback_data="flag_stik")],
                 [InlineKeyboardButton(text="Вернуться назад", callback_data="back_to_main")],
         ]
@@ -60,9 +60,9 @@ async def back_to_setings(bot, callback_query: types.CallbackQuery):
         inline_keyboard=[
                 [InlineKeyboardButton(text="🤖 Модель ChatGPT | The ChatGPT model", callback_data="model")],
                 [InlineKeyboardButton(text="⏳ Время хранения диалога | Dialog storage time", callback_data="time")],
-                [InlineKeyboardButton(text="👻 Креативность | Creativity", callback_data="creativ")],
-                [InlineKeyboardButton(text="🎲 Повторения в ответе", callback_data="repet")],
-                [InlineKeyboardButton(text="🎲 Повторения в ответах", callback_data="repet_all")],
+                #[InlineKeyboardButton(text="👻 Креативность | Creativity", callback_data="creativ")],
+                #[InlineKeyboardButton(text="🎲 Повторения в ответе", callback_data="repet")],
+                #[InlineKeyboardButton(text="🎲 Повторения в ответах", callback_data="repet_all")],
                 [InlineKeyboardButton(text="📴 Вкл/Отл статистику в ответ", callback_data="flag_stik")],
                 [InlineKeyboardButton(text="Вернуться назад", callback_data="back_to_main")],
         ]
@@ -75,12 +75,15 @@ async def back_to_setings(bot, callback_query: types.CallbackQuery):
 async def sub_setings_model(bot, callback_query: types.CallbackQuery):
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
+                [InlineKeyboardButton(text="chatgpt-o1-mini", callback_data="o1_mini")],
+                [InlineKeyboardButton(text="chatgpt-o1-preview", callback_data="o1_preview")],
+                [InlineKeyboardButton(text="chatgpt-4o-latest", callback_data="chatgpt_4o_latest")],
                 [InlineKeyboardButton(text="gpt-4o-mini", callback_data="gpt-4o-mini")],
                 [InlineKeyboardButton(text="gpt-4o", callback_data="gpt-4o")],
                 [InlineKeyboardButton(text="gpt-4-1106-preview", callback_data="gpt-4-1106-preview")],
-                [InlineKeyboardButton(text="gpt-4-0125-preview", callback_data="gpt-4-0125-preview")],
-                [InlineKeyboardButton(text="gpt-3.5-turbo-0613", callback_data="gpt-3.5-turbo-0613")],
-                [InlineKeyboardButton(text="gpt-3.5-turbo-0125", callback_data="gpt-3.5-turbo-0125")],
+                # [InlineKeyboardButton(text="gpt-4-0125-preview", callback_data="gpt-4-0125-preview")],
+                # [InlineKeyboardButton(text="gpt-3.5-turbo-0613", callback_data="gpt-3.5-turbo-0613")],
+                # [InlineKeyboardButton(text="gpt-3.5-turbo-0125", callback_data="gpt-3.5-turbo-0125")],
                 [InlineKeyboardButton(text="Вернуться назад", callback_data="back_to_setings")],
         ]
     )

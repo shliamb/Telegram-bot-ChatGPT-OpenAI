@@ -5,10 +5,13 @@ from statistics import save_ctatistics
 # Прайс моделей и цен на них за 1000 токенов
 
 price = {                              # if 1$ - 100 RUB:
+    'o1-mini-2024-09-12': 0.03,
+    'o1-preview-2024-09-12': 0.15,
+    'chatgpt-4o-latest': 0.04,
     'gpt-3.5-turbo-0613': 0.006,       # 0.54 RUB  
     'gpt-4-0613': 0.18,                # 16.24 RUB
     'gpt-4-1106-preview': 0.08,        # 7.22 RUB 
-    'gpt-4-32k': 0.36,                 # 32.48 RUB     но к ней нет доступа !!!
+    #'gpt-4-32k': 0.36,                 # 32.48 RUB     но к ней нет доступа !!!
     'gpt-4-0125-preview': 0.08,        # 7.22 RUB      GPT-4 Turbo
     'gpt-4o-2024-05-13': 0.04,         # 4 RUB         GPT-4o
     'gpt-4o-mini-2024-07-18': 0.0015,  # 0.15 RUB      GPT-4o-mini супер новая

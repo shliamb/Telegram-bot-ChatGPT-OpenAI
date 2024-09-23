@@ -437,6 +437,44 @@ async def process_sub_settings_modell(callback_query: types.CallbackQuery):
 
 
 
+@dp.callback_query(lambda c: c.data == 'o1_mini')
+async def process_sub_settings_o1_mini(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
+    id = user_id(callback_query)
+    updated_data = {"set_model": "o1-mini-2024-09-12"}
+    await update_settings(id, updated_data)
+    await callback_query.answer("Установлена модель - o1-mini-2024-09-12")
+    await bot.answer_callback_query(callback_query.id)
+
+
+
+@dp.callback_query(lambda c: c.data == 'o1_preview')
+async def process_sub_settings_o1_preview(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
+    id = user_id(callback_query)
+    updated_data = {"set_model": "o1-preview-2024-09-12"}
+    await update_settings(id, updated_data)
+    await callback_query.answer("Установлена модель - o1-preview-2024-09-12")
+    await bot.answer_callback_query(callback_query.id)
+
+
+
+@dp.callback_query(lambda c: c.data == 'chatgpt_4o_latest')
+async def process_sub_settings_chatgpt_4o_latest(callback_query: types.CallbackQuery):
+    if work_in_progress == True:
+        await worc_in_progress(callback_query)
+        return
+    id = user_id(callback_query)
+    updated_data = {"set_model": "chatgpt-4o-latest"}
+    await update_settings(id, updated_data)
+    await callback_query.answer("Установлена модель - chatgpt-4o-latest")
+    await bot.answer_callback_query(callback_query.id)
+
+
 
 
 # Settings - model - gpt-4o-mini
@@ -1117,7 +1155,7 @@ async def process_add_cripto(callback_query: types.CallbackQuery, state: FSMCont
 
         ]
     )
-    await bot.send_message(callback_query.from_user.id, f"*USDT*: TMsUumKvMScNwxEhLEWjuxR2c1BUQXBPgf\n*Сеть*: TRC20\n\n*BTC*: 1CpxUycn3bEMvH8873FYv8JxUpdiXKArS4\n", reply_markup=keyboard) # !!!!
+    await bot.send_message(callback_query.from_user.id, f"*USDT*: T\n*Сеть*: TRC20\n\n*BTC*: 1\n", reply_markup=keyboard) # !!!!
     # Закрытие сесси кнопки
     await bot.answer_callback_query(callback_query.id)
     # Ожидание следующего шага
@@ -1244,7 +1282,16 @@ async def process_sub_about(callback_query: types.CallbackQuery):
     await bot.answer_callback_query(callback_query.id)
 
 
+# Combined escaping of special characters:
+def escape_special_chars(text):
+    if not text:
+       print("Error: There is no content in the model's response.")
+       return
 
+    special_chars = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!']
+    for char in special_chars:
+        text = text.replace(char, f'\\{char}')
+    return text
 
 
 #### OpenAI ####
@@ -1283,7 +1330,7 @@ async def second_function(message: types.Message):
         return
 
     if str(id) in block:
-        await message.answer("Извините, но вы заблокированы, попробуйте обратиться к @Shliamb.\nSorry, but you are blocked, try contacting @Shliamb.")
+        await message.answer("Извините, но вы заблокированы, попробуйте обратиться к.\nSorry, but you are blocked, try contacting @Shliamb.")
         logging.info(f"The user id:{id} blocked and typing queshen.")
         return
 
@@ -1377,7 +1424,17 @@ async def second_function(message: types.Message):
 
     stik = f"\nмодель:{model_version}\nисп.:{used_tokens}ток.\nрасх.:{round(rashod, 2)}RUB  [/setup]" if flag_stik else ""
     send = f"{text}\n\n{stik}"
-    await message.answer(send)
+
+
+    try:
+        await message.answer(send, parse_mode="MarkdownV2")
+    except:
+        try:
+            await message.answer(send, parse_mode="HTML")
+        except:
+            escape_text = escape_special_chars(send)
+            await message.answer(escape_text)
+
 
     # Push update talking to DB
     cache.append(f"{text}\n")
