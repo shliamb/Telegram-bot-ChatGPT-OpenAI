@@ -75,8 +75,8 @@ async def back_to_setings(bot, callback_query: types.CallbackQuery):
 async def sub_setings_model(bot, callback_query: types.CallbackQuery):
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
-                [InlineKeyboardButton(text="chatgpt-o1-mini", callback_data="o1_mini")],
-                [InlineKeyboardButton(text="chatgpt-o1-preview", callback_data="o1_preview")],
+                # [InlineKeyboardButton(text="chatgpt-o1-mini", callback_data="o1_mini")],
+                # [InlineKeyboardButton(text="chatgpt-o1-preview", callback_data="o1_preview")],
                 [InlineKeyboardButton(text="chatgpt-4o-latest", callback_data="chatgpt_4o_latest")],
                 [InlineKeyboardButton(text="gpt-4o-mini", callback_data="gpt-4o-mini")],
                 [InlineKeyboardButton(text="gpt-4o", callback_data="gpt-4o")],
