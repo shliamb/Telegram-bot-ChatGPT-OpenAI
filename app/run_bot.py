@@ -1427,13 +1427,13 @@ async def second_function(message: types.Message):
 
 
     try:
-        await message.answer(send, parse_mode="MarkdownV2")
+        await message.answer(send, parse_mode="Markdown")
     except:
         try:
             await message.answer(send, parse_mode="HTML")
         except:
-            escape_text = escape_special_chars(send)
-            await message.answer(escape_text)
+            #escape_text = escape_special_chars(send)
+            await message.answer(send)
 
 
     # Push update talking to DB
