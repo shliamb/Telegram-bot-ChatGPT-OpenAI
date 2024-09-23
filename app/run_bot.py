@@ -1432,8 +1432,11 @@ async def second_function(message: types.Message):
         try:
             await message.answer(send, parse_mode="HTML")
         except:
-            #escape_text = escape_special_chars(send)
-            await message.answer(send)
+            try:
+                await message.answer(send)
+            except:
+                escape_text = escape_special_chars(send)
+                await message.answer(escape_text)
 
 
     # Push update talking to DB
