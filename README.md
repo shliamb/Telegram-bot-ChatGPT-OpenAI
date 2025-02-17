@@ -21,7 +21,7 @@
 
 ## Демо
 
-Новый бот ИИ: [https://t.me/@sliamb_ai_bot](https://t.me/@sliamb_ai_bot)
+Новый бот ИИ: [https://t.me/sliamb_ai_bot](https://t.me/sliamb_ai_bot)
 
 ## Технологии
 
