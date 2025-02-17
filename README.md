@@ -83,7 +83,7 @@ This bot is not needed by those who are not in sanctions, you can just download 
 
 ## How to use it?
 1. Select a server without sanctions, install the application, sign up for OpenAI, throw in $ 5 and use it.
-2. You can just use my - https://t.me/shliamb2_bot You can just try it.
+2. You can just use my - [https://t.me/shliamb2_bot](https://t.me/sliamb_ai_bot) You can just try it.
 
 <img src="https://raw.githubusercontent.com/shliamb/Telegram-bot-ChatGPT-OpenAI/main/img/bot.png" alt="ChatGPT" width="auto" height="auto" align="top">
 
